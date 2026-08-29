@@ -1,0 +1,81 @@
+================================================================================
+                    SUPER MARIO BROS PCG & DDA FRAMEWORK
+       COMPREHENSIVE PROJECT SPECIFICATION, SYSTEM ARCHITECTURE & OVERVIEW
+                                 DATE: 2026-08-06
+================================================================================
+
+1. EXECUTIVE SUMMARY & CORE OBJECTIVES
+--------------------------------------------------------------------------------
+This project implements a full Difficulty-Trajectory-Conditioned Procedural Content 
+Generation (PCG) Framework paired with a Bayesian Cumulative Dynamic Difficulty 
+Adjustment (DDA) Engine for Super Mario Bros.
+
+The system transitions Mario PCG from single-level generators into a holistic 
+multi-level campaign engine capable of generating contiguous, playable levels 
+tuned precisely to arbitrary designer pacing arcs (e.g. Linear Ramp, Spike & Recovery, 
+Sawtooth Wave, Boss Rush).
+
+KEY FEATURES & INNOVATIONS:
+- Trajectory-Conditioned 2nd-Order Markov Chain trained on 31 VGLC level maps.
+- A* Pathfinding Playability Guarantees using Robin Baumgarten A* solver (tolerance <= 5%).
+- Selective Cumulative Session DDA Engine with exponential decay weighting over session history.
+- Death Retry Slot Retention & Spatial DDA (locks to Level k slot with targeted layout tweaks).
+- Level Map Visualizer Horizontal Scrolling & Synchronized 1:1 Canvas Overlay.
+- Cumulative Death Zone Telemetry Inspector displaying ALL death coordinates (X, Y) per level map.
+- 3-Life Lower Bounding & Game Over System (stops on 3rd death; restores 3 lives on reset).
+- Unified 0-100 Metric Scale harmonizing wave graphs, input boxes (5-95), and telemetry cards.
+- Authentic Classic SMB Structures (8-step stair intros, 8-step stair flagpoles, castle walks).
+- Progressive Enemy & Hazard Scaling (Green/Red Koopas, Flying Koopas, Spikies, Bullet Bills).
+- Unhittable Stack Block Sanitizer (_fix_stacked_special_blocks() ensuring 100% hittable blocks).
+- Proportional Real-Time Loading Bar Modal updating step-by-step (0% to 100%).
+- Arcade Campaign Level Preservation preserving unlocked maps across 3-life resets.
+- In-Game Java Swing HUD displaying accurate remaining lives (Lives: 3, 2, 1).
+
+
+2. SYSTEM ARCHITECTURE & MODULE SUMMARY
+--------------------------------------------------------------------------------
+- pipeline.py: Coordinates trajectory generation, DDA simulation, and campaign history.
+- generator.py: Conditioned Markov sampling, decoration enhancement, stack block sanitizer, tweak_level_for_dda.
+- vglc_trainer.py: Parses 31 VGLC level files, extracts 2nd-order Markov transitions.
+- validator.py: Invokes Java Robin Baumgarten A* agent to test solvability and jump metrics.
+- dda.py: Weighted cumulative session DDA calculation with 10% max variance bounds.
+- game_session.py: Manages player arcade campaign state, life system, and coin tracking.
+- app.py: Flask web engine providing REST API endpoints for generation, play, and telemetry.
+- index.html: Glassmorphism UI featuring loading progress modal, tile visualizer, Death Zones.
+- PlayLevel.java: Java Swing engine executing human interactive play and AI playback.
+
+
+3. MODULE DETAILS & FUNCTIONAL SPECIFICATIONS
+--------------------------------------------------------------------------------
+MODULE 1: TRAJECTORY-CONDITIONED SEQUENCE GENERATOR (pipeline.py & generator.py)
+- Multi-Point Trajectory Conditioning: Accepts vector D = [d1, d2, ..., dN].
+- Proportional Loading Bar Modal: Displays progress bar updating step-by-step (0% to 100%).
+- Outro Staircase & Castle Walk: 8-step stair leading to flagpole, auto castle walk finish.
+- Unhittable Stack Block Sanitizer: _fix_stacked_special_blocks() ensures all special 
+  blocks (?, Q, 1, 2) have jumping clearance to be hit from below.
+- Targeted Spatial DDA Micro-Adjuster: tweak_level_for_dda() modifies existing level layout on retry.
+
+MODULE 2: A* PATHFINDING PLAYABILITY VALIDATOR (validator.py & Java Framework)
+- Solvability Guarantee: Robin Baumgarten A* agent tests jump trajectories and completion.
+- Automated Retries: Re-generates up to 50 attempts if candidate level is unsolvable.
+- Live AI Playback Window: Displays A* agent solving levels in a 3.5x scaled Java window.
+
+MODULE 3: BAYESIAN CUMULATIVE DDA ENGINE (dda.py & game_session.py)
+- Selective Next-Level Tuning & Slot Retention: Applies DDA shifts to Level k on death (retaining slot k) 
+  and Level k+1 on win.
+- Cumulative Session Telemetry: Computes weighted session performance index P_cum.
+- Exponential Decay Weighting: w_i = 0.70^(n-1-i) weights recent levels while considering session trend.
+- Bounded Adjustments: Strictly bounds difficulty shifts to +/-10% max variance.
+
+MODULE 4: DEATH ZONE TELEMETRY, VISUALIZER & LIFE SYSTEM (app.py & index.html)
+- Level Map Visualizer Horizontal Scrolling: Custom styled horizontal scrollbar across 220 columns.
+- Synchronized Coordinate Space: .level-canvas-wrapper locks tile text and canvas overlay in 1:1 sync.
+- Cumulative Death Zone Telemetry: Records and renders ALL death points (X, Y) across all retries.
+- 3-Life Lower Bounding & Game Over: Clamps lives at 0; disables Play button on Game Over.
+- Unified 0-100 Metric Scale: Harmonizes Chart.js graphs, input boxes (5 to 95), and telemetry.
+
+
+4. PROJECT REMARKS & AUDIT LOGGING SYSTEM
+--------------------------------------------------------------------------------
+All updates and architecture changes are systematically recorded in date-stamped logs 
+inside the Remarks/ directory (e.g. Remarks/2026-08-06.txt) for transparent tracking.

@@ -1,0 +1,55 @@
+================================================================================
+                      MARIO PCG & DDA PROJECT REMARKS LOG
+                                DATE: 2026-08-05
+================================================================================
+
+TODAY'S SUMMARY OF COMPLETED FEATURES & CHANGES:
+
+1. VGLC 2nd-Order Markov Level Generator Integration
+   - Processed all 31 authentic NES Super Mario Bros level files from VGLC.
+   - Trained 1,165 2nd-order column transitions mapped to Mario-AI-Framework tiles.
+   - Conditioned column sampling on target difficulty with candidate validation 
+     guaranteeing difficulty error <= 0.05 (5%).
+
+2. Automated A* Playability Validator (validator.py)
+   - Created discrete 2D physics A* solver simulating run speed, variable jump 
+     impulse (1-4 tiles high), horizontal jump gap (up to 5 tiles wide), gravity, 
+     solid tile collisions, and pit bounds.
+   - Integrated A* filtering loop into generator.py: candidate levels failing A* 
+     playability or exceeding 0.05 difficulty error are discarded and resampled (up to 50 retries).
+
+3. Context-Aware & Targeted Micro-DDA Interventions (dda.py, generator.py)
+   - Pit Failure Intervention: Injects dynamic platform tiles (S/X) or narrows gap 
+     width at failure coordinates.
+   - Enemy Cluster Intervention: Demotes aggressive enemies (Spikies/Koopas) to 
+     Goombas or converts enemy patrols to reward coins in failure slice.
+   - Power-Up Assistance: Inserts dynamic ? powerup block 5 columns prior to 
+     failure coordinate if player failed in Small Mario state.
+   - Preserved structural symmetry & enforced +/- 10% max variance shift bound.
+
+4. Web Dashboard Telemetry & HTML5 Heatmap Overlay (app.py, index.html)
+   - Backend API: Created /api/telemetry/heatmap/<level_id> returning death coordinates.
+   - Frontend Overlay: Added HTML5 Canvas radial gradient heatmap overlay (red/yellow 
+     heat cores + skull markers ☠) positioned over tile grid with toggle control 
+     [ 👁️ Toggle Failure Heatmap ].
+
+5. Classic Super Mario Bros Ending & Automated Castle Cutscene
+   - Ascending 8-step staircase pyramid, 3-tile jump gap before flagpole (F), 
+     5-tile walkway, and 5x5 Brick Castle with open door cutout.
+   - Updated Mario.java: touching flagpole activates exit cutscene where Mario 
+     automatically walks right into Castle door, triggering world.win().
+
+6. Perfect 1-to-1 Level Layout Synchronization
+   - Synced campaign level layout data between Designer Mode and Player Arcade Mode.
+   - Watching AI play in Designer Mode and playing in Player Arcade Mode loads 
+     the EXACT SAME level layout.
+
+7. System Remarks & Documentation Infrastructure
+   - Created Remarks/ folder for date-stamped changelog files (YYYY-MM-DD.txt).
+   - Generated PROJECT_OVERVIEW.txt, PROJECT_OVERVIEW.pdf, and PROJECT_OVERVIEW.md.
+
+8. Real-Time Dynamic Death Zone Telemetry (app.py, index.html)
+   - Renamed feature to "Death Zone" with button [ 💀 Toggle Death Zone ].
+   - Linked to live session telemetry: only marks a death location if a player has actually 
+     died (won == False) on that specific generated level layout instance.
+   - Clears overlay automatically when no player deaths are recorded for a level (won == True).

@@ -1,0 +1,168 @@
+================================================================================
+                      MARIO PCG & DDA PROJECT REMARKS LOG
+                                DATE: 2026-08-06
+================================================================================
+
+TODAY'S SUMMARY OF COMPLETED FEATURES & FIXES:
+
+1. Manual Designer Campaign Level Generation
+   - Removed automatic campaign sequence generation on initial webpage load in 
+     templates/index.html.
+   - Initial state displays a clean designer prompt. Campaign levels are now only 
+     generated when the designer clicks "🚀 Generate Level Sequence".
+
+2. Death Zone Telemetry & Level Index Synchronization Fix
+   - Fixed polling payload bug in startPollingSessionResult(): level_index (e.g. 1, 2, 3...) 
+     is now passed explicitly to /api/check-session-result.
+   - Death coordinates for Level 2 (and subsequent levels) now register under their 
+     exact level ID rather than defaulting to Level 1.
+   - Updated frontend state so switching to Level 2 in the Designer tab immediately 
+     displays the exact Death Zone marker for Level 2.
+
+3. Piranha Flower Pipes Integration
+   - Added post-processing pipe enhancer (_post_process_level_decorations) in generator.py.
+   - Converts ~40% of clean pipe tops ('t') into Piranha Flower Pipes ('T'), bringing 
+     classic animated Piranha Plant enemies popping up out of pipes.
+
+4. Authentic Classic Hidden Blocks ('1' & '2')
+   - Injected hidden block tiles into generated levels:
+     * '1': Hidden 1-Up Mushroom block
+     * '2': Hidden Coin block
+   - Blocks remain invisible during play until Mario jumps up and hits them from below.
+   - Added visual styling in formatTileGrid() so hidden blocks can be inspected in the web tile map.
+
+5. Interactive Game Window Lives HUD Fix (MarioGame.java & PlayLevel.java)
+   - Fixed HUD initialization bug in Java game engine where world.lives and world.coins 
+     were not being passed into MarioWorld during gameLoop execution.
+   - MarioWorld now correctly initializes with active player lives (e.g. 3, 2, 1) and coins, 
+     displaying the accurate current lives count in the interactive Java window top HUD.
+
+6. Unhittable Stacked Special Block Sanitizer (generator.py)
+   - Implemented _fix_stacked_special_blocks() to detect any reward block (?, Q, 1, 2, etc.) 
+     stacked directly on top of another solid/special block without jumping clearance.
+   - Automatically shifts unhittable reward blocks up to valid jumping clearance heights 
+     or clears them so 100% of special blocks are hittable from below.
+
+7. Strict Manual Campaign Generation Only (index.html)
+   - Removed automatic generateCampaign() triggers from loadPreset(), changeNumLevels(), 
+     and difficulty point input onchange handlers.
+   - Changing preset dropdowns, adjusting level counts (+/-), or modifying difficulty targets 
+     now only updates the input parameters.
+   - Campaign level generation is strictly triggered ONLY when clicking "🚀 Generate Level Sequence".
+
+8. Progress Bar Loading Screen, Campaign Level Preservation & Progressive Enemy Scaling
+   - Campaign Loading Screen: Displays a backdrop-blurred modal with animated progress bar 
+     (0% -> 100%) during sequence generation.
+   - Arcade Reset Level Preservation: Updated resetCampaign() to preserve generated campaign 
+     level layouts (playerArcadeState.levelTexts) so after losing 3 lives, players replay the 
+     exact same levels they previously unlocked/passed.
+   - Progressive Enemy Hazards: Implemented scaling spawner in generator.py introducing 
+     Green Turtles ('k'), Red Turtles ('r'), Flying Turtles ('K'/'R'), Spikies ('y'/'Y'), and 
+     Bullet Bill Cannons ('B'/'b') as target difficulty increases.
+
+9. Proportional Real-Time Loading Bar, Cumulative Session DDA & Detailed Overview Documentation
+   - Real-Time Proportional Loading Bar: Refactored generateCampaign() to update progress bar 
+     step-by-step (Level 1/N, 2/N ... N/N) in exact 1:1 proportion to actual levels compiled and validated.
+   - Cumulative Session DDA Engine: Updated dda.py and app.py to calculate difficulty adjustments 
+     based on exponential decay weighting across ALL levels played in the active session.
+   - Automatic DDA Session Reset: Generating a new campaign sequence clears session history and resets 
+     DDA shifts back to 0.0%.
+   - Comprehensive Document Specs: Updated PROJECT_OVERVIEW.pdf, PROJECT_OVERVIEW.txt, and 
+     PROJECT_OVERVIEW.md documenting all 4 core modules, algorithms, telemetry overlay, DDA math, and architecture.
+
+10. Unified 0-100 Metric Scale, Multi-Playthrough Death Zone Accumulation & Selective Next-Level DDA
+   - Unified 0-100 Metric Scale: Updated Chart.js Y-axis in index.html to display values cleanly on 
+     a 0 to 100 / 0% to 100% scale, perfectly matching the 5-95 designer curve input boxes.
+   - Multi-Playthrough Death Zone Accumulation: Updated app.py and index.html to store and render 
+     ALL cumulative death markers recorded across multiple attempts/retries for each level map. 
+     Death markers persist across 3-life resets and are ONLY cleared when brand-new maps are generated.
+   - Selective Next-Level DDA Adjustment: Ensures DDA adjustments use telemetry from all preceding 
+     levels played in the session to adjust ONLY the target difficulty of the next upcoming level.
+
+11. Removal of Pre-Guessing DDA Simulations & Clean Initial Session Telemetry Slate
+   - Removed fake simulated player skill profiles (e.g. 'average' skill guessing) during initial sequence generation.
+   - Initial campaign levels generated match designer target curve values cleanly with 0.0% initial DDA shift.
+   - Telemetry cards display clean neutral slate ("Awaiting Play") until a real human player plays in Arcade Mode.
+   - DDA adjustments are calculated strictly dynamically as real human players complete levels in Arcade Mode.
+
+12. Classic Firebar Hazard Spawner ('z' & 'Z')
+   - Added Firebar hazard spawner in generator.py placing spinning fireball hazard blocks ('z' standard, 'Z' fast) on elevated platforms on medium/high difficulty levels.
+   - Updated MarioLevel.java to parse 'z' and 'Z' tiles into solid blocks with lethal hazard sprites.
+   - Updated index.html formatTileGrid() to render Firebars with flame icons and tooltips in the web tile viewer.
+
+13. Real-Time Repeated Death DDA Micro-Adjustments & Level-Scoped Tuning
+   - Updated check_session_result in app.py: when a player dies on Level k (won=False), DDA calculates a negative difficulty adjustment (-5% to -10%) targeting Level k for upcoming retries.
+   - DDA adjustments micro-tune Level k's layout (reducing hazard density, widening landing platforms, adding Mushroom blocks) without modifying unplayed future levels (k+1 ... N).
+   - Updated resetCampaign() in index.html: when 3 lives run out and campaign resets, DDA target adjustments for Level k are preserved so retries feature the reduced difficulty layout.
+   - Web UI Telemetry cards re-render dynamically after each death/attempt showing exact death counts, negative DDA shifts, and struggle reasons.
+
+14. Glowing Spinning Circle Loader & Course Clear Level Progression Fix
+   - Updated loading screen modal in index.html replacing horizontal progress bar with a glowing CSS spinning ring animation (.spinner-ring).
+   - Fixed win status parser in app.py: correctly parses SESSION_UPDATE key-value pairs (WON=true/false) from Java engine output.
+   - Level Progression Fix: Reaching the flagpole now sets session_update["won"] = True, unlocks World 1-(k+1), advances active Arcade level index, and renders unlocked level selection button.
+
+15. Session Update Parser Fix & Native Spiky Fire Hazard Rendering
+   - Fixed NameError in check_session_result (app.py): pre-initialized session_update dictionary before key-value parsing. Reaching the flagpole now cleanly triggers level unlock & progression to World 1-(k+1).
+   - Visible Fire Hazards: Updated generator.py Firebar spawner to place Spiky Fire Hazards ('y') and Flying Spiky Fire Hazards ('Y') natively rendered in Mario-AI-Framework.
+   - Updated index.html formatTileGrid() with distinct orange/red fire hazard badges and tooltips.
+
+16. Variable Scope Fix & Guaranteed Hazard Spawning Across All Difficulties
+   - Fixed NameError in check_session_result (app.py): defined current_lvl_num, next_designer_target, and current_designer_target at top of endpoint scope.
+   - Verified Level Progression: Completing World 1-k cleanly returns status 200 with won=True, unlocking World 1-(k+1) and advancing active arcade index.
+   - Guaranteed Fire Hazards: Updated generator.py to spawn 2 to 8 Spiky Fire Hazards ('y'/'Y') and 50% Piranha Flower Pipes ('T') across all difficulty levels.
+
+17. Removal of Custom Firebar / Fireball Spawner
+   - Removed custom Firebar / Fireball hazard spawner from generator.py as requested by the user.
+   - Cleaned up formatTileGrid() in index.html and restored standard enemy and pipe decoration post-processing.
+
+18. Real-Time SSE Stream, NES Camera Boundary & Level k+1 DDA Pre-Adjustment
+   - Real-Time SSE Loading Screen Stream: Created /api/generate-sequence-stream in app.py and updated generateCampaign() in index.html to read SSE stream events line-by-line, updating loading screen progress live for each level (1...N) in 1:1 sync with CMD validator output.
+   - Classic NES Camera Boundary: Updated MarioWorld.java so cameraX strictly scrolls right. Clamped Mario's X position so Mario cannot move left beyond the camera screen (classic NES SMB boundary).
+   - Pre-Adjustment of Next Level Before Playing: When Level k is cleared, DDA calculates target shift based on previous levels, pre-adjusts Level k+1 target & level layout, saves it to playerArcadeState, and unlocks World 1-(k+1) so Level k+1 launches with the DDA pre-adjusted map.
+
+19. Initial Page Load Chart Single Curve Gating
+   - In templates/index.html, modified initChart to dynamically gate the DDA-adjusted target curve and the actual-generated difficulty curve behind array presence.
+   - On initial page load, preset selection, level count change, or direct user input editing, only the designer-intended curve is rendered on the Chart.js canvas.
+   - The DDA-adjusted curve and actual-generated difficulty curve only appear once campaign generation completes and results are populated.
+
+20. Level Map Visualizer Inactive State & Post-Generation Activation Guard
+   - In templates/index.html, added renderVisualizerInitialState() and updated visualizer markup so that on initial page load / before generation, the Level Map Visualizer is in a clean inactive state:
+     - Level tabs display "No levels generated yet".
+     - Action buttons (Toggle Death Zone, Watch AI Play Live) are disabled with muted styling and cursor: not-allowed.
+     - Key metrics stat boxes display placeholder indicators ("--").
+     - Tile grid container renders an inactive guidance message instructing the user to generate a sequence.
+   - Tied activation to the campaign generation completion event in renderDashboard(), enabling action buttons, mounting level tabs, and rendering the first validated map.
+
+21. Player Mode Play Button & Backend Execution Guards
+   - Disabled the "Launch & Play Selected Level" button on initial load / when no campaign levels have been generated for the session.
+   - Added guards in launchHumanPlay() (templates/index.html) checking that campaignData.history exists before allowing play; if missing, displays a warning in playerSessionLog and alerts the user without invoking the game engine.
+   - In app.py (/api/play-human-level & /api/watch-ai-play), added strict checks ensuring a validated level layout exists in the request/session before launching Java subprocesses; returns HTTP 400 with a descriptive error message if called without a generated level sequence.
+
+22. Level Map Visualizer Horizontal Scrolling & Synchronized Canvas Overlay
+   - Fixed CSS grid container layout constraints (.grid-layout, .left-col, .right-col, .glass-card) with min-width: 0 and overflow: hidden so that wide 220-column ASCII tile grids do not overflow or blowout the browser viewport.
+   - Added custom high-contrast horizontal scrollbar styling (.level-view-container::-webkit-scrollbar) with glowing gradient thumbs and fixed vertical height constraints (max-height: 260px; overflow-y: hidden).
+   - Wrapped #heatmapCanvas and #tileGrid in an inline-block container (.level-canvas-wrapper) so that scrolling the tile grid scrolls the canvas overlay in 100% pixel-perfect synchronization.
+   - Updated renderDeathZoneOverlay() to size the canvas to tileGrid.scrollWidth and compute exact column/row cell steps, accurately placing death zone markers across the entire 220-column map.
+
+23. Death Retry Level Slot Retention & DDA Layout Adaptation
+   - Fixed death retry behavior in /api/check-session-result (app.py) and startPollingSessionResult (templates/index.html).
+   - When a player loses a life on Level k with lives remaining, the session strictly remains locked to Level slot k (activeLevelIdx = k).
+   - Instead of replacing the level with a newly generated random procedural level, the system passes current_level_text to tweak_level_for_dda, applying targeted spatial micro-adjustments (e.g. pit gap narrowing, enemy demotion, power-up insertion near failure point) to the exact level the player died on.
+   - The adapted layout is preserved in playerArcadeState.levelTexts[k] and launched for subsequent retries of Level k.
+
+24. Life Counter Lower Bounding & Game Over Session Stoppage
+   - Clamped newLives in PlayLevel.java at a minimum of 0 on death (newLives = Math.max(0, newLives)), preventing negative values such as -1.
+   - Added strict lives <= 0 guards in app.py (/api/play-human-level) and templates/index.html (launchHumanPlay), preventing the launch of the Java game window when 0 lives remain.
+   - On the 3rd death (lives = 0), the session stops, displaying a prominent "GAME OVER" message and disabling the "Launch & Play Selected Level" button until "Reset Arcade Progression" is clicked.
+
+25. Retro Arcade-Style Frontend Site (/retro)
+   - Created a brand-new, standalone retro arcade frontend template (templates/retro.html) mounted at route /retro in app.py without modifying existing routes, templates, or styles.
+   - Implemented authentic retro arcade cabinet aesthetics:
+     - 8-bit typography using 'Press Start 2P' and 'VT323'.
+     - CRT scanline grid and screen curvature vignette overlays.
+     - High-contrast neon-on-black palette (Neon Cyan, Magenta, Arcade Gold, 8-bit Green, Alert Red) with chunky 4px stepped pixel borders.
+     - 8-Bit Vertical Equalizer / LED segment difficulty meter replacing smooth canvas curves, with interactive [+] and [-] buttons.
+     - DIP-switch ROM preset selector and flashing "INSERT COIN: GENERATE CAMPAIGN" call-to-action button.
+     - Viewport-bounded 220-column Level Map Visualizer with custom pixel scrollbar and synchronized 1:1 canvas overlay for death markers (💀) and AI playback.
+     - Arcade Marquee Top HUD (1UP, WORLD, LIVES, COINS, DDA SHIFT) and CRT terminal session telemetry log.
+   - Reuses 100% of the shared backend REST and SSE API endpoints (/api/generate-sequence-stream, /api/play-human-level, /api/watch-ai-play, /api/check-session-result, /api/telemetry/death-zone/<id>).

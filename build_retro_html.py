@@ -1,0 +1,1513 @@
+import os
+
+retro_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARIO PCG &amp; DDA ARCADE CABINET</title>
+    <!-- 8-Bit Pixel Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-magenta: #ff007f;
+            --neon-gold: #ffe600;
+            --neon-green: #39ff14;
+            --neon-red: #ff3131;
+            --bg-deep: #08090f;
+            --bg-cabinet: #10121d;
+            --bg-panel: #171a29;
+            --border-color: #00f3ff;
+            --text-main: #ffffff;
+            --text-dim: #7f8fa6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 0),
+                radial-gradient(rgba(255, 0, 127, 0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+
+        /* CRT SCANLINES & SCREEN CURVATURE VIGNETTE */
+        .crt-scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 6px 100%;
+        }
+
+        .crt-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9), inset 0 0 40px rgba(0, 0, 0, 0.95);
+        }
+
+        /* CABINET CHASSIS CONTAINER */
+        .arcade-cabinet {
+            max-width: 1440px;
+            margin: 20px auto;
+            padding: 16px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* MARQUEE HEADER */
+        .marquee-header {
+            background-color: var(--bg-cabinet);
+            border: 4px solid var(--neon-magenta);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.4), 6px 6px 0px #000;
+            padding: 18px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .marquee-header h1 {
+            font-size: 1.4rem;
+            color: var(--neon-gold);
+            text-shadow: 3px 3px 0px var(--neon-magenta), 0 0 15px rgba(255, 230, 0, 0.6);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .marquee-header .subtitle {
+            font-size: 0.65rem;
+            color: var(--neon-cyan);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .nav-switch {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.6rem;
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 6px 10px;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 2px 2px 0px #000;
+        }
+        .nav-switch:hover {
+            background: var(--neon-cyan);
+            color: #000;
+        }
+
+        /* CABINET WORKSPACE GRID */
+        .cabinet-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+            gap: 24px;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .cabinet-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        /* RETRO BEZEL CARDS */
+        .arcade-card {
+            background-color: var(--bg-cabinet);
+            border: 4px solid var(--border-color);
+            box-shadow: 6px 6px 0px #000, 0 0 15px rgba(0, 243, 255, 0.2);
+            padding: 20px;
+            margin-bottom: 24px;
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px dashed var(--neon-cyan);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            text-shadow: 2px 2px 0px #000, 0 0 10px rgba(0, 243, 255, 0.5);
+            text-transform: uppercase;
+        }
+
+        .card-badge {
+            font-size: 0.6rem;
+            background: var(--neon-magenta);
+            color: #fff;
+            padding: 4px 8px;
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        /* 8-BIT EQUALIZER DIFFICULTY METER */
+        .equalizer-container {
+            background: #05060a;
+            border: 3px solid #334155;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
+        }
+
+        .equalizer-bars {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            gap: 12px;
+            min-height: 180px;
+            padding-top: 10px;
+        }
+
+        .eq-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .eq-btn {
+            background: var(--bg-panel);
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: inherit;
+            font-size: 9px;
+            width: 28px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 4px 0;
+            box-shadow: 2px 2px 0 #000;
+        }
+        .eq-btn:hover {
+            background: var(--neon-cyan);
+            color: #000;
+        }
+        .eq-btn:active {
+            transform: translate(1px, 1px);
+            box-shadow: none;
+        }
+
+        .eq-meter {
+            width: 28px;
+            height: 120px;
+            background: #111420;
+            border: 2px solid #334155;
+            display: flex;
+            flex-direction: column-reverse;
+            padding: 2px;
+            gap: 3px;
+        }
+
+        .eq-segment {
+            flex: 1;
+            background: #1e2538;
+            transition: background 0.1s ease;
+        }
+
+        /* Segment glow tiers */
+        .eq-segment.active.tier-low {
+            background: var(--neon-green);
+            box-shadow: 0 0 6px var(--neon-green);
+        }
+        .eq-segment.active.tier-mid {
+            background: var(--neon-gold);
+            box-shadow: 0 0 6px var(--neon-gold);
+        }
+        .eq-segment.active.tier-high {
+            background: var(--neon-red);
+            box-shadow: 0 0 6px var(--neon-red);
+        }
+
+        .eq-label {
+            font-size: 0.55rem;
+            margin-top: 6px;
+            color: var(--neon-gold);
+        }
+        .eq-val {
+            font-size: 0.6rem;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        /* DIP SWITCH PRESETS & CONTROLS */
+        .retro-form-group {
+            margin-bottom: 16px;
+        }
+
+        .retro-label {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--neon-cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .retro-select, .retro-input {
+            width: 100%;
+            background: #07080f;
+            border: 3px solid var(--neon-cyan);
+            color: var(--neon-gold);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 10px;
+            box-shadow: 3px 3px 0 #000;
+            outline: none;
+        }
+
+        .retro-select option {
+            background: #0b0d18;
+            color: #fff;
+        }
+
+        /* BIG ARCADE ACTION BUTTONS */
+        .btn-arcade {
+            display: block;
+            width: 100%;
+            padding: 14px 18px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            transition: all 0.1s ease;
+            text-align: center;
+            margin-bottom: 12px;
+            text-decoration: none;
+        }
+
+        .btn-primary-coin {
+            background: var(--neon-gold);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 230, 0, 0.5), 4px 4px 0px #000;
+            animation: pulse-border 1.5s infinite;
+        }
+        .btn-primary-coin:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 4px 4px 0px #000;
+        }
+
+        .btn-play-start {
+            background: var(--neon-green);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.5), 4px 4px 0px #000;
+            font-size: 0.8rem;
+        }
+        .btn-play-start:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+        .btn-play-start:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-ai-watch {
+            background: var(--neon-cyan);
+            color: #000;
+        }
+        .btn-ai-watch:hover:not(:disabled) {
+            background: #fff;
+        }
+        .btn-ai-watch:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-death-toggle {
+            background: var(--neon-magenta);
+            color: #fff;
+        }
+        .btn-death-toggle:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+        .btn-death-toggle:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-reset-credit {
+            background: #2b1020;
+            color: var(--neon-red);
+            border-color: var(--neon-red);
+            font-size: 0.6rem;
+            padding: 8px;
+        }
+        .btn-reset-credit:hover {
+            background: var(--neon-red);
+            color: #fff;
+        }
+
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 230, 0, 0.5), 4px 4px 0px #000; }
+            50% { box-shadow: 0 0 25px rgba(255, 0, 127, 0.8), 4px 4px 0px #000; }
+        }
+
+        /* ARCADE MARQUEE TOP HUD */
+        .arcade-hud-bar {
+            background: #000;
+            border: 3px solid var(--neon-gold);
+            box-shadow: 0 0 10px rgba(255, 230, 0, 0.3), 4px 4px 0px #000;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            font-size: 0.65rem;
+            color: #fff;
+            gap: 10px;
+        }
+
+        .hud-item span {
+            color: var(--neon-gold);
+        }
+        .hud-item .dda-val {
+            color: var(--neon-cyan);
+        }
+
+        /* LEVEL TABS */
+        .retro-tab-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .retro-tab-btn {
+            background: #0e111d;
+            border: 2px solid #334155;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.6rem;
+            padding: 8px 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            box-shadow: 2px 2px 0 #000;
+        }
+        .retro-tab-btn.active {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.6), 2px 2px 0 #000;
+        }
+        .retro-tab-btn.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* LEVEL MAP VIEW CONTAINER & HORIZONTAL SCROLLBAR */
+        .retro-level-view-container {
+            background: #000;
+            border: 4px solid var(--neon-cyan);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.95), 4px 4px 0 #000;
+            max-height: 260px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            max-width: 100%;
+            width: 100%;
+            position: relative;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+        }
+
+        /* CHUNKY 8-BIT SCROLLBAR */
+        .retro-level-view-container::-webkit-scrollbar {
+            height: 14px;
+        }
+        .retro-level-view-container::-webkit-scrollbar-track {
+            background: #07080f;
+            border-top: 2px solid var(--neon-cyan);
+        }
+        .retro-level-view-container::-webkit-scrollbar-thumb {
+            background: var(--neon-magenta);
+            border: 2px solid #fff;
+            box-shadow: inset 1px 1px 0px #fff;
+        }
+
+        .retro-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            min-width: 100%;
+            vertical-align: top;
+        }
+
+        #tileGrid {
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 14px;
+            letter-spacing: 0px;
+            margin: 0;
+            padding: 6px;
+            white-space: pre;
+            background: #000;
+            color: #555;
+            user-select: none;
+            display: block;
+        }
+
+        #heatmapCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10;
+            display: block;
+        }
+
+        /* RETRO 8-BIT TILE GRAPHICS */
+        .rtile {
+            display: inline-block;
+            width: 13px;
+            height: 13px;
+            line-height: 13px;
+            text-align: center;
+            font-size: 10px;
+            font-family: monospace;
+            vertical-align: bottom;
+            user-select: none;
+            box-sizing: border-box;
+        }
+
+        /* Sky (Empty) */
+        .rtile-sky {
+            color: #121524;
+            background: transparent;
+        }
+
+        /* Ground (X) */
+        .rtile-ground {
+            color: #d97706;
+            background: #451a03;
+            border-top: 2px solid #65a30d;
+            border-left: 1px solid #78350f;
+            border-right: 1px solid #78350f;
+            border-bottom: 1px solid #291004;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Solid Brick / Stone (S, D, #, %) */
+        .rtile-solid {
+            color: #00f3ff;
+            background: #083344;
+            border: 1px solid #00f3ff;
+            box-shadow: inset 1px 1px 0px #67e8f9;
+            font-weight: bold;
+        }
+
+        /* Question / Power-Up Block (?, Q) */
+        .rtile-question {
+            color: #000;
+            background: #ffe600;
+            border: 1px solid #ffffff;
+            box-shadow: 0 0 5px rgba(255, 230, 0, 0.8), inset 1px 1px 0 #fff;
+            font-weight: bold;
+            animation: pulse-q 1.2s infinite;
+        }
+        @keyframes pulse-q {
+            0%, 100% { background: #ffe600; }
+            50% { background: #ffaa00; }
+        }
+
+        /* Hidden Block (1, 2) */
+        .rtile-hidden {
+            color: #00f3ff;
+            background: #0f172a;
+            border: 1px dashed #00f3ff;
+            font-size: 9px;
+            opacity: 0.85;
+        }
+
+        /* Coin (o) */
+        .rtile-coin {
+            color: #ffe600;
+            background: transparent;
+            font-size: 12px;
+            text-shadow: 0 0 6px #ffe600;
+        }
+
+        /* Goomba (g, E) */
+        .rtile-goomba {
+            color: #fff;
+            background: #b91c1c;
+            border: 1px solid #ef4444;
+            border-radius: 2px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Koopa (k, r) */
+        .rtile-koopa {
+            color: #000;
+            background: #22c55e;
+            border: 1px solid #86efac;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        /* Flying Koopa (K, R) */
+        .rtile-flying-koopa {
+            color: #fff;
+            background: #0284c7;
+            border: 1px solid #38bdf8;
+            font-weight: bold;
+        }
+
+        /* Spiky / Beetle (y, Y) */
+        .rtile-spiky {
+            color: #fff;
+            background: #ea580c;
+            border: 1px solid #fb923c;
+            font-weight: bold;
+        }
+
+        /* Pipe (t, L, J, [, ], <, >) */
+        .rtile-pipe {
+            color: #fff;
+            background: #15803d;
+            border: 1px solid #4ade80;
+            box-shadow: inset 1px 1px 0 #86efac;
+            font-weight: bold;
+        }
+
+        /* Piranha Flower Pipe (T) */
+        .rtile-piranha {
+            color: #fff;
+            background: #991b1b;
+            border: 1px solid #f87171;
+            font-weight: bold;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+        }
+
+        /* Bullet Bill Cannon (B, b) */
+        .rtile-cannon {
+            color: #fff;
+            background: #334155;
+            border: 1px solid #94a3b8;
+            font-weight: bold;
+        }
+
+        /* Flagpole (|, F) */
+        .rtile-flag {
+            color: #ffe600;
+            background: #166534;
+            border: 1px solid #22c55e;
+            font-weight: bold;
+            box-shadow: 0 0 6px #ffe600;
+        }
+
+        /* CRT TERMINAL LOG */
+        .retro-terminal {
+            background: #030408;
+            border: 3px solid #334155;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 3px 3px 0 #000;
+            padding: 12px;
+            font-family: 'VT323', monospace;
+            font-size: 1.15rem;
+            color: var(--neon-green);
+            min-height: 90px;
+            max-height: 140px;
+            overflow-y: auto;
+            line-height: 1.3;
+        }
+        .retro-terminal .warn { color: var(--neon-gold); }
+        .retro-terminal .err { color: var(--neon-red); }
+        .retro-terminal .cyan { color: var(--neon-cyan); }
+
+        /* 8-BIT MODAL PROGRESS LOADER */
+        .retro-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .retro-modal-box {
+            background: var(--bg-cabinet);
+            border: 6px solid var(--neon-gold);
+            box-shadow: 0 0 30px rgba(255, 230, 0, 0.6), 8px 8px 0 #000;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .retro-modal-title {
+            font-size: 0.9rem;
+            color: var(--neon-gold);
+            margin-bottom: 16px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .retro-progress-track {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            height: 28px;
+            position: relative;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+
+        .retro-progress-fill {
+            background: repeating-linear-gradient(
+                45deg,
+                var(--neon-magenta),
+                var(--neon-magenta) 10px,
+                var(--neon-cyan) 10px,
+                var(--neon-cyan) 20px
+            );
+            height: 100%;
+            width: 0%;
+            transition: width 0.2s linear;
+        }
+
+        .retro-progress-text {
+            font-size: 0.65rem;
+            color: var(--neon-cyan);
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        /* BLINKING UTILITY */
+        .blink {
+            animation: blinker 1s steps(2, start) infinite;
+        }
+        @keyframes blinker {
+            to { visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+    <!-- CRT SCANLINE & VIGNETTE OVERLAYS -->
+    <div class="crt-scanlines"></div>
+    <div class="crt-vignette"></div>
+
+    <div class="arcade-cabinet">
+        <!-- MARQUEE HEADER -->
+        <header class="marquee-header">
+            <a href="/" class="nav-switch">⚡ SWITCH TO GLASS UI</a>
+            <h1>★ MARIO PCG &amp; DDA ARCADE CABINET ★</h1>
+            <div class="subtitle">DIFFICULTY-TRAJECTORY CONDITIONED PROCEDURAL GENERATION &bull; 8-BIT EDITION</div>
+        </header>
+
+        <main class="cabinet-grid">
+            <!-- LEFT COLUMN: CABINET CONTROLS & EQUALIZER -->
+            <section class="left-col">
+                <div class="arcade-card">
+                    <div class="card-header">
+                        <span class="card-title">🕹️ DIFFICULTY EQUALIZER</span>
+                        <span class="card-badge">ROM V2.4</span>
+                    </div>
+
+                    <!-- DIP SWITCH PRESET SELECTOR -->
+                    <div class="retro-form-group">
+                        <label class="retro-label">ROM CURVE PRESET:</label>
+                        <select id="retroPresetSelect" class="retro-select" onchange="applyRetroPreset()">
+                            <option value="linear_ramp">[1] LINEAR RAMP (PROGRESSIVE)</option>
+                            <option value="mid_spike">[2] SPIKE &amp; RECOVERY (PACING ARC)</option>
+                            <option value="wave_pacing">[3] SAWTOOTH PACING WAVE</option>
+                            <option value="boss_rush">[4] CLIMAX PEAK (BOSS RUSH)</option>
+                        </select>
+                    </div>
+
+                    <div class="retro-form-group">
+                        <label class="retro-label">NUMBER OF CAMPAIGN LEVELS (3-10):</label>
+                        <select id="retroNumLevels" class="retro-select" onchange="changeRetroNumLevels()">
+                            <option value="3">3 STAGES</option>
+                            <option value="4">4 STAGES</option>
+                            <option value="5" selected>5 STAGES (STANDARD)</option>
+                            <option value="6">6 STAGES</option>
+                            <option value="7">7 STAGES</option>
+                            <option value="8">8 STAGES (FULL CAMPAIGN)</option>
+                        </select>
+                    </div>
+
+                    <!-- 8-BIT EQUALIZER BARS -->
+                    <div class="equalizer-container">
+                        <div class="equalizer-bars" id="equalizerBars">
+                            <!-- Rendered dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <div class="retro-form-group">
+                        <label class="retro-label">SIMULATED PLAYER SKILL:</label>
+                        <select id="retroSkillSelect" class="retro-select">
+                            <option value="novice">[A] NOVICE (CASUAL)</option>
+                            <option value="average" selected>[B] AVERAGE (BALANCED)</option>
+                            <option value="expert">[C] EXPERT (HARDCORE)</option>
+                        </select>
+                    </div>
+
+                    <!-- INSERT COIN / GENERATE CTA -->
+                    <button class="btn-arcade btn-primary-coin" id="btnGenerate" onclick="generateRetroCampaign()">
+                        ▶ INSERT COIN: GENERATE CAMPAIGN ◀
+                    </button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: CRT MONITOR, VISUALIZER & ARCADE HUD -->
+            <section class="right-col">
+                <!-- TOP CABINET SCORE HUD -->
+                <div class="arcade-hud-bar">
+                    <div class="hud-item">WORLD: <span id="hudLevel">1-1</span></div>
+                    <div class="hud-item">LIVES: <span id="hudLives">❤️❤️❤️</span></div>
+                    <div class="hud-item">COINS: <span id="hudCoins">🪙 00</span></div>
+                    <div class="hud-item">POWER: <span id="hudPower">SMALL</span></div>
+                    <div class="hud-item">DDA SHIFT: <span id="hudDDAShift" class="dda-val">+0.0%</span></div>
+                </div>
+
+                <!-- CRT LEVEL MAP MONITOR -->
+                <div class="arcade-card">
+                    <div class="card-header">
+                        <span class="card-title">📺 CRT LEVEL MONITOR</span>
+                        <span class="card-badge" id="monitorStatusBadge">IDLE</span>
+                    </div>
+
+                    <!-- STAGE TABS -->
+                    <div class="retro-tab-bar" id="retroLevelTabs">
+                        <button class="retro-tab-btn locked" disabled>[NO LEVELS LOADED]</button>
+                    </div>
+
+                    <!-- BOUNDED HORIZONTAL SCROLL MAP BOX -->
+                    <div class="retro-level-view-container">
+                        <div class="retro-canvas-wrapper">
+                            <pre id="tileGrid">=======================================================
+[ CRT MONITOR STANDBY — INSERT COIN TO GENERATE MAPS ]
+=======================================================</pre>
+                            <canvas id="heatmapCanvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                        <button class="btn-arcade btn-death-toggle" id="btnDeathToggle" onclick="toggleRetroDeathZone()" disabled>
+                            💀 DEATH ZONES
+                        </button>
+                        <button class="btn-arcade btn-ai-watch" id="btnAiWatch" onclick="watchRetroAiPlay()" disabled>
+                            👁 WATCH AI PLAY
+                        </button>
+                    </div>
+
+                    <!-- PLAY BUTTON -->
+                    <button class="btn-arcade btn-play-start" id="btnPlayStart" onclick="launchRetroHumanPlay()" disabled>
+                        ▶ PRESS START: PLAY WORLD 1-1
+                    </button>
+
+                    <button class="btn-arcade btn-reset-credit" onclick="resetRetroArcade()">
+                        🔄 RESET ARCADE PROGRESSION (3 LIVES)
+                    </button>
+                </div>
+
+                <!-- TERMINAL TELEMETRY -->
+                <div class="arcade-card">
+                    <div class="card-header">
+                        <span class="card-title">📟 SESSION IPC TELEMETRY</span>
+                        <span class="blink" style="color: var(--neon-green);">● ONLINE</span>
+                    </div>
+                    <div class="retro-terminal" id="retroTerminalLog">
+                        &gt; SYSTEM READY. INSERT COIN TO COMPILE MARIO CAMPAIGN.<br>
+                        &gt; CONNECTED TO ROBIN BAUMGARTEN A* VALIDATOR ENGINE.<br>
+                        &gt; WAITING FOR LEVEL GENERATION SEQUENCE...
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- RETRO 8-BIT PROGRESS MODAL -->
+    <div class="retro-modal-overlay" id="retroModalOverlay">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">⚙️ COMPILING 8-BIT STAGES...</div>
+            <div class="retro-progress-track">
+                <div class="retro-progress-fill" id="retroProgressBar"></div>
+            </div>
+            <div class="retro-progress-text" id="retroProgressText">
+                INITIALIZING 2ND-ORDER MARKOV SAMPLER...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // RETRO ARCADE GLOBAL STATE
+        let numLevels = 5;
+        let retroCurve = [20, 35, 50, 65, 80]; // 0-100% scale
+        let campaignData = null;
+        let selectedLevelIdx = 0;
+        let showDeathZone = false;
+        let browserGameLoopId = null;
+
+        let playerArcadeState = {
+            activeLevelIdx: 1,
+            maxUnlockedLevel: 1,
+            lives: 3,
+            coins: 0,
+            marioMode: 0,
+            levelTargets: [0.20, 0.35, 0.50, 0.65, 0.80],
+            levelTexts: {},
+            lastDdaDelta: {},
+            isRetryMap: {}
+        };
+
+        const PRESETS = {
+            "linear_ramp": [20, 35, 50, 65, 80],
+            "mid_spike": [25, 45, 85, 35, 70],
+            "wave_pacing": [30, 60, 40, 75, 50, 85],
+            "boss_rush": [30, 40, 55, 70, 95]
+        };
+
+        // RENDER 8-BIT EQUALIZER BARS
+        function renderEqualizer() {
+            const container = document.getElementById('equalizerBars');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let i = 0; i < numLevels; i++) {
+                const val = retroCurve[i] || 50;
+                const col = document.createElement('div');
+                col.className = 'eq-column';
+
+                const btnUp = document.createElement('button');
+                btnUp.className = 'eq-btn';
+                btnUp.innerText = '+';
+                btnUp.onclick = () => adjustEqVal(i, 5);
+
+                const meter = document.createElement('div');
+                meter.className = 'eq-meter';
+
+                // 10 LED segments (10% each)
+                const activeSegments = Math.round(val / 10);
+                for (let s = 1; s <= 10; s++) {
+                    const seg = document.createElement('div');
+                    seg.className = 'eq-segment';
+                    if (s <= activeSegments) {
+                        seg.classList.add('active');
+                        if (s <= 4) seg.classList.add('tier-low');
+                        else if (s <= 7) seg.classList.add('tier-mid');
+                        else seg.classList.add('tier-high');
+                    }
+                    meter.appendChild(seg);
+                }
+
+                const btnDown = document.createElement('button');
+                btnDown.className = 'eq-btn';
+                btnDown.innerText = '-';
+                btnDown.onclick = () => adjustEqVal(i, -5);
+
+                const label = document.createElement('div');
+                label.className = 'eq-label';
+                label.innerText = `L${i + 1}`;
+
+                const valDisplay = document.createElement('div');
+                valDisplay.className = 'eq-val';
+                valDisplay.innerText = `${val}%`;
+
+                col.appendChild(btnUp);
+                col.appendChild(meter);
+                col.appendChild(btnDown);
+                col.appendChild(label);
+                col.appendChild(valDisplay);
+
+                container.appendChild(col);
+            }
+        }
+
+        function adjustEqVal(idx, delta) {
+            retroCurve[idx] = Math.max(5, Math.min(95, (retroCurve[idx] || 50) + delta));
+            renderEqualizer();
+        }
+
+        function applyRetroPreset() {
+            const presetKey = document.getElementById('retroPresetSelect').value;
+            const presetArr = PRESETS[presetKey];
+            if (presetArr) {
+                numLevels = presetArr.length;
+                document.getElementById('retroNumLevels').value = numLevels.toString();
+                retroCurve = [...presetArr];
+                renderEqualizer();
+            }
+        }
+
+        function changeRetroNumLevels() {
+            numLevels = parseInt(document.getElementById('retroNumLevels').value) || 5;
+            while (retroCurve.length < numLevels) {
+                const prev = retroCurve[retroCurve.length - 1] || 50;
+                retroCurve.push(Math.min(95, prev + 10));
+            }
+            if (retroCurve.length > numLevels) {
+                retroCurve = retroCurve.slice(0, numLevels);
+            }
+            renderEqualizer();
+        }
+
+        // NES COLORIZED ASCII PIXEL TILE FORMATTER
+        function formatRetroTiles(rawText) {
+            if (!rawText) return "";
+            let formatted = "";
+            for (let i = 0; i < rawText.length; i++) {
+                const ch = rawText[i];
+                if (ch === 'X') {
+                    formatted += '<span class="rtile rtile-ground" title="Ground (X)">X</span>';
+                } else if (ch === 'S' || ch === 'D' || ch === '#' || ch === '%') {
+                    formatted += '<span class="rtile rtile-solid" title="Solid Block">' + ch + '</span>';
+                } else if (ch === '?' || ch === 'Q') {
+                    formatted += '<span class="rtile rtile-question" title="Question Block">' + ch + '</span>';
+                } else if (ch === '1' || ch === '2') {
+                    formatted += '<span class="rtile rtile-hidden" title="Hidden Block (' + (ch === '1' ? '1-Up' : 'Coin') + ')">' + ch + '</span>';
+                } else if (ch === 'o') {
+                    formatted += '<span class="rtile rtile-coin" title="Coin">●</span>';
+                } else if (ch === 'g' || ch === 'E') {
+                    formatted += '<span class="rtile rtile-goomba" title="Goomba">g</span>';
+                } else if (ch === 'k' || ch === 'r') {
+                    formatted += '<span class="rtile rtile-koopa" title="Koopa">' + ch + '</span>';
+                } else if (ch === 'K' || ch === 'R') {
+                    formatted += '<span class="rtile rtile-flying-koopa" title="Flying Koopa">' + ch + '</span>';
+                } else if (ch === 'y' || ch === 'Y') {
+                    formatted += '<span class="rtile rtile-spiky" title="Spiky">' + ch + '</span>';
+                } else if (ch === 't' || ch === 'L' || ch === 'J' || ch === '[' || ch === ']' || ch === '<' || ch === '>') {
+                    formatted += '<span class="rtile rtile-pipe" title="Pipe">' + ch + '</span>';
+                } else if (ch === 'T') {
+                    formatted += '<span class="rtile rtile-piranha" title="Piranha Pipe">T</span>';
+                } else if (ch === 'B' || ch === 'b') {
+                    formatted += '<span class="rtile rtile-cannon" title="Bullet Cannon">' + ch + '</span>';
+                } else if (ch === '|' || ch === 'F') {
+                    formatted += '<span class="rtile rtile-flag" title="Flagpole">' + ch + '</span>';
+                } else if (ch === '-') {
+                    formatted += '<span class="rtile rtile-sky">-</span>';
+                } else {
+                    formatted += ch;
+                }
+            }
+            return formatted;
+        }
+
+        // LOG TO RETRO TERMINAL
+        function logRetro(msg, cls = '') {
+            const term = document.getElementById('retroTerminalLog');
+            if (!term) return;
+            const time = new Date().toTimeString().split(' ')[0];
+            const p = document.createElement('div');
+            if (cls) p.className = cls;
+            p.innerHTML = `&gt; [${time}] ${msg}`;
+            term.appendChild(p);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // GENERATE CAMPAIGN VIA SSE STREAM
+        async function generateRetroCampaign() {
+            const overlay = document.getElementById('retroModalOverlay');
+            const pBar = document.getElementById('retroProgressBar');
+            const pTxt = document.getElementById('retroProgressText');
+            if (overlay) overlay.style.display = 'flex';
+            if (pBar) pBar.style.width = '0%';
+            if (pTxt) pTxt.innerText = "INITIALIZING 2ND-ORDER MARKOV SAMPLER...";
+
+            logRetro("Starting PCG campaign generation pipeline...", "cyan");
+
+            // Reset Arcade state
+            playerArcadeState.lastDdaDelta = {};
+            playerArcadeState.levelTargets = retroCurve.map(v => v / 100.0);
+            playerArcadeState.levelTexts = {};
+            playerArcadeState.activeLevelIdx = 1;
+            playerArcadeState.maxUnlockedLevel = 1;
+            playerArcadeState.isRetryMap = {};
+            document.getElementById('hudDDAShift').innerText = "+0.0%";
+
+            const skill = document.getElementById('retroSkillSelect').value;
+
+            try {
+                const resp = await fetch('/api/generate-sequence-stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ curve: retroCurve, player_skill: skill, max_variance: 0.10 })
+                });
+
+                const reader = resp.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\\n\\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const evt = JSON.parse(line.slice(6));
+                                if (evt.type === 'progress') {
+                                    if (pTxt) pTxt.innerText = evt.message.toUpperCase();
+                                } else if (evt.type === 'level_complete') {
+                                    if (pTxt) pTxt.innerText = evt.message.toUpperCase();
+                                    const pct = Math.round((evt.level / (evt.total || numLevels)) * 100);
+                                    if (pBar) pBar.style.width = pct + '%';
+                                    logRetro(`Stage ${evt.level} Validated (Est. Diff: ${(evt.step.estimated_difficulty * 100).toFixed(0)}%)`);
+                                    if (evt.step && evt.step.level_text) {
+                                        playerArcadeState.levelTexts[evt.level] = evt.step.level_text;
+                                    }
+                                } else if (evt.type === 'complete') {
+                                    campaignData = evt.result.data;
+                                    if (campaignData && campaignData.history) {
+                                        campaignData.history.forEach(h => {
+                                            playerArcadeState.levelTexts[h.level] = h.level_text;
+                                            playerArcadeState.levelTargets[h.level - 1] = h.target_difficulty;
+                                        });
+                                    }
+                                    logRetro("★ CAMPAIGN GENERATION COMPLETE & VERIFIED ★", "cyan");
+                                    setTimeout(() => {
+                                        if (overlay) overlay.style.display = 'none';
+                                        renderRetroDashboard();
+                                    }, 400);
+                                }
+                            } catch (e) {
+                                console.error("Parse error on chunk:", e);
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                if (overlay) overlay.style.display = 'none';
+                logRetro("ERROR GENERATING CAMPAIGN: " + err, "err");
+            }
+        }
+
+        // RENDER DASHBOARD & TABS
+        function renderRetroDashboard() {
+            if (!campaignData || !campaignData.history || campaignData.history.length === 0) return;
+
+            document.getElementById('monitorStatusBadge').innerText = 'ACTIVE';
+            document.getElementById('monitorStatusBadge').style.background = 'var(--neon-green)';
+            document.getElementById('btnDeathToggle').disabled = false;
+            document.getElementById('btnAiWatch').disabled = false;
+            document.getElementById('btnPlayStart').disabled = playerArcadeState.lives <= 0;
+
+            const tabsContainer = document.getElementById('retroLevelTabs');
+            tabsContainer.innerHTML = '';
+
+            campaignData.history.forEach((step, idx) => {
+                const btn = document.createElement('button');
+                const lvlNum = step.level;
+                const isUnlocked = lvlNum <= playerArcadeState.maxUnlockedLevel;
+                const isCleared = lvlNum < playerArcadeState.maxUnlockedLevel;
+                const isActive = idx === selectedLevelIdx;
+
+                btn.className = `retro-tab-btn ${isActive ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
+                btn.innerText = `[STAGE ${lvlNum}] ${isCleared ? '✔' : (isUnlocked ? '🎮' : '🔒')}`;
+                btn.disabled = !isUnlocked;
+
+                btn.onclick = () => {
+                    selectedLevelIdx = idx;
+                    playerArcadeState.activeLevelIdx = lvlNum;
+                    renderRetroLevelView();
+                    updateRetroHUD();
+                    document.querySelectorAll('.retro-tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+
+                tabsContainer.appendChild(btn);
+            });
+
+            renderRetroLevelView();
+            updateRetroHUD();
+        }
+
+        function renderRetroLevelView() {
+            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) return;
+            const step = campaignData.history[selectedLevelIdx];
+            const tileGrid = document.getElementById('tileGrid');
+            if (tileGrid && step.level_text) {
+                tileGrid.innerHTML = formatRetroTiles(step.level_text);
+            }
+
+            if (showDeathZone) {
+                fetchRetroDeathZoneTelemetry();
+            } else {
+                const canvas = document.getElementById('heatmapCanvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        }
+
+        function updateRetroHUD() {
+            const idx = playerArcadeState.activeLevelIdx;
+            document.getElementById('hudLevel').innerText = `1-${idx}`;
+            
+            // Hearts
+            let hearts = "";
+            for (let i = 0; i < Math.max(0, playerArcadeState.lives); i++) hearts += "❤️";
+            if (playerArcadeState.lives <= 0) hearts = "💀 0 LIVES";
+            document.getElementById('hudLives').innerText = hearts;
+
+            document.getElementById('hudCoins').innerText = `🪙 ${playerArcadeState.coins.toString().padStart(2, '0')}`;
+            
+            const powerNames = {0: "SMALL", 1: "SUPER", 2: "FIRE"};
+            document.getElementById('hudPower').innerText = powerNames[playerArcadeState.marioMode] || "SMALL";
+
+            const delta = playerArcadeState.lastDdaDelta[idx] || "+0.0%";
+            document.getElementById('hudDDAShift').innerText = delta;
+
+            const btnPlay = document.getElementById('btnPlayStart');
+            if (btnPlay) {
+                btnPlay.innerText = `▶ PRESS START: PLAY WORLD 1-${idx}`;
+                btnPlay.disabled = playerArcadeState.lives <= 0;
+            }
+        }
+
+        // DEATH ZONE OVERLAY
+        function toggleRetroDeathZone() {
+            showDeathZone = !showDeathZone;
+            const btn = document.getElementById('btnDeathToggle');
+            if (showDeathZone) {
+                btn.style.background = '#fff';
+                btn.style.color = '#000';
+                fetchRetroDeathZoneTelemetry();
+            } else {
+                btn.style.background = 'var(--neon-magenta)';
+                btn.style.color = '#fff';
+                const canvas = document.getElementById('heatmapCanvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+        }
+
+        async function fetchRetroDeathZoneTelemetry() {
+            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) return;
+            const currentLevelId = campaignData.history[selectedLevelIdx].level;
+
+            try {
+                const resp = await fetch(`/api/telemetry/death-zone/${currentLevelId}`);
+                const res = await resp.json();
+                if (res.status === 'Success') {
+                    renderRetroDeathCanvas(res.death_coordinates || []);
+                }
+            } catch (err) {
+                console.error("Failed to fetch death zone telemetry:", err);
+            }
+        }
+
+        function renderRetroDeathCanvas(points) {
+            const canvas = document.getElementById('heatmapCanvas');
+            const tileGrid = document.getElementById('tileGrid');
+            if (!canvas || !tileGrid) return;
+
+            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) return;
+            const step = campaignData.history[selectedLevelIdx];
+
+            const gridW = tileGrid.scrollWidth || tileGrid.offsetWidth || 800;
+            const gridH = tileGrid.scrollHeight || tileGrid.offsetHeight || 250;
+
+            canvas.width = gridW;
+            canvas.height = gridH;
+            canvas.style.width = gridW + 'px';
+            canvas.style.height = gridH + 'px';
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!points || points.length === 0) return;
+
+            const lines = (step.level_text || "").trim().split('\\n');
+            const firstLine = lines[0] ? lines[0].replace('\\r', '') : "";
+            const numCols = firstLine.length || 220;
+            const numRows = lines.length || 16;
+
+            const charW = gridW / numCols;
+            const charH = gridH / numRows;
+
+            points.forEach(pt => {
+                const px = (pt.x + 0.5) * charW;
+                const py = (pt.y + 0.5) * charH;
+
+                // 8-bit Neon Red Target Reticle
+                ctx.strokeStyle = '#ff3131';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(px, py, 16, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💀', px, py);
+            });
+        }
+
+        // WATCH AI PLAY
+        async function watchRetroAiPlay() {
+            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) return;
+            const step = campaignData.history[selectedLevelIdx];
+            logRetro(`Launching Robin Baumgarten A* visualizer for Stage ${step.level}...`, "cyan");
+
+            try {
+                const resp = await fetch('/api/watch-ai-play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level_index: step.level,
+                        target_difficulty: step.target_difficulty,
+                        level_text: step.level_text
+                    })
+                });
+                const res = await resp.json();
+                if (res.status === 'Success') {
+                    logRetro(`AI window active for Stage ${step.level}. Watch solving trajectory live!`);
+                } else {
+                    logRetro(`AI Playback Error: ${res.message}`, "err");
+                }
+            } catch (err) {
+                logRetro(`Failed to launch AI playback: ${err}`, "err");
+            }
+        }
+
+        // LAUNCH HUMAN PLAY
+        async function launchRetroHumanPlay() {
+            if (!campaignData || !campaignData.history || campaignData.history.length === 0) {
+                alert("CANNOT PLAY: Please insert coin and generate campaign stages first!");
+                return;
+            }
+
+            if (playerArcadeState.lives <= 0) {
+                alert("GAME OVER: 0 Lives remaining! Click 'RESET ARCADE PROGRESSION' to restore credits.");
+                return;
+            }
+
+            const currentIdx = playerArcadeState.activeLevelIdx;
+            const targetDiff = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
+            const nextDesignerTarget = playerArcadeState.levelTargets[currentIdx] || targetDiff;
+            const isRetry = playerArcadeState.isRetryMap[currentIdx] || false;
+            const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
+
+            logRetro(`Launching interactive Java window for Stage 1-${currentIdx} (Lives: ${playerArcadeState.lives})...`, "cyan");
+
+            try {
+                const resp = await fetch('/api/play-human-level', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        level_index: currentIdx,
+                        target_difficulty: targetDiff,
+                        lives: playerArcadeState.lives,
+                        coins: playerArcadeState.coins,
+                        mario_mode: playerArcadeState.marioMode,
+                        is_retry: isRetry,
+                        prev_level_text: prevText,
+                        level_text: prevText
+                    })
+                });
+
+                const res = await resp.json();
+                if (res.status === 'Success') {
+                    logRetro(`Playing Stage 1-${currentIdx} in Java Window... Complete level or lose life to trigger DDA!`);
+                    pollRetroSessionResult(currentIdx, nextDesignerTarget);
+                } else {
+                    logRetro(`Error launching stage: ${res.message}`, "err");
+                }
+            } catch (err) {
+                logRetro(`Launch error: ${err}`, "err");
+            }
+        }
+
+        function pollRetroSessionResult(currentIdx, nextDesignerTarget) {
+            if (browserGameLoopId) clearInterval(browserGameLoopId);
+
+            let pollAttempts = 0;
+            browserGameLoopId = setInterval(async () => {
+                pollAttempts++;
+                if (pollAttempts > 300) {
+                    clearInterval(browserGameLoopId);
+                    logRetro("Session polling timed out.", "warn");
+                    return;
+                }
+
+                try {
+                    const currentDesignerTarget = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
+                    const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
+                    const resp = await fetch('/api/check-session-result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            level_index: currentIdx,
+                            next_designer_target: nextDesignerTarget,
+                            current_designer_target: currentDesignerTarget,
+                            current_level_text: prevText
+                        })
+                    });
+
+                    const res = await resp.json();
+
+                    if (res.status === 'Success') {
+                        clearInterval(browserGameLoopId);
+
+                        const sess = res.session_update;
+                        const dda = res.dda_adjustment;
+
+                        const finalLives = Math.max(0, sess.lives);
+                        playerArcadeState.lives = finalLives;
+                        playerArcadeState.coins = sess.coins;
+                        playerArcadeState.marioMode = sess.mario_mode;
+
+                        const maxLevels = numLevels || 5;
+
+                        if (sess.won) {
+                            playerArcadeState.isRetryMap[currentIdx] = false;
+                            logRetro(`★ STAGE 1-${currentIdx} CLEARED! ★ (Kills: ${sess.kills}/${sess.total_enemies})`, "cyan");
+
+                            if (currentIdx < maxLevels) {
+                                const nextLvlNum = currentIdx + 1;
+                                const nextZeroIdx = currentIdx;
+
+                                playerArcadeState.maxUnlockedLevel = Math.max(playerArcadeState.maxUnlockedLevel, nextLvlNum);
+                                playerArcadeState.activeLevelIdx = nextLvlNum;
+                                selectedLevelIdx = nextZeroIdx;
+
+                                if (dda && dda.adjusted_target !== undefined) {
+                                    playerArcadeState.levelTargets[nextZeroIdx] = dda.adjusted_target;
+                                    playerArcadeState.lastDdaDelta[nextLvlNum] = dda.delta_pct;
+                                }
+                                if (res.next_level && res.next_level.level_text) {
+                                    playerArcadeState.levelTexts[nextLvlNum] = res.next_level.level_text;
+                                }
+
+                                if (campaignData && campaignData.history && campaignData.history[nextZeroIdx]) {
+                                    const nextStep = campaignData.history[nextZeroIdx];
+                                    if (dda && dda.adjusted_target !== undefined) {
+                                        nextStep.target_difficulty = dda.adjusted_target;
+                                        nextStep.dda_result = dda;
+                                    }
+                                    if (res.next_level) {
+                                        nextStep.estimated_difficulty = res.next_level.estimated_difficulty;
+                                        nextStep.level_text = res.next_level.level_text;
+                                    }
+                                }
+                                logRetro(`STAGE 1-${nextLvlNum} UNLOCKED! Pre-adjusted Target: ${(dda.adjusted_target * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift]`, "cyan");
+                            } else {
+                                logRetro(`🏆 CAMPAIGN COMPLETE! YOU CONQUERED ALL STAGES!`, "cyan");
+                            }
+                        } else {
+                            playerArcadeState.isRetryMap[currentIdx] = true;
+                            playerArcadeState.activeLevelIdx = currentIdx;
+                            selectedLevelIdx = currentIdx - 1;
+
+                            playerArcadeState.levelTargets[currentIdx - 1] = dda.adjusted_target;
+                            playerArcadeState.lastDdaDelta[currentIdx] = dda.delta_pct;
+                            if (res.next_level && res.next_level.level_text) {
+                                playerArcadeState.levelTexts[currentIdx] = res.next_level.level_text;
+                            }
+
+                            if (campaignData && campaignData.history && campaignData.history[currentIdx - 1]) {
+                                const step = campaignData.history[currentIdx - 1];
+                                step.target_difficulty = dda.adjusted_target;
+                                step.dda_result = dda;
+                                if (res.next_level && res.next_level.level_text) {
+                                    step.level_text = res.next_level.level_text;
+                                    step.estimated_difficulty = res.next_level.estimated_difficulty;
+                                }
+                            }
+
+                            if (finalLives <= 0) {
+                                logRetro(`💀 GAME OVER! 0 Lives Remaining. Session halted. Reset credits to play again.`, "err");
+                            } else {
+                                logRetro(`☠ MARIO DIED (${finalLives} Lives Left). Stage 1-${currentIdx} difficulty adapted by DDA (${dda.delta_pct}) for retry.`, "warn");
+                            }
+                        }
+
+                        renderRetroDashboard();
+                        updateRetroHUD();
+                    }
+                } catch (err) {
+                    console.error("Polling error:", err);
+                }
+            }, 1000);
+        }
+
+        function resetRetroArcade() {
+            playerArcadeState.lives = 3;
+            playerArcadeState.coins = 0;
+            playerArcadeState.marioMode = 0;
+            playerArcadeState.activeLevelIdx = 1;
+            playerArcadeState.maxUnlockedLevel = 1;
+            playerArcadeState.isRetryMap = {};
+            selectedLevelIdx = 0;
+
+            renderRetroDashboard();
+            updateRetroHUD();
+            logRetro("Arcade credits reset! 3 lives restored. Unlocked stage maps preserved.", "cyan");
+            alert("Arcade Credits Reset! 3 Lives restored.");
+        }
+
+        window.onload = function() {
+            renderEqualizer();
+            updateRetroHUD();
+        };
+    </script>
+</body>
+</html>
+"""
+
+with open('templates/retro.html', 'w', encoding='utf-8') as f:
+    f.write(retro_html)
+
+print("Successfully wrote clean templates/retro.html!")
