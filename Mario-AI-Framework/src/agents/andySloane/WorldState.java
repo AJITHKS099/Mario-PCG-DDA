@@ -32,6 +32,7 @@ public final class WorldState {
             modTile = _modTile;
         }
 
+        // Explanation: Checks and returns whether hash code condition is met.
         @Override
         public int hashCode() {
             switch (modType) {
@@ -45,6 +46,7 @@ public final class WorldState {
             return -1;
         }
 
+        // Explanation: Executes the equals routine on WorldState.
         @Override
         public boolean equals(Object _o) {
             WSHashKey o = (WSHashKey) _o;
@@ -56,6 +58,7 @@ public final class WorldState {
         }
     }
 
+    // Explanation: Constructs and initializes a new WorldState instance with specified parameters.
     public WorldState(int[][] _map, MarioState ms, float[] enemyPosition) {
         map = _map;
         MapX = (int) ms.x / 16 - 8;
@@ -69,6 +72,7 @@ public final class WorldState {
     WorldState() {
     }
 
+    // Explanation: Creates and returns an independent duplicate of this WorldState for forward simulation.
     public WorldState clone() {
         WorldState w = new WorldState();
         w.map = map;
@@ -82,6 +86,7 @@ public final class WorldState {
     }
 
     // nondestructive step
+    // Explanation: Executes the step routine on WorldState.
     @SuppressWarnings("unchecked")
     public WorldState step() {
         WSHashKey h = new WSHashKey();
@@ -96,6 +101,7 @@ public final class WorldState {
     }
 
     // destructive update, but returns new worldstate. bleh, it's a mess.
+    // Explanation: Executes the sync routine on WorldState.
     public void sync(WorldState prevws, int[][] _map, MarioState ms, float[] enemyPosition) {
         map = _map;
         MapX = (int) ms.x / 16 - 8;
@@ -147,6 +153,7 @@ public final class WorldState {
             this.y = y;
         }
 
+        // Explanation: Executes the compare to routine on WorldState.
         public int compareTo(EnemyObservation b) {
             return x < b.x ? -1 : x > b.x ? 1 : 0;
         }
@@ -154,6 +161,7 @@ public final class WorldState {
 
     // this function is terrible and slow, but it only needs to be done once per
     // real frame.
+    // Explanation: Executes the sync enemies routine on WorldState.
     public void syncEnemies(WorldState prevws, float[] enemyObs, MarioState ms) {
         // when we get a new observation, sort the observation by x and filter
         // through the list, using the nearest enemy of the same type and comparing
@@ -204,6 +212,7 @@ public final class WorldState {
         enemies = newenemies;
     }
 
+    // Explanation: Executes the step enemies routine on WorldState.
     public void stepEnemies() {
         for (int i = 0; i < enemies.size(); i++) {
             SpriteState e = enemies.get(i).clone();
@@ -220,6 +229,7 @@ public final class WorldState {
     // interact with mario after everyone does their move step
     // destructively updates MarioState, but non-destructively returns updated
     // WorldState
+    // Explanation: Executes the interact routine on WorldState.
     public WorldState interact(MarioState ms, boolean verbose) {
         WorldState ws = this;
         ws.addqueue = new Vector<SpriteState>();
@@ -241,6 +251,7 @@ public final class WorldState {
         return ws;
     }
 
+    // Explanation: Executes the add shell routine on WorldState.
     public void addShell(float x, float y) {
         ShellState s = new ShellState(x, y, true);
         s.move(this);
@@ -265,6 +276,7 @@ public final class WorldState {
         return s;
     }
 
+    // Explanation: Returns the current block value.
     final int getBlock(int x, int y) {
         // move x,y world coordinates to the 22x22 reference frame
         x -= MapX;
@@ -275,6 +287,7 @@ public final class WorldState {
         return map[x][y];
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     final boolean isBlocking(int x, int y, float xa, float ya) {
         int block = getBlock(x, y);
 
@@ -287,6 +300,7 @@ public final class WorldState {
         return block != 0;
     }
 
+    // Explanation: Executes the stomp routine on WorldState.
     @SuppressWarnings({"rawtypes", "unchecked"})
     final WorldState stomp(SpriteState e, MarioState ms) {
         // destructively modify mario
@@ -298,6 +312,7 @@ public final class WorldState {
         return ws;
     }
 
+    // Explanation: Executes the bump routine on WorldState.
     final WorldState bump(int x, int y, boolean big) {
         // System.out.printf("bumping tile @%d,%d = %d\n", x,y,getBlock(x,y));
         if (big) {
@@ -313,10 +328,12 @@ public final class WorldState {
 
     // this is destructive, done during interact(), unlike bump and stomp
     // (which are mario-initiated actions)
+    // Explanation: Executes the check shell collide routine on WorldState.
     final void checkShellCollide(ShellState s) {
 
     }
 
+    // Explanation: Executes the kick routine on WorldState.
     final void kick(ShellState s) {
     }
 }

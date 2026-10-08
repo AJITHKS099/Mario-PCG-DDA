@@ -16,10 +16,12 @@ public class EnemySimulator {
 
     public ArrayList<Enemy> enemies;
 
+    // Explanation: Constructs and initializes a default instance of EnemySimulator.
     public EnemySimulator() {
         enemies = new ArrayList<Enemy>();
     }
 
+    // Explanation: Creates and returns an independent duplicate of this EnemySimulator for forward simulation.
     @Override
     public EnemySimulator clone() {
         EnemySimulator es = new EnemySimulator();
@@ -30,6 +32,7 @@ public class EnemySimulator {
     }
 
     // Update all known enemy positions based on given scene
+    // Explanation: Updates physics, animation, and state transitions for this EnemySimulator on each game tick.
     public void update(Scene scene) {
         for (Enemy enemy : enemies) {
             // TODO: this needs to be much more sophisticated.
@@ -39,6 +42,7 @@ public class EnemySimulator {
 
     // Add new enemies based on the given observation.
     // update(Scene scene) should be called first.
+    // Explanation: Updates physics, animation, and state transitions for this EnemySimulator on each game tick.
     public void update(MarioForwardModel model) {
         float[] ep = model.getEnemiesFloatPos();
         int i;

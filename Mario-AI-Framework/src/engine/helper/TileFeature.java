@@ -14,6 +14,7 @@ public enum TileFeature {
     ANIMATED,
     SPAWNER;
 
+    // Explanation: Returns the current tile type value.
     public static ArrayList<TileFeature> getTileType(int index) {
         ArrayList<TileFeature> features = new ArrayList<>();
         switch (index) {

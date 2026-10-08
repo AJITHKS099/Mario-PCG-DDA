@@ -13,6 +13,7 @@ public class Agent implements MarioAgent {
     private class Rectangle {
         private float x, y, width, height;
 
+        // Explanation: Executes the rectangle routine on Agent.
         public Rectangle(float x, float y, float width, float height) {
             this.x = x;
             this.y = y;
@@ -20,6 +21,7 @@ public class Agent implements MarioAgent {
             this.height = height;
         }
 
+        // Explanation: Executes the contains routine on Agent.
         public boolean contains(float x, float y) {
             return x >= this.x && y >= this.y && x <= this.x + this.width && y <= this.y + this.height;
         }
@@ -30,6 +32,7 @@ public class Agent implements MarioAgent {
     private float prevY = 0;
     private boolean[] action;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         action = new boolean[MarioActions.numberOfActions()];
@@ -37,6 +40,7 @@ public class Agent implements MarioAgent {
         action[MarioActions.SPEED.getValue()] = true;
     }
 
+    // Explanation: Returns the current wall height value.
     private int getWallHeight(int tileX, int tileY, int[][] levelScene) {
         int y = tileY + 1, wallHeight = 0;
         while (y-- > 0 && levelScene[tileX + 1][y] != 0) {
@@ -45,6 +49,7 @@ public class Agent implements MarioAgent {
         return wallHeight;
     }
 
+    // Explanation: Executes the danger of gap routine on Agent.
     private boolean dangerOfGap(int tileX, int tileY, int[][] levelScene) {
         for (int y = tileY + 1; y < levelScene[0].length; y++) {
             if (levelScene[tileX + 1][y] != 0) {
@@ -54,6 +59,7 @@ public class Agent implements MarioAgent {
         return true;
     }
 
+    // Explanation: Executes the enemy in range routine on Agent.
     private boolean enemyInRange(MarioForwardModel e, Rectangle r) {
         for (int i = 0; i < e.getEnemiesFloatPos().length; i += 3) {
             if (r.contains(e.getEnemiesFloatPos()[i + 1] - e.getMarioFloatPos()[0],
@@ -64,12 +70,14 @@ public class Agent implements MarioAgent {
         return false;
     }
 
+    // Explanation: Sets the jump to the specified value.
     private final void setJump(final JumpType type, final int size) {
         jumpType = type;
         jumpSize = size;
         jumpCount = 0;
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         final float marioSpeed = model.getMarioFloatVelocity()[0];
@@ -101,6 +109,7 @@ public class Agent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "TrondEllingsen";

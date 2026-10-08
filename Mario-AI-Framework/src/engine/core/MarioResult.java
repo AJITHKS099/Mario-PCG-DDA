@@ -18,6 +18,7 @@ public class MarioResult {
      * @param gameEvents   the events that happens in the playthrough of the game
      * @param agentEvents  the events that happens in the playthrough of the game
      */
+    // Explanation: Create a mario result object.
     public MarioResult(MarioWorld world, ArrayList<MarioEvent> gameEvents, ArrayList<MarioAgentEvent> agentEvents) {
         this.world = world;
         this.gameEvents = gameEvents;
@@ -29,6 +30,7 @@ public class MarioResult {
      *
      * @return GameStatus the current state (WIN, LOSE, TIME_OUT, RUNNING)
      */
+    // Explanation: Get the current state of the running game.
     public GameStatus getGameStatus() {
         return this.world.gameStatus;
     }
@@ -38,6 +40,7 @@ public class MarioResult {
      *
      * @return value between 0 to 1 to indicate the percentage of distance traversed
      */
+    // Explanation: The percentage of distance traversed between mario and the goal.
     public float getCompletionPercentage() {
         return this.world.mario.x / (this.world.level.exitTileX * 16);
     }
@@ -47,6 +50,7 @@ public class MarioResult {
      *
      * @return the number of time ticks before timeout each frame removes 30 frames
      */
+    // Explanation: Get the remaining time before the game timesout.
     public int getRemainingTime() {
         return this.world.currentTimer;
     }
@@ -56,6 +60,7 @@ public class MarioResult {
      *
      * @return the current mario mode (0-small, 1-large, 2-fire)
      */
+    // Explanation: Get the current mario mode.
     public int getMarioMode() {
         int value = 0;
         if (this.world.mario.isLarge) {
@@ -72,6 +77,7 @@ public class MarioResult {
      *
      * @return an arrayList of all possible events that happened in a mario game
      */
+    // Explanation: Get all the game events that happen in the game.
     public ArrayList<MarioEvent> getGameEvents() {
         return this.gameEvents;
     }
@@ -81,6 +87,7 @@ public class MarioResult {
      *
      * @return an arraylist that contains all the actions the agent has taken during game play
      */
+    // Explanation: Get all the actions that the agent has been taking during the game.
     public ArrayList<MarioAgentEvent> getAgentEvents() {
         return this.agentEvents;
     }
@@ -90,6 +97,7 @@ public class MarioResult {
      *
      * @return number of enemies killed in the game
      */
+    // Explanation: Get the number of enemies killed in the game.
     public int getKillsTotal() {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -106,6 +114,7 @@ public class MarioResult {
      *
      * @return number of enemies killed by fireballs
      */
+    // Explanation: Get the number of enemies killed by fireballs.
     public int getKillsByFire() {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -121,6 +130,7 @@ public class MarioResult {
      *
      * @return number of enemies killed by stomping
      */
+    // Explanation: Get the number of enemies killed by stomping.
     public int getKillsByStomp() {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -136,6 +146,7 @@ public class MarioResult {
      *
      * @return number of enemies killed by a koopa shell
      */
+    // Explanation: Get the number of enemies killed by a koopa shell.
     public int getKillsByShell() {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -152,6 +163,7 @@ public class MarioResult {
      * @param enemyType the enemy type from SpriteType
      * @return number of a certain type of enemy that has been killed by Mario
      */
+    // Explanation: Get Num of kills for a certain enemy Type.
     public int getMarioNumKills(int enemyType) {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -169,6 +181,7 @@ public class MarioResult {
      *
      * @return number of times mario got hurt
      */
+    // Explanation: Get number of times mario got hit by an enemy.
     public int getMarioNumHurts() {
         int hurt = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -184,6 +197,7 @@ public class MarioResult {
      *
      * @return number of question mark block mario hit
      */
+    // Explanation: Number of times mario hit question mark block.
     public int getNumBumpQuestionBlock() {
         int bump = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -199,6 +213,7 @@ public class MarioResult {
      *
      * @return number of brick block mario hit
      */
+    // Explanation: Number of times mario hit brick block.
     public int getNumBumpBrick() {
         int bump = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -214,6 +229,7 @@ public class MarioResult {
      *
      * @return the number of enemies that fell from the game screen
      */
+    // Explanation: Get the number of enemies that fell from the game screen.
     public int getKillsByFall() {
         int kills = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -229,6 +245,7 @@ public class MarioResult {
      *
      * @return the number of jumps performed by mario during the game
      */
+    // Explanation: Get number of jumps performed by mario during the game.
     public int getNumJumps() {
         int jumps = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -244,6 +261,7 @@ public class MarioResult {
      *
      * @return the maximum x distance traversed mario
      */
+    // Explanation: Get the maximum x distance traversed by mario.
     public float getMaxXJump() {
         float maxXJump = 0;
         float startX = -100;
@@ -265,6 +283,7 @@ public class MarioResult {
      *
      * @return the maximum amount of frames mario is being in the air
      */
+    // Explanation: Get the maximum amount of frames mario is being in the air.
     public int getMaxJumpAirTime() {
         int maxAirJump = 0;
         int startTime = -100;
@@ -286,6 +305,7 @@ public class MarioResult {
      *
      * @return number of 100 coins collected by mario and 1 ups found
      */
+    // Explanation: Get the number 100 coins collected by mario and 1 ups found.
     public int getCurrentLives() {
         return this.world.lives;
     }
@@ -295,6 +315,7 @@ public class MarioResult {
      *
      * @return the number of coins that mario have by end of the game
      */
+    // Explanation: Get the number of coins that mario have by end of the game.
     public int getCurrentCoins() {
         return this.world.coins;
     }
@@ -304,6 +325,7 @@ public class MarioResult {
      *
      * @return the number of collected mushrooms by mario
      */
+    // Explanation: Get the number of mushroom collected by mario.
     public int getNumCollectedMushrooms() {
         int collect = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -319,6 +341,7 @@ public class MarioResult {
      *
      * @return the number of collected fire flowers by mario
      */
+    // Explanation: Get the number of fire flowers collected by mario.
     public int getNumCollectedFireflower() {
         int collect = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -334,6 +357,7 @@ public class MarioResult {
      *
      * @return the number of collected coins by mario
      */
+    // Explanation: Get the number of coins collected by mario.
     public int getNumCollectedTileCoins() {
         int collect = 0;
         for (MarioEvent e : this.gameEvents) {
@@ -349,6 +373,7 @@ public class MarioResult {
      *
      * @return the number of destroyed bricks by large or fire mario
      */
+    // Explanation: Get the number of destroyed bricks by large or fire mario.
     public int getNumDestroyedBricks() {
         int bricks = 0;
         for (MarioEvent e : this.gameEvents) {

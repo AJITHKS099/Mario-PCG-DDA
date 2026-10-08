@@ -4,10 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MARIO PCG &amp; DDA ARCADE CABINET</title>
-    <!-- 8-Bit Pixel Typography -->
+    <!-- 8-Bit Pixel Typography & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- Local Offline-First Chart.js Bundle with CDN Fallback -->
+    <script src="/static/vendor/chart.umd.js"></script>
+    <script id="retro-chart-cdn-fallback">
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+        }
+    </script>
 
     <style>
         :root {
@@ -16,12 +23,15 @@
             --neon-gold: #ffe600;
             --neon-green: #39ff14;
             --neon-red: #ff3131;
+            --neon-purple: #b026ff;
             --bg-deep: #08090f;
             --bg-cabinet: #10121d;
             --bg-panel: #171a29;
+            --bg-card: #0f1220;
             --border-color: #00f3ff;
+            --border-dim: #262b40;
             --text-main: #ffffff;
-            --text-dim: #7f8fa6;
+            --text-dim: #8892b0;
         }
 
         * {
@@ -93,7 +103,7 @@
         }
 
         .marquee-header h1 {
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             color: var(--neon-gold);
             text-shadow: 3px 3px 0px var(--neon-magenta), 0 0 15px rgba(255, 230, 0, 0.6);
             letter-spacing: 2px;
@@ -101,10 +111,45 @@
         }
 
         .marquee-header .subtitle {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: var(--neon-cyan);
             letter-spacing: 1px;
             text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        /* WORKSPACE MODE SWITCHER (8-BIT RETRO) */
+        .retro-mode-switch {
+            display: inline-flex;
+            gap: 12px;
+            background: #090a12;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 3px 3px 0 #000;
+            padding: 6px 12px;
+            margin-top: 6px;
+        }
+
+        .btn-mode {
+            background: #141726;
+            border: 2px solid #334155;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 0.65rem;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 2px 2px 0 #000;
+        }
+        .btn-mode:hover {
+            color: #fff;
+            border-color: var(--neon-cyan);
+        }
+        .btn-mode.active {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: #fff;
+            box-shadow: 0 0 12px rgba(0, 243, 255, 0.6), 2px 2px 0 #000;
+            font-weight: bold;
         }
 
         /* RETRO ARCADE GAMING LEVER ASSEMBLY */
@@ -256,8 +301,16 @@
             letter-spacing: 0.5px;
         }
 
+        @media (max-width: 900px) {
+            .arcade-lever-assembly {
+                position: static;
+                transform: none;
+                margin-top: 12px;
+            }
+        }
+
         /* RETRO SCREEN TRANSITION OVERLAY */
-        .retro-transition-overlay {
+        .retro-transition-overlay, .screen-transition-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -269,11 +322,11 @@
             background: #000;
             transition: opacity 0.3s ease;
         }
-        .retro-transition-overlay.active {
+        .retro-transition-overlay.active, .screen-transition-overlay.active {
             opacity: 1;
             pointer-events: auto;
         }
-        .retro-transition-overlay.crt-collapse::after {
+        .retro-transition-overlay.crt-collapse::after, .screen-transition-overlay.crt-collapse::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -313,6 +366,10 @@
             }
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         /* RETRO BEZEL CARDS */
         .arcade-card {
             background-color: var(--bg-cabinet);
@@ -333,6 +390,8 @@
             border-bottom: 3px dashed var(--neon-cyan);
             padding-bottom: 12px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .card-title {
@@ -351,11 +410,78 @@
             box-shadow: 2px 2px 0 #000;
         }
 
+        /* 8-BIT PACING CURVE CHART CONTAINER */
+        .retro-chart-wrapper {
+            background: #04050a;
+            border: 3px solid var(--neon-magenta);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.95), 4px 4px 0 #000;
+            padding: 10px;
+            height: 250px;
+            box-sizing: border-box;
+            position: relative;
+            margin-bottom: 18px;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .retro-chart-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+        }
+
+        .retro-chart-inner canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100%;
+        }
+
+        /* 8-BIT NUMERICAL CURVE INPUTS GRID */
+        .curve-inputs-grid {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .curve-point {
+            background: #060812;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 2px 2px 0 #000;
+            padding: 6px;
+            text-align: center;
+        }
+
+        .curve-point label {
+            display: block;
+            font-size: 0.52rem;
+            color: var(--neon-cyan);
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        .curve-point input {
+            width: 100%;
+            background: #000;
+            border: 2px solid var(--neon-gold);
+            color: var(--neon-gold);
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 6px 2px;
+            outline: none;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
         /* 8-BIT EQUALIZER DIFFICULTY METER */
         .equalizer-container {
             background: #05060a;
             border: 3px solid #334155;
-            padding: 16px;
+            padding: 14px;
             margin-bottom: 16px;
             box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.9);
         }
@@ -364,9 +490,9 @@
             display: flex;
             justify-content: space-around;
             align-items: flex-end;
-            gap: 12px;
-            min-height: 180px;
-            padding-top: 10px;
+            gap: 10px;
+            min-height: 160px;
+            padding-top: 6px;
         }
 
         .eq-column {
@@ -383,13 +509,13 @@
             color: var(--neon-cyan);
             font-family: inherit;
             font-size: 9px;
-            width: 28px;
-            height: 24px;
+            width: 26px;
+            height: 22px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 4px 0;
+            margin: 3px 0;
             box-shadow: 2px 2px 0 #000;
         }
         .eq-btn:hover {
@@ -402,14 +528,14 @@
         }
 
         .eq-meter {
-            width: 28px;
-            height: 120px;
+            width: 26px;
+            height: 110px;
             background: #111420;
             border: 2px solid #334155;
             display: flex;
             flex-direction: column-reverse;
             padding: 2px;
-            gap: 3px;
+            gap: 2px;
         }
 
         .eq-segment {
@@ -433,30 +559,30 @@
         }
 
         .eq-label {
-            font-size: 0.55rem;
-            margin-top: 6px;
+            font-size: 0.52rem;
+            margin-top: 4px;
             color: var(--neon-gold);
         }
         .eq-val {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #fff;
             margin-top: 2px;
         }
 
-        /* DIP SWITCH PRESETS & CONTROLS */
+        /* FORM CONTROLS */
         .retro-form-group {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .retro-label {
             display: block;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--neon-cyan);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
         }
 
-        .retro-select, .retro-input {
+        .retro-select, .select-input {
             width: 100%;
             background: #07080f;
             border: 3px solid var(--neon-cyan);
@@ -468,18 +594,44 @@
             outline: none;
         }
 
-        .retro-select option {
+        .retro-select option, .select-input option {
             background: #0b0d18;
             color: #fff;
         }
 
+        /* DYNAMIC LEVEL NUMBER CONTROLS */
+        .level-stepper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #05060b;
+            border: 2px solid var(--neon-cyan);
+            padding: 6px 12px;
+            box-shadow: 2px 2px 0 #000;
+            margin-bottom: 14px;
+        }
+        .stepper-btn {
+            background: var(--bg-panel);
+            border: 2px solid var(--neon-gold);
+            color: var(--neon-gold);
+            font-family: inherit;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 #000;
+        }
+        .stepper-btn:hover {
+            background: var(--neon-gold);
+            color: #000;
+        }
+
         /* BIG ARCADE ACTION BUTTONS */
-        .btn-arcade {
+        .btn-arcade, .btn {
             display: block;
             width: 100%;
             padding: 14px 18px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             cursor: pointer;
             border: 4px solid #000;
@@ -490,44 +642,46 @@
             text-decoration: none;
         }
 
-        .btn-primary-coin {
+        .btn-primary-coin, .btn-primary {
             background: var(--neon-gold);
             color: #000;
             border-color: #fff;
             box-shadow: 0 0 15px rgba(255, 230, 0, 0.5), 4px 4px 0px #000;
             animation: pulse-border 1.5s infinite;
         }
-        .btn-primary-coin:hover {
+        .btn-primary-coin:hover, .btn-primary:hover {
             background: #fff;
             color: #000;
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 4px 4px 0px #000;
         }
 
-        .btn-play-start {
+        .btn-play-start, .btn-green {
             background: var(--neon-green);
             color: #000;
             border-color: #fff;
             box-shadow: 0 0 15px rgba(57, 255, 20, 0.5), 4px 4px 0px #000;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
         }
-        .btn-play-start:hover:not(:disabled) {
+        .btn-play-start:hover:not(:disabled), .btn-green:hover:not(:disabled) {
             background: #fff;
             color: #000;
         }
-        .btn-play-start:disabled {
+        .btn-play-start:disabled, .btn-green:disabled {
             opacity: 0.4;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .btn-ai-watch {
+        .btn-ai-watch, .btn-secondary {
             background: var(--neon-cyan);
             color: #000;
+            font-size: 0.65rem;
+            padding: 8px 12px;
         }
-        .btn-ai-watch:hover:not(:disabled) {
+        .btn-ai-watch:hover:not(:disabled), .btn-secondary:hover:not(:disabled) {
             background: #fff;
         }
-        .btn-ai-watch:disabled {
+        .btn-ai-watch:disabled, .btn-secondary:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
@@ -535,6 +689,8 @@
         .btn-death-toggle {
             background: var(--neon-magenta);
             color: #fff;
+            font-size: 0.65rem;
+            padding: 8px 12px;
         }
         .btn-death-toggle:hover:not(:disabled) {
             background: #fff;
@@ -548,9 +704,10 @@
         .btn-reset-credit {
             background: #2b1020;
             color: var(--neon-red);
-            border-color: var(--neon-red);
-            font-size: 0.6rem;
-            padding: 8px;
+            border: 2px solid var(--neon-red);
+            font-size: 0.58rem;
+            padding: 10px;
+            box-shadow: 2px 2px 0 #000;
         }
         .btn-reset-credit:hover {
             background: var(--neon-red);
@@ -562,8 +719,8 @@
             50% { box-shadow: 0 0 25px rgba(255, 0, 127, 0.8), 4px 4px 0px #000; }
         }
 
-        /* ARCADE MARQUEE TOP HUD */
-        .arcade-hud-bar {
+        /* ARCADE TOP HUD */
+        .arcade-hud-bar, .arcade-hud {
             background: #000;
             border: 3px solid var(--neon-gold);
             box-shadow: 0 0 10px rgba(255, 230, 0, 0.3), 4px 4px 0px #000;
@@ -572,51 +729,98 @@
             flex-wrap: wrap;
             padding: 10px 16px;
             margin-bottom: 16px;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: #fff;
             gap: 10px;
         }
 
-        .hud-item span {
-            color: var(--neon-gold);
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .hud-item .dda-val {
-            color: var(--neon-cyan);
+        .hud-item .val {
+            font-size: 0.72rem;
+            font-weight: bold;
+        }
+        .hud-item .lbl {
+            font-size: 0.48rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
         }
 
-        /* LEVEL TABS */
-        .retro-tab-bar {
+        /* LEVEL TABS & ARCADE SELECTOR */
+        .retro-tab-bar, .level-tabs {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             margin-bottom: 12px;
         }
 
-        .retro-tab-btn {
+        .retro-tab-btn, .tab-btn {
             background: #0e111d;
             border: 2px solid #334155;
             color: var(--text-dim);
             font-family: inherit;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             padding: 8px 12px;
             cursor: pointer;
             white-space: nowrap;
             box-shadow: 2px 2px 0 #000;
+            transition: all 0.15s ease;
         }
-        .retro-tab-btn.active {
+        .retro-tab-btn:hover:not(:disabled), .tab-btn:hover:not(:disabled) {
+            border-color: var(--neon-cyan);
+            color: #fff;
+        }
+        .retro-tab-btn.active, .tab-btn.active {
             background: var(--neon-cyan);
             color: #000;
             border-color: #fff;
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.6), 2px 2px 0 #000;
+            font-weight: bold;
         }
-        .retro-tab-btn.locked {
+        .retro-tab-btn.locked, .tab-btn.locked {
             opacity: 0.4;
             cursor: not-allowed;
+            border-color: #1e293b;
+        }
+
+        /* KEY METRICS STAT GRID (8-BIT DIGITAL READOUTS) */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        @media (max-width: 768px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .stat-box {
+            background: #05060b;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 3px 3px 0 #000;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .stat-box .val {
+            font-size: 0.9rem;
+            font-family: 'Press Start 2P', monospace;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .stat-box .lbl {
+            font-size: 0.5rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* LEVEL MAP VIEW CONTAINER & HORIZONTAL SCROLLBAR */
-        .retro-level-view-container {
+        .retro-level-view-container, .level-view-container {
             background: #000;
             border: 4px solid var(--neon-cyan);
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.95), 4px 4px 0 #000;
@@ -631,27 +835,27 @@
         }
 
         /* CHUNKY 8-BIT SCROLLBAR */
-        .retro-level-view-container::-webkit-scrollbar {
+        .retro-level-view-container::-webkit-scrollbar, .level-view-container::-webkit-scrollbar {
             height: 14px;
         }
-        .retro-level-view-container::-webkit-scrollbar-track {
+        .retro-level-view-container::-webkit-scrollbar-track, .level-view-container::-webkit-scrollbar-track {
             background: #07080f;
             border-top: 2px solid var(--neon-cyan);
         }
-        .retro-level-view-container::-webkit-scrollbar-thumb {
+        .retro-level-view-container::-webkit-scrollbar-thumb, .level-view-container::-webkit-scrollbar-thumb {
             background: var(--neon-magenta);
             border: 2px solid #fff;
             box-shadow: inset 1px 1px 0px #fff;
         }
 
-        .retro-canvas-wrapper {
+        .retro-canvas-wrapper, .level-canvas-wrapper {
             position: relative;
             display: inline-block;
             min-width: 100%;
             vertical-align: top;
         }
 
-        #tileGrid {
+        #tileGrid, #playerNextTileGrid {
             font-family: monospace;
             font-size: 13px;
             line-height: 14px;
@@ -816,6 +1020,73 @@
             box-shadow: 0 0 6px #ffe600;
         }
 
+        /* DYNAMIC DIFFICULTY TELEMETRY FEED (8-BIT STYLE) */
+        .telemetry-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .telemetry-card {
+            background: #090b14;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 3px 3px 0 #000;
+            padding: 12px;
+        }
+
+        .telemetry-delta {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border: 1px solid #334155;
+            box-shadow: 1px 1px 0 #000;
+        }
+        .delta-positive {
+            color: var(--neon-magenta);
+            border-color: var(--neon-magenta);
+        }
+        .delta-negative {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+        }
+        .delta-neutral {
+            color: var(--text-dim);
+        }
+
+        .status-badge {
+            font-size: 0.55rem;
+            padding: 3px 6px;
+            border: 1px solid #000;
+            box-shadow: 1px 1px 0 #000;
+            font-weight: bold;
+        }
+        .status-win {
+            background: var(--neon-green);
+            color: #000;
+        }
+        .status-lose {
+            background: var(--neon-red);
+            color: #fff;
+        }
+
+        .btn-toggle-detail {
+            background: #121626;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: inherit;
+            font-size: 0.55rem;
+            padding: 6px 8px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 #000;
+            transition: all 0.1s ease;
+        }
+        .btn-toggle-detail:hover {
+            background: var(--neon-cyan);
+            color: #000;
+        }
+
         /* CRT TERMINAL LOG */
         .retro-terminal {
             background: #030408;
@@ -859,7 +1130,7 @@
         }
 
         .retro-modal-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--neon-gold);
             margin-bottom: 16px;
             text-shadow: 2px 2px 0 #000;
@@ -888,7 +1159,7 @@
         }
 
         .retro-progress-text {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: var(--neon-cyan);
             margin-top: 10px;
             line-height: 1.4;
@@ -906,10 +1177,27 @@
 <body>
     <!-- RETRO SCREEN TRANSITION OVERLAY -->
     <div id="retroTransitionOverlay" class="retro-transition-overlay"></div>
+    <div id="transitionOverlay" class="screen-transition-overlay" style="display:none;"></div>
 
     <!-- CRT SCANLINE & VIGNETTE OVERLAYS -->
     <div class="crt-scanlines"></div>
     <div class="crt-vignette"></div>
+
+    <!-- 8-BIT MODAL PROGRESS LOADER (ALIASED WITH loadingOverlay) -->
+    <div class="retro-modal-overlay" id="retroModalOverlay">
+        <div class="retro-modal-box">
+            <div class="retro-modal-title">⚙️ COMPILING MARIO PCG CAMPAIGN...</div>
+            <div class="retro-progress-track">
+                <div class="retro-progress-fill" id="retroProgressBar"></div>
+            </div>
+            <div class="retro-progress-text" id="retroProgressText">
+                INITIALIZING 2ND-ORDER MARKOV SAMPLER &amp; A* PATHFINDING SOLVER...
+            </div>
+        </div>
+    </div>
+    <div id="loadingOverlay" style="display:none;">
+        <span id="loadingProgressText"></span>
+    </div>
 
     <div class="arcade-cabinet">
         <!-- MARQUEE HEADER -->
@@ -943,14 +1231,25 @@
 
             <h1>★ MARIO PCG &amp; DDA ARCADE CABINET ★</h1>
             <div class="subtitle">DIFFICULTY-TRAJECTORY CONDITIONED PROCEDURAL GENERATION &bull; 8-BIT EDITION</div>
+
+            <!-- WORKSPACE MODE SWITCHER -->
+            <div class="retro-mode-switch">
+                <button class="btn-mode active" id="btnDesignerMode" onclick="switchMode('designer')">
+                    🎨 CABINET DESIGNER
+                </button>
+                <button class="btn-mode" id="btnPlayerMode" onclick="switchMode('player')">
+                    🎮 ARCADE PLAYER MODE
+                </button>
+            </div>
         </header>
 
-        <main class="cabinet-grid">
-            <!-- LEFT COLUMN: CABINET CONTROLS & EQUALIZER -->
+        <!-- ================= DESIGNER WORKSPACE ================= -->
+        <div id="designerWorkspace" class="cabinet-grid">
+            <!-- LEFT COLUMN: CURVE DESIGNER, CHART, EQUALIZER & TELEMETRY -->
             <section class="left-col">
                 <div class="arcade-card">
                     <div class="card-header">
-                        <span class="card-title">🕹️ DIFFICULTY EQUALIZER</span>
+                        <span class="card-title">🕹️ DIFFICULTY EQUALIZER &amp; CHART</span>
                         <span class="card-badge">ROM V2.4</span>
                     </div>
 
@@ -963,34 +1262,60 @@
                             <option value="wave_pacing">[3] SAWTOOTH PACING WAVE</option>
                             <option value="boss_rush">[4] CLIMAX PEAK (BOSS RUSH)</option>
                         </select>
+                        <select id="presetSelect" style="display:none;" onchange="loadPreset()"></select>
                     </div>
 
+                    <!-- NUMBER OF STAGES STEPPER CONTROL -->
                     <div class="retro-form-group">
-                        <label class="retro-label">NUMBER OF CAMPAIGN LEVELS (3-10):</label>
-                        <select id="retroNumLevels" class="retro-select" onchange="changeRetroNumLevels()">
-                            <option value="3">3 STAGES</option>
-                            <option value="4">4 STAGES</option>
-                            <option value="5" selected>5 STAGES (STANDARD)</option>
-                            <option value="6">6 STAGES</option>
-                            <option value="7">7 STAGES</option>
-                            <option value="8">8 STAGES (FULL CAMPAIGN)</option>
-                        </select>
+                        <label class="retro-label">CAMPAIGN STAGES (3-10):</label>
+                        <div class="level-stepper">
+                            <button class="stepper-btn" onclick="changeRetroNumLevelsDelta(-1)">-</button>
+                            <span id="numLevelsDisplay" style="color: var(--neon-gold); font-size: 0.9rem; min-width: 24px; text-align: center;">5</span>
+                            <button class="stepper-btn" onclick="changeRetroNumLevelsDelta(1)">+</button>
+                            <select id="retroNumLevels" class="retro-select" style="margin-left: 10px; width: auto; flex: 1;" onchange="changeRetroNumLevels()">
+                                <option value="3">3 STAGES</option>
+                                <option value="4">4 STAGES</option>
+                                <option value="5" selected>5 STAGES (STANDARD)</option>
+                                <option value="6">6 STAGES</option>
+                                <option value="7">7 STAGES</option>
+                                <option value="8">8 STAGES (FULL CAMPAIGN)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 8-BIT PACING CURVE CHART (CHART.JS CANVAS) -->
+                    <div class="retro-chart-wrapper">
+                        <div class="retro-chart-inner">
+                            <canvas id="curveChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- NUMERICAL CURVE INPUTS GRID -->
+                    <div class="retro-form-group">
+                        <label class="retro-label">TARGET DIFFICULTY POINTS (5% - 95%):</label>
+                        <div class="curve-inputs-grid" id="curveInputsGrid">
+                            <!-- Rendered dynamically via JS -->
+                        </div>
                     </div>
 
                     <!-- 8-BIT EQUALIZER BARS -->
                     <div class="equalizer-container">
+                        <div style="font-size: 0.55rem; color: var(--neon-cyan); margin-bottom: 8px; text-transform: uppercase;">
+                            EQUIPMENT METER BARS:
+                        </div>
                         <div class="equalizer-bars" id="equalizerBars">
                             <!-- Rendered dynamically via JS -->
                         </div>
                     </div>
 
                     <div class="retro-form-group">
-                        <label class="retro-label">SIMULATED PLAYER SKILL:</label>
+                        <label class="retro-label">SIMULATED PLAYER SKILL PROFILE:</label>
                         <select id="retroSkillSelect" class="retro-select">
-                            <option value="novice">[A] NOVICE (CASUAL)</option>
                             <option value="average" selected>[B] AVERAGE (BALANCED)</option>
-                            <option value="expert">[C] EXPERT (HARDCORE)</option>
+                            <option value="novice">[A] NOVICE (CASUAL)</option>
+                            <option value="pro">[C] PRO (HARDCORE)</option>
                         </select>
+                        <select id="skillSelect" style="display:none;"></select>
                     </div>
 
                     <!-- INSERT COIN / GENERATE CTA -->
@@ -998,23 +1323,28 @@
                         ▶ INSERT COIN: GENERATE CAMPAIGN ◀
                     </button>
                 </div>
-            </section>
 
-            <!-- RIGHT COLUMN: CRT MONITOR, VISUALIZER & ARCADE HUD -->
-            <section class="right-col">
-                <!-- TOP CABINET SCORE HUD -->
-                <div class="arcade-hud-bar">
-                    <div class="hud-item">WORLD: <span id="hudLevel">1-1</span></div>
-                    <div class="hud-item">LIVES: <span id="hudLives">❤️❤️❤️</span></div>
-                    <div class="hud-item">COINS: <span id="hudCoins">🪙 00</span></div>
-                    <div class="hud-item">POWER: <span id="hudPower">SMALL</span></div>
-                    <div class="hud-item">DDA SHIFT: <span id="hudDDAShift" class="dda-val">+0.0%</span></div>
-                </div>
-
-                <!-- CRT LEVEL MAP MONITOR -->
+                <!-- DYNAMIC DIFFICULTY TELEMETRY FEED -->
                 <div class="arcade-card">
                     <div class="card-header">
-                        <span class="card-title">📺 CRT LEVEL MONITOR</span>
+                        <span class="card-title">🔄 DYNAMIC DIFFICULTY TELEMETRY</span>
+                        <span class="card-badge" id="telemetryBadge">DDA &bull; ACTIVE</span>
+                    </div>
+
+                    <!-- TELEMETRY STEP CARDS (FULL COMPATIBILITY WITH index.html) -->
+                    <div class="telemetry-list" id="telemetryList">
+                        <div style="color: var(--text-dim); text-align: center; padding: 20px; font-size: 0.65rem;">
+                            INSERT COIN &amp; GENERATE CAMPAIGN TO EXECUTE PIPELINE.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: CRT MONITOR, STAT GRID & MAP VISUALIZER + SESSION TERMINAL -->
+            <section class="right-col">
+                <div class="arcade-card" id="levelVisualizerCard">
+                    <div class="card-header">
+                        <span class="card-title">📺 CRT LEVEL MONITOR &amp; VISUALIZER</span>
                         <span class="card-badge" id="monitorStatusBadge">IDLE</span>
                     </div>
 
@@ -1022,10 +1352,31 @@
                     <div class="retro-tab-bar" id="retroLevelTabs">
                         <button class="retro-tab-btn locked" disabled>[NO LEVELS LOADED]</button>
                     </div>
+                    <div id="levelTabs" style="display:none;"></div>
+
+                    <!-- KEY METRICS STAT GRID (8-BIT DIGITAL READOUTS) -->
+                    <div class="stat-grid" id="statGrid">
+                        <div class="stat-box">
+                            <div class="val" id="statDesigner" style="color: var(--neon-gold);">--</div>
+                            <div class="lbl">Designer Target</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="val" id="statDDATarget" style="color: var(--neon-cyan);">--</div>
+                            <div class="lbl">DDA Target</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="val" id="statEstimated" style="color: var(--neon-green);">--</div>
+                            <div class="lbl">Est. Difficulty</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="val" id="statResult" style="color: var(--neon-magenta);">--</div>
+                            <div class="lbl">Simulated Result</div>
+                        </div>
+                    </div>
 
                     <!-- BOUNDED HORIZONTAL SCROLL MAP BOX -->
-                    <div class="retro-level-view-container">
-                        <div class="retro-canvas-wrapper">
+                    <div class="retro-level-view-container" id="levelViewContainer">
+                        <div class="retro-canvas-wrapper" id="levelCanvasWrapper">
                             <pre id="tileGrid">=======================================================
 [ CRT MONITOR STANDBY — INSERT COIN TO GENERATE MAPS ]
 =======================================================</pre>
@@ -1033,30 +1384,26 @@
                         </div>
                     </div>
 
-                    <!-- ACTION BUTTONS -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-                        <button class="btn-arcade btn-death-toggle" id="btnDeathToggle" onclick="toggleRetroDeathZone()" disabled>
+                    <!-- ACTION BUTTONS: DEATH ZONES & WATCH AI PLAY ONLY -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-arcade btn-death-toggle" id="btnDeathToggle" onclick="toggleRetroDeathZone()" disabled title="Marks player death locations on this specific map">
                             💀 DEATH ZONES
                         </button>
-                        <button class="btn-arcade btn-ai-watch" id="btnAiWatch" onclick="watchRetroAiPlay()" disabled>
+                        <button class="btn-arcade btn-ai-watch" id="btnAiWatch" onclick="watchRetroAiPlay()" disabled title="Launch Java window with Robin Baumgarten A* solving live">
                             👁 WATCH AI PLAY
                         </button>
                     </div>
 
-                    <!-- PLAY BUTTON -->
-                    <button class="btn-arcade btn-play-start" id="btnPlayStart" onclick="launchRetroHumanPlay()" disabled>
-                        ▶ PRESS START: PLAY WORLD 1-1
-                    </button>
-
-                    <button class="btn-arcade btn-reset-credit" onclick="resetRetroArcade()">
-                        🔄 RESET ARCADE PROGRESSION (3 LIVES)
-                    </button>
+                    <button class="btn-arcade btn-death-toggle" id="btnDeathZone" style="display:none;" onclick="toggleRetroDeathZone()"></button>
+                    <button class="btn-arcade btn-ai-watch" id="btnWatchAI" style="display:none;" onclick="watchRetroAiPlay()"></button>
+                    <button class="btn-arcade btn-play-start" id="btnPlayStart" style="display:none;" onclick="launchRetroHumanPlay()" disabled></button>
+                    <button id="btnLaunchPlay" style="display:none;" onclick="launchRetroHumanPlay()"></button>
                 </div>
 
-                <!-- TERMINAL TELEMETRY -->
-                <div class="arcade-card">
+                <!-- CRT TERMINAL LOG (MOVED TO UNDER CRT LEVEL MONITOR & VISUALIZER) -->
+                <div class="arcade-card" id="sessionTerminalCard">
                     <div class="card-header">
-                        <span class="card-title">📟 SESSION IPC TELEMETRY</span>
+                        <span class="card-title">📟 SESSION IPC TERMINAL</span>
                         <span class="blink" style="color: var(--neon-green);">● ONLINE</span>
                     </div>
                     <div class="retro-terminal" id="retroTerminalLog">
@@ -1066,43 +1413,95 @@
                     </div>
                 </div>
             </section>
-        </main>
-    </div>
+        </div>
 
-    <!-- RETRO 8-BIT PROGRESS MODAL -->
-    <div class="retro-modal-overlay" id="retroModalOverlay">
-        <div class="retro-modal-box">
-            <div class="retro-modal-title">⚙️ COMPILING 8-BIT STAGES...</div>
-            <div class="retro-progress-track">
-                <div class="retro-progress-fill" id="retroProgressBar"></div>
-            </div>
-            <div class="retro-progress-text" id="retroProgressText">
-                INITIALIZING 2ND-ORDER MARKOV SAMPLER...
+        <!-- ================= PLAYER ARCADE WORKSPACE ================= -->
+        <div id="playerWorkspace" class="hidden">
+            <div class="arcade-card">
+                <div class="card-header">
+                    <span class="card-title">🎮 PLAYER ARCADE MODE (LIVE INTERACTIVE PLAY)</span>
+                    <span class="card-badge">CREDITS: 3 LIVES</span>
+                </div>
+                <div style="font-size: 0.6rem; color: var(--text-dim); margin-bottom: 16px;">
+                    CHOOSE UNLOCKED STAGE TO PLAY! CLEAR CURRENT LEVEL TO UNLOCK NEXT LEVEL &amp; TRIGGER DDA TARGET ADJUSTMENT.
+                </div>
+
+                <!-- ARCADE MARQUEE TOP HUD -->
+                <div class="arcade-hud-bar" id="playerArcadeHUD">
+                    <div class="hud-item">
+                        <div class="val" id="hudLevel" style="color: var(--neon-gold);">1-1</div>
+                        <div class="lbl">SELECTED WORLD</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="val" id="hudLives" style="color: var(--neon-red);">❤️❤️❤️</div>
+                        <div class="lbl">LIVES REMAINING</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="val" id="hudCoins" style="color: var(--neon-gold);">🪙 00</div>
+                        <div class="lbl">COINS COLLECTED</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="val" id="hudPower" style="color: var(--neon-cyan);">SMALL</div>
+                        <div class="lbl">MARIO POWER STATE</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="val" id="hudDDAShift" style="color: var(--neon-green);">+0.0%</div>
+                        <div class="lbl">LAST DDA SHIFT</div>
+                    </div>
+                </div>
+
+                <!-- UNLOCKED LEVEL SELECTOR BAR -->
+                <div class="retro-form-group">
+                    <label class="retro-label">🗺️ SELECT LEVEL TO PLAY (CLEAR CURRENT TO UNLOCK NEXT):</label>
+                    <div class="retro-tab-bar" id="arcadeLevelSelector">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- SESSION TELEMETRY & MAP PREVIEW -->
+                <div class="cabinet-grid" style="margin-bottom: 18px;">
+                    <div class="arcade-card" style="margin-bottom:0;">
+                        <div class="card-header">
+                            <span class="card-title">📊 LAST GAMEPLAY TELEMETRY &amp; DDA</span>
+                        </div>
+                        <div id="playerSessionLog" style="font-size: 0.65rem; color: var(--text-dim); line-height: 1.6;">
+                            PRESS START TO LAUNCH THE INTERACTIVE JAVA GAME WINDOW!
+                        </div>
+                    </div>
+
+                    <div class="arcade-card" style="margin-bottom:0;">
+                        <div class="card-header">
+                            <span class="card-title">🧩 SELECTED LEVEL TILE PREVIEW</span>
+                        </div>
+                        <div class="retro-level-view-container" style="max-height: 200px;">
+                            <div class="retro-canvas-wrapper">
+                                <div class="tile-grid" id="playerNextTileGrid">
+                                    <div style="color: var(--text-dim); text-align: center; padding: 30px 10px; font-size: 0.65rem;">
+                                        ⚠️ NO LEVEL MAP AVAILABLE.<br>GENERATE SEQUENCE IN DESIGNER WORKSPACE FIRST.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ARCADE CONTROL DECK (UNDER MAP PREVIEW & TELEMETRY) -->
+                <div class="arcade-control-deck" style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
+                    <button class="btn-arcade btn-play-start" id="btnLaunchPlayArcade" onclick="launchRetroHumanPlay()" disabled style="font-size: 0.82rem; padding: 14px 20px;">
+                        ▶ PRESS START: PLAY SELECTED WORLD
+                    </button>
+                    <button class="btn-arcade btn-reset-credit" onclick="resetRetroArcade()" style="width: auto; align-self: center; padding: 10px 24px;">
+                        🔄 RESET ARCADE PROGRESSION (3 LIVES)
+                    </button>
+                </div>
             </div>
         </div>
+
     </div>
 
+    <!-- JAVASCRIPT ENGINE -->
     <script>
-        // RETRO ARCADE GLOBAL STATE
-        let numLevels = 5;
-        let retroCurve = [20, 35, 50, 65, 80]; // 0-100% scale
-        let campaignData = null;
-        let selectedLevelIdx = 0;
-        let showDeathZone = false;
-        let browserGameLoopId = null;
-
-        let playerArcadeState = {
-            activeLevelIdx: 1,
-            maxUnlockedLevel: 1,
-            lives: 3,
-            coins: 0,
-            marioMode: 0,
-            levelTargets: [0.20, 0.35, 0.50, 0.65, 0.80],
-            levelTexts: {},
-            lastDdaDelta: {},
-            isRetryMap: {}
-        };
-
+        // Preset difficulty vectors
         const PRESETS = {
             "linear_ramp": [20, 35, 50, 65, 80],
             "mid_spike": [25, 45, 85, 35, 70],
@@ -1110,33 +1509,274 @@
             "boss_rush": [30, 40, 55, 70, 95]
         };
 
-        // RENDER 8-BIT EQUALIZER BARS
+        let numLevels = 5;
+        let retroCurve = [20, 35, 50, 65, 80];
+        let campaignData = null;
+        let selectedLevelIdx = 0;
+        let showDeathZone = false;
+        let isDeathZoneVisible = false;
+        let browserGameLoopId = null;
+        let chartInstance = null;
+
+        // Player Arcade Progression State
+        let playerArcadeState = {
+            activeLevelIdx: 1,
+            maxUnlockedLevel: 1,
+            designerCurve: [0.20, 0.35, 0.50, 0.65, 0.80],
+            designerTargets: [0.20, 0.35, 0.50, 0.65, 0.80],
+            levelTargets: [0.20, 0.35, 0.50, 0.65, 0.80],
+            levelTexts: {},
+            lastDdaDelta: {},
+            isRetryMap: {},
+            lives: 3,
+            coins: 0,
+            marioMode: 0
+        };
+
+        // --- MODE SWITCHER ---
+        function switchMode(mode) {
+            const desWS = document.getElementById('designerWorkspace');
+            const plrWS = document.getElementById('playerWorkspace');
+            const desBtn = document.getElementById('btnDesignerMode');
+            const plrBtn = document.getElementById('btnPlayerMode');
+
+            if (mode === 'designer') {
+                if (desWS) desWS.classList.remove('hidden');
+                if (plrWS) plrWS.classList.add('hidden');
+                if (desBtn) desBtn.classList.add('active');
+                if (plrBtn) plrBtn.classList.remove('active');
+
+                setTimeout(() => {
+                    if (chartInstance) {
+                        if (typeof chartInstance.resize === 'function') chartInstance.resize();
+                        if (typeof chartInstance.update === 'function') chartInstance.update();
+                    } else {
+                        updateDesignerChartFromInputs();
+                    }
+                }, 40);
+            } else {
+                if (desWS) desWS.classList.add('hidden');
+                if (plrWS) plrWS.classList.remove('hidden');
+                if (desBtn) desBtn.classList.remove('active');
+                if (plrBtn) plrBtn.classList.add('active');
+                renderArcadeLevelSelector();
+                renderPlayerNextTilePreview();
+                updateRetroHUD();
+            }
+        }
+
+        // --- 8-BIT PACING CURVE CHART (CHART.JS) ---
+        function initRetroChart(labels, designerCurve, ddaCurve = null, actualCurve = null) {
+            const canvasEl = document.getElementById('curveChart');
+            if (!canvasEl || typeof canvasEl.getContext !== 'function') return;
+            if (typeof Chart === 'undefined') {
+                console.warn("Chart.js is not loaded yet.");
+                return;
+            }
+            const ctx = canvasEl.getContext('2d');
+            if (!ctx) return;
+
+            if (chartInstance && typeof chartInstance.destroy === 'function') {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+
+            const datasets = [
+                {
+                    label: 'Designer Target (0-100)',
+                    data: designerCurve,
+                    borderColor: '#00f3ff',
+                    borderWidth: 2,
+                    borderDash: [4, 4],
+                    backgroundColor: 'transparent',
+                    tension: 0.15,
+                    pointBackgroundColor: '#00f3ff',
+                    pointBorderColor: '#ffffff',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }
+            ];
+
+            if (ddaCurve && Array.isArray(ddaCurve) && ddaCurve.length > 0) {
+                datasets.push({
+                    label: 'DDA Adjusted Target (±10%)',
+                    data: ddaCurve,
+                    borderColor: '#ff007f',
+                    borderWidth: 3,
+                    backgroundColor: 'transparent',
+                    tension: 0.15,
+                    pointBackgroundColor: '#ff007f',
+                    pointBorderColor: '#ffffff',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                });
+            }
+
+            if (actualCurve && Array.isArray(actualCurve) && actualCurve.length > 0) {
+                datasets.push({
+                    label: 'Est. Level Difficulty',
+                    data: actualCurve,
+                    borderColor: '#39ff14',
+                    backgroundColor: 'rgba(57, 255, 20, 0.15)',
+                    fill: true,
+                    borderWidth: 2,
+                    tension: 0.15,
+                    pointBackgroundColor: '#39ff14',
+                    pointBorderColor: '#ffffff',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                });
+            }
+
+            try {
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        resizeDelay: 50,
+                        animation: { duration: 250 },
+                        layout: {
+                            padding: { top: 6, bottom: 4, left: 4, right: 8 }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                grid: { color: 'rgba(0, 243, 255, 0.12)' },
+                                ticks: { 
+                                    color: '#8892b0', 
+                                    stepSize: 20,
+                                    font: { family: "'VT323', monospace", size: 13 } 
+                                }
+                            },
+                            x: {
+                                grid: { color: 'rgba(0, 243, 255, 0.12)' },
+                                ticks: { 
+                                    color: '#8892b0', 
+                                    font: { family: "'VT323', monospace", size: 13 } 
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                align: 'center',
+                                labels: {
+                                    color: '#ffffff',
+                                    font: { family: "'VT323', monospace", size: 12 },
+                                    boxWidth: 10,
+                                    padding: 8
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.warn("Chart.js init warning:", e);
+            }
+        }
+
+        // Aliased initChart for tests
+        function initChart(labels, designerCurve, ddaCurve = null, actualCurve = null) {
+            initRetroChart(labels, designerCurve, ddaCurve, actualCurve);
+        }
+
+        function updateDesignerChartFromInputs() {
+            const labels = [];
+            const designerVals = [];
+            for (let i = 1; i <= numLevels; i++) {
+                labels.push(`Stage ${i}`);
+                const inputEl = document.getElementById('p' + i);
+                const val = inputEl ? parseFloat(inputEl.value) || 50 : (retroCurve[i-1] || 50);
+                designerVals.push(val);
+                retroCurve[i - 1] = val;
+            }
+
+            if (!campaignData) {
+                initRetroChart(labels, designerVals);
+            } else if (campaignData.history && campaignData.history.length !== numLevels) {
+                campaignData = null;
+                renderVisualizerInitialState();
+                initRetroChart(labels, designerVals);
+            } else if (chartInstance && chartInstance.data && chartInstance.data.datasets && chartInstance.data.datasets.length > 0) {
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets[0].data = designerVals;
+                if (typeof chartInstance.update === 'function') {
+                    chartInstance.update();
+                }
+            } else {
+                initRetroChart(labels, designerVals);
+            }
+
+            renderEqualizer();
+            saveRetroSharedSessionState();
+        }
+
+        function renderCurveInputs() {
+            const grid = document.getElementById('curveInputsGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            grid.style.gridTemplateColumns = `repeat(${numLevels}, 1fr)`;
+
+            for (let i = 1; i <= numLevels; i++) {
+                const div = document.createElement('div');
+                div.className = 'curve-point';
+                const curVal = retroCurve[i - 1] !== undefined ? retroCurve[i - 1] : 50;
+
+                div.innerHTML = `
+                    <label>L${i} TGT</label>
+                    <input type="number" id="p${i}" value="${curVal}" min="5" max="95" oninput="onCurveInputChange(${i})">
+                `;
+                grid.appendChild(div);
+            }
+            updateDesignerChartFromInputs();
+        }
+
+        function onCurveInputChange(idx) {
+            const inputEl = document.getElementById('p' + idx);
+            if (inputEl) {
+                let v = parseFloat(inputEl.value) || 50;
+                v = Math.max(5, Math.min(95, v));
+                retroCurve[idx - 1] = v;
+                renderEqualizer();
+                updateDesignerChartFromInputs();
+            }
+        }
+
+        // 8-BIT EQUALIZER METER
         function renderEqualizer() {
             const container = document.getElementById('equalizerBars');
             if (!container) return;
             container.innerHTML = '';
 
             for (let i = 0; i < numLevels; i++) {
-                const val = retroCurve[i] || 50;
+                const val = retroCurve[i] !== undefined ? retroCurve[i] : 50;
                 const col = document.createElement('div');
                 col.className = 'eq-column';
 
                 const btnUp = document.createElement('button');
                 btnUp.className = 'eq-btn';
-                btnUp.innerText = '+';
+                btnUp.innerText = '▲';
                 btnUp.onclick = () => adjustEqVal(i, 5);
 
                 const meter = document.createElement('div');
                 meter.className = 'eq-meter';
 
-                // 10 LED segments (10% each)
-                const activeSegments = Math.round(val / 10);
-                for (let s = 1; s <= 10; s++) {
+                const totalSegments = 10;
+                const activeSegments = Math.round((val / 100) * totalSegments);
+
+                for (let s = 1; s <= totalSegments; s++) {
                     const seg = document.createElement('div');
                     seg.className = 'eq-segment';
                     if (s <= activeSegments) {
                         seg.classList.add('active');
-                        if (s <= 4) seg.classList.add('tier-low');
+                        if (s <= 3) seg.classList.add('tier-low');
                         else if (s <= 7) seg.classList.add('tier-mid');
                         else seg.classList.add('tier-high');
                     }
@@ -1145,7 +1785,7 @@
 
                 const btnDown = document.createElement('button');
                 btnDown.className = 'eq-btn';
-                btnDown.innerText = '-';
+                btnDown.innerText = '▼';
                 btnDown.onclick = () => adjustEqVal(i, -5);
 
                 const label = document.createElement('div');
@@ -1164,28 +1804,53 @@
 
                 container.appendChild(col);
             }
+
+            // Sync input boxes if they exist
+            for (let i = 1; i <= numLevels; i++) {
+                const inp = document.getElementById('p' + i);
+                if (inp && retroCurve[i - 1] !== undefined) {
+                    inp.value = retroCurve[i - 1];
+                }
+            }
         }
 
         function adjustEqVal(idx, delta) {
             retroCurve[idx] = Math.max(5, Math.min(95, (retroCurve[idx] || 50) + delta));
             renderEqualizer();
+            const inputEl = document.getElementById('p' + (idx + 1));
+            if (inputEl) inputEl.value = retroCurve[idx];
+            updateDesignerChartFromInputs();
             saveRetroSharedSessionState();
         }
 
         function applyRetroPreset() {
-            const presetKey = document.getElementById('retroPresetSelect').value;
+            const selectEl = document.getElementById('retroPresetSelect');
+            const presetKey = selectEl ? selectEl.value : 'linear_ramp';
             const presetArr = PRESETS[presetKey];
             if (presetArr) {
                 numLevels = presetArr.length;
-                document.getElementById('retroNumLevels').value = numLevels.toString();
+                const numSel = document.getElementById('retroNumLevels');
+                if (numSel) numSel.value = numLevels.toString();
+                const numDisp = document.getElementById('numLevelsDisplay');
+                if (numDisp) numDisp.innerText = numLevels.toString();
+
                 retroCurve = [...presetArr];
+                renderCurveInputs();
                 renderEqualizer();
                 saveRetroSharedSessionState();
             }
         }
 
+        function loadPreset() {
+            applyRetroPreset();
+        }
+
         function changeRetroNumLevels() {
-            numLevels = parseInt(document.getElementById('retroNumLevels').value) || 5;
+            const numSel = document.getElementById('retroNumLevels');
+            numLevels = parseInt(numSel ? numSel.value : '5') || 5;
+            const numDisp = document.getElementById('numLevelsDisplay');
+            if (numDisp) numDisp.innerText = numLevels.toString();
+
             while (retroCurve.length < numLevels) {
                 const prev = retroCurve[retroCurve.length - 1] || 50;
                 retroCurve.push(Math.min(95, prev + 10));
@@ -1193,8 +1858,32 @@
             if (retroCurve.length > numLevels) {
                 retroCurve = retroCurve.slice(0, numLevels);
             }
+            renderCurveInputs();
             renderEqualizer();
             saveRetroSharedSessionState();
+        }
+
+        function changeRetroNumLevelsDelta(delta) {
+            numLevels = Math.max(3, Math.min(10, numLevels + delta));
+            const numSel = document.getElementById('retroNumLevels');
+            if (numSel) numSel.value = numLevels.toString();
+            const numDisp = document.getElementById('numLevelsDisplay');
+            if (numDisp) numDisp.innerText = numLevels.toString();
+
+            while (retroCurve.length < numLevels) {
+                const prev = retroCurve[retroCurve.length - 1] || 50;
+                retroCurve.push(Math.min(95, prev + 10));
+            }
+            if (retroCurve.length > numLevels) {
+                retroCurve = retroCurve.slice(0, numLevels);
+            }
+            renderCurveInputs();
+            renderEqualizer();
+            saveRetroSharedSessionState();
+        }
+
+        function changeNumLevels(delta) {
+            changeRetroNumLevelsDelta(delta);
         }
 
         // NES COLORIZED ASCII PIXEL TILE FORMATTER
@@ -1238,6 +1927,11 @@
             return formatted;
         }
 
+        // Aliased formatTileGrid for tests
+        function formatTileGrid(rawText) {
+            return formatRetroTiles(rawText);
+        }
+
         // LOG TO RETRO TERMINAL
         function logRetro(msg, cls = '') {
             const term = document.getElementById('retroTerminalLog');
@@ -1248,6 +1942,69 @@
             p.innerHTML = `&gt; [${time}] ${msg}`;
             term.appendChild(p);
             term.scrollTop = term.scrollHeight;
+        }
+
+        // TELEMETRY DETAIL ACCORDION
+        function toggleTelemetryDetail(idx) {
+            const detailEl = document.getElementById(`telemetryDetail_${idx}`);
+            if (detailEl) {
+                const isHidden = detailEl.style.display === 'none';
+                detailEl.style.display = isHidden ? 'block' : 'none';
+            }
+        }
+
+        // INITIAL VISUALIZER STATE
+        function renderVisualizerInitialState() {
+            const tabsContainer = document.getElementById('retroLevelTabs');
+            if (tabsContainer) tabsContainer.innerHTML = '<button class="retro-tab-btn locked" disabled>[NO LEVELS LOADED]</button>';
+            const altTabs = document.getElementById('levelTabs');
+            if (altTabs) altTabs.innerHTML = '<span style="color: var(--text-dim); font-size: 0.7rem; font-style: italic;">No levels generated yet</span>';
+
+            const badge = document.getElementById('monitorStatusBadge');
+            if (badge) {
+                badge.innerText = 'IDLE';
+                if (badge.style) badge.style.background = 'var(--neon-magenta)';
+            }
+
+            const btnDeath = document.getElementById('btnDeathToggle');
+            if (btnDeath) {
+                btnDeath.disabled = true;
+                if (btnDeath.style) btnDeath.style.opacity = '0.4';
+            }
+            const btnAI = document.getElementById('btnAiWatch');
+            if (btnAI) {
+                btnAI.disabled = true;
+                if (btnAI.style) btnAI.style.opacity = '0.4';
+            }
+            const btnPlay = document.getElementById('btnPlayStart');
+            if (btnPlay) {
+                btnPlay.disabled = true;
+                if (btnPlay.style) btnPlay.style.opacity = '0.4';
+            }
+            const btnLaunch = document.getElementById('btnLaunchPlayArcade');
+            if (btnLaunch) {
+                btnLaunch.disabled = true;
+                if (btnLaunch.style) btnLaunch.style.opacity = '0.4';
+            }
+
+            const statDes = document.getElementById('statDesigner');
+            if (statDes) statDes.innerText = '--';
+            const statDDA = document.getElementById('statDDATarget');
+            if (statDDA) statDDA.innerText = '--';
+            const statEst = document.getElementById('statEstimated');
+            if (statEst) statEst.innerText = '--';
+            const statRes = document.getElementById('statResult');
+            if (statRes) {
+                statRes.innerText = '--';
+                if (statRes.style) statRes.style.color = 'var(--neon-magenta)';
+            }
+
+            const grid = document.getElementById('tileGrid');
+            if (grid) {
+                grid.innerHTML = '=======================================================\n[ CRT MONITOR STANDBY — INSERT COIN TO GENERATE MAPS ]\n=======================================================';
+            }
+            const canvas = document.getElementById('heatmapCanvas');
+            if (canvas) canvas.style.display = 'none';
         }
 
         // GENERATE CAMPAIGN VIA SSE STREAM
@@ -1261,16 +2018,20 @@
 
             logRetro("Starting PCG campaign generation pipeline...", "cyan");
 
-            // Reset Arcade state
+            // Reset frontend Arcade state
             playerArcadeState.lastDdaDelta = {};
+            playerArcadeState.designerCurve = retroCurve.map(v => v / 100.0);
+            playerArcadeState.designerTargets = retroCurve.map(v => v / 100.0);
             playerArcadeState.levelTargets = retroCurve.map(v => v / 100.0);
             playerArcadeState.levelTexts = {};
             playerArcadeState.activeLevelIdx = 1;
             playerArcadeState.maxUnlockedLevel = 1;
             playerArcadeState.isRetryMap = {};
-            document.getElementById('hudDDAShift').innerText = "+0.0%";
+            const hudShift = document.getElementById('hudDDAShift');
+            if (hudShift) hudShift.innerText = "+0.0%";
 
-            const skill = document.getElementById('retroSkillSelect').value;
+            const skillSelect = document.getElementById('retroSkillSelect');
+            const skill = skillSelect ? skillSelect.value : 'average';
 
             try {
                 const resp = await fetch('/api/generate-sequence-stream', {
@@ -1310,6 +2071,7 @@
                                     if (campaignData && campaignData.history) {
                                         campaignData.history.forEach(h => {
                                             playerArcadeState.levelTexts[h.level] = h.level_text;
+                                            playerArcadeState.designerTargets[h.level - 1] = h.designer_target;
                                             playerArcadeState.levelTargets[h.level - 1] = h.target_difficulty;
                                         });
                                     }
@@ -1332,56 +2094,216 @@
             }
         }
 
-        // RENDER DASHBOARD & TABS
+        // Aliased generateCampaign for test compatibility
+        function generateCampaign() {
+            generateRetroCampaign();
+        }
+
+        // RENDER DASHBOARD, CHART, TELEMETRY & TABS
         function renderRetroDashboard() {
-            if (!campaignData || !campaignData.history || campaignData.history.length === 0) return;
+            if (!campaignData || !campaignData.history || campaignData.history.length === 0) {
+                renderVisualizerInitialState();
+                return;
+            }
 
-            document.getElementById('monitorStatusBadge').innerText = 'ACTIVE';
-            document.getElementById('monitorStatusBadge').style.background = 'var(--neon-green)';
-            document.getElementById('btnDeathToggle').disabled = false;
-            document.getElementById('btnAiWatch').disabled = false;
-            document.getElementById('btnPlayStart').disabled = playerArcadeState.lives <= 0;
-
-            const tabsContainer = document.getElementById('retroLevelTabs');
-            tabsContainer.innerHTML = '';
-
-            campaignData.history.forEach((step, idx) => {
-                const btn = document.createElement('button');
-                const lvlNum = step.level;
-                const isUnlocked = lvlNum <= playerArcadeState.maxUnlockedLevel;
-                const isCleared = lvlNum < playerArcadeState.maxUnlockedLevel;
-                const isActive = idx === selectedLevelIdx;
-
-                btn.className = `retro-tab-btn ${isActive ? 'active' : ''} ${!isUnlocked ? 'locked' : ''}`;
-                btn.innerText = `[STAGE ${lvlNum}] ${isCleared ? '✔' : (isUnlocked ? '🎮' : '🔒')}`;
-                btn.disabled = !isUnlocked;
-
-                btn.onclick = () => {
-                    selectedLevelIdx = idx;
-                    playerArcadeState.activeLevelIdx = lvlNum;
-                    renderRetroLevelView();
-                    updateRetroHUD();
-                    document.querySelectorAll('.retro-tab-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    saveRetroSharedSessionState();
-                };
-
-                tabsContainer.appendChild(btn);
+            const history = campaignData.history;
+            const labels = history.map(h => `Stage ${h.level}`);
+            const designerCurve = history.map(h => Math.round(h.designer_target > 1 ? h.designer_target : h.designer_target * 100));
+            const ddaCurve = history.map(h => {
+                const base = Math.round(h.designer_target > 1 ? h.designer_target : h.designer_target * 100);
+                const rawTgt = Math.round(h.target_difficulty > 1 ? h.target_difficulty : h.target_difficulty * 100);
+                // Strict ±10% clamp relative to designer target
+                return Math.max(base - 10, Math.min(base + 10, rawTgt));
             });
+            const actualCurve = history.map(h => Math.round(h.estimated_difficulty > 1 ? h.estimated_difficulty : h.estimated_difficulty * 100));
+
+            // 1. Initialize or update Neon Wave Pacing Chart
+            initRetroChart(labels, designerCurve, ddaCurve, actualCurve);
+
+            // 2. Enable monitor buttons
+            const badge = document.getElementById('monitorStatusBadge');
+            if (badge) {
+                badge.innerText = 'ACTIVE';
+                if (badge.style) badge.style.background = 'var(--neon-green)';
+            }
+            const btnDeath = document.getElementById('btnDeathToggle');
+            if (btnDeath) {
+                btnDeath.disabled = false;
+                if (btnDeath.style) btnDeath.style.opacity = '1';
+            }
+            const btnAI = document.getElementById('btnAiWatch');
+            if (btnAI) {
+                btnAI.disabled = false;
+                if (btnAI.style) btnAI.style.opacity = '1';
+            }
+            const btnPlay = document.getElementById('btnPlayStart');
+            if (btnPlay) {
+                btnPlay.disabled = playerArcadeState.lives <= 0;
+                if (btnPlay.style) btnPlay.style.opacity = playerArcadeState.lives <= 0 ? '0.4' : '1';
+            }
+            const btnLaunch = document.getElementById('btnLaunchPlayArcade');
+            if (btnLaunch) {
+                btnLaunch.disabled = playerArcadeState.lives <= 0;
+                if (btnLaunch.style) btnLaunch.style.opacity = playerArcadeState.lives <= 0 ? '0.4' : '1';
+            }
+
+            // 3. Render Rich Telemetry Cards in #telemetryList
+            const telemetryContainer = document.getElementById('telemetryList');
+            if (telemetryContainer) {
+                telemetryContainer.innerHTML = '';
+                history.forEach(step => {
+                    const card = document.createElement('div');
+                    card.className = 'telemetry-card';
+
+                    const baseDiff = step.designer_target > 1 ? step.designer_target / 100.0 : step.designer_target;
+                    const tgtDiff = step.target_difficulty > 1 ? step.target_difficulty / 100.0 : step.target_difficulty;
+                    const rawDelta = tgtDiff - baseDiff;
+                    const clampedDelta = Math.max(-0.10, Math.min(0.10, rawDelta));
+                    const deltaPct = (clampedDelta * 100).toFixed(1);
+                    const deltaStr = clampedDelta > 0.0001 ? `+${deltaPct}%` : (clampedDelta < -0.0001 ? `${deltaPct}%` : '+0.0%');
+                    const deltaClass = clampedDelta > 0.0001 ? 'delta-positive' : (clampedDelta < -0.0001 ? 'delta-negative' : 'delta-neutral');
+
+                    const won = step.player_performance ? step.player_performance.won : false;
+                    const played = step.player_performance ? step.player_performance.played : false;
+
+                    let statusBadge = '<span class="status-badge" style="background:#1e293b; color:var(--text-dim);">STANDBY</span>';
+                    if (played) {
+                        statusBadge = won 
+                            ? '<span class="status-badge status-win">WIN</span>' 
+                            : '<span class="status-badge status-lose">LOSE</span>';
+                    }
+
+                    card.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                            <div>
+                                <span style="color: var(--neon-gold); font-weight: bold;">STAGE ${step.level}</span>
+                                <span style="color: var(--text-dim); font-size: 0.58rem; margin-left: 6px;">
+                                    TGT: ${(step.target_difficulty * 100).toFixed(0)}% (DES: ${(step.designer_target * 100).toFixed(0)}%)
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="telemetry-delta ${deltaClass}">${deltaStr} SHIFT</span>
+                                ${statusBadge}
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 8px; font-size: 0.6rem; color: var(--text-dim);">
+                            ${step.dda_result ? step.dda_result.reason : 'Initial level layout matched to designer curve.'}
+                        </div>
+
+                        <div style="margin-top: 8px;">
+                            <button class="btn-toggle-detail" onclick="toggleTelemetryDetail(${step.level})">
+                                📖 READ TELEMETRY DETAILS
+                            </button>
+                        </div>
+
+                        <div id="telemetryDetail_${step.level}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--neon-cyan); font-size: 0.58rem; color: var(--text-dim); line-height: 1.5;">
+                            <div><strong>EST. DIFFICULTY:</strong> ${(step.estimated_difficulty * 100).toFixed(1)}%</div>
+                            <div><strong>RAW PERFORMANCE:</strong> ${step.dda_result && step.dda_result.raw_performance !== undefined && !isNaN(step.dda_result.raw_performance) ? Number(step.dda_result.raw_performance).toFixed(2) : 'N/A'}</div>
+                            <div><strong>DDA SHIFT:</strong> ${step.dda_result ? step.dda_result.delta_pct : '+0.0%'}</div>
+                            <div><strong>STRUGGLE REASON:</strong> ${step.player_performance ? (step.player_performance.struggle_reason || 'N/A') : 'Awaiting Play'}</div>
+                            <div style="margin-top: 6px;"><strong>STRUCTURAL ADJUSTMENTS:</strong></div>
+                            <ul style="margin: 4px 0 0 14px; padding: 0;">
+                                ${(step.dda_result && step.dda_result.dda_changes ? step.dda_result.dda_changes : ['Standard layout']).map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+
+                    telemetryContainer.appendChild(card);
+                });
+            }
+
+            // 4. Render Stage Tabs in #retroLevelTabs (Designer View: ALL stages accessible!)
+            const tabsContainer = document.getElementById('retroLevelTabs');
+            if (tabsContainer) {
+                tabsContainer.innerHTML = '';
+                history.forEach((step, idx) => {
+                    const btn = document.createElement('button');
+                    const lvlNum = step.level;
+                    const isActive = idx === selectedLevelIdx;
+
+                    btn.className = `retro-tab-btn ${isActive ? 'active' : ''}`;
+                    btn.innerText = `[STAGE ${lvlNum}]`;
+                    btn.disabled = false;
+
+                    btn.onclick = () => {
+                        selectedLevelIdx = idx;
+                        renderRetroLevelView();
+                        const allTabs = document.querySelectorAll('#retroLevelTabs .retro-tab-btn');
+                        if (allTabs && allTabs.forEach) {
+                            allTabs.forEach(b => { if (b.classList) b.classList.remove('active'); });
+                        }
+                        if (btn.classList) btn.classList.add('active');
+                        saveRetroSharedSessionState();
+                    };
+
+                    tabsContainer.appendChild(btn);
+                });
+            }
+
+            // Also keep #levelTabs populated for test compatibility
+            const altTabs = document.getElementById('levelTabs');
+            if (altTabs) {
+                altTabs.innerHTML = '';
+                history.forEach((step, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `tab-btn ${idx === selectedLevelIdx ? 'active' : ''}`;
+                    btn.innerText = `Level ${step.level}`;
+                    btn.onclick = () => {
+                        selectedLevelIdx = idx;
+                        renderRetroLevelView();
+                    };
+                    altTabs.appendChild(btn);
+                });
+            }
 
             renderRetroLevelView();
+            renderArcadeLevelSelector();
             updateRetroHUD();
         }
 
+        // Aliased renderDashboard for tests
+        function renderDashboard() {
+            renderRetroDashboard();
+        }
+
+        // RENDER LEVEL VIEW (MAP & STAT GRID)
         function renderRetroLevelView() {
-            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) return;
+            if (!campaignData || !campaignData.history || !campaignData.history[selectedLevelIdx]) {
+                renderVisualizerInitialState();
+                return;
+            }
             const step = campaignData.history[selectedLevelIdx];
+
+            // Update Stat Grid Key Metrics
+            const statDes = document.getElementById('statDesigner');
+            if (statDes) statDes.innerText = (step.designer_target * 100).toFixed(0) + '%';
+            const statDDA = document.getElementById('statDDATarget');
+            if (statDDA) statDDA.innerText = (step.target_difficulty * 100).toFixed(0) + '%';
+            const statEst = document.getElementById('statEstimated');
+            if (statEst) statEst.innerText = (step.estimated_difficulty * 100).toFixed(0) + '%';
+
+            const won = step.player_performance ? step.player_performance.won : false;
+            const played = step.player_performance ? step.player_performance.played : false;
+            const resEl = document.getElementById('statResult');
+            if (resEl) {
+                if (played) {
+                    resEl.innerText = won ? 'WIN' : 'LOSE';
+                    if (resEl.style) resEl.style.color = won ? 'var(--neon-green)' : 'var(--neon-red)';
+                } else {
+                    resEl.innerText = 'READY';
+                    if (resEl.style) resEl.style.color = 'var(--neon-cyan)';
+                }
+            }
+
+            // Update Tile Grid
             const tileGrid = document.getElementById('tileGrid');
             if (tileGrid && step.level_text) {
                 tileGrid.innerHTML = formatRetroTiles(step.level_text);
             }
 
-            if (showDeathZone) {
+            // Update Death Zone Overlay
+            if (showDeathZone || isDeathZoneVisible) {
                 fetchRetroDeathZoneTelemetry();
             } else {
                 const canvas = document.getElementById('heatmapCanvas');
@@ -1392,42 +2314,147 @@
             }
         }
 
+        // Aliased renderLevelView for tests
+        function renderLevelView() {
+            renderRetroLevelView();
+        }
+
+        // ARCADE TOP HUD UPDATE
         function updateRetroHUD() {
             const idx = playerArcadeState.activeLevelIdx;
-            document.getElementById('hudLevel').innerText = `1-${idx}`;
+            const hudLvl = document.getElementById('hudLevel');
+            if (hudLvl) hudLvl.innerText = `1-${idx}`;
             
             // Hearts
             let hearts = "";
             for (let i = 0; i < Math.max(0, playerArcadeState.lives); i++) hearts += "❤️";
             if (playerArcadeState.lives <= 0) hearts = "💀 0 LIVES";
-            document.getElementById('hudLives').innerText = hearts;
+            const hudLiv = document.getElementById('hudLives');
+            if (hudLiv) hudLiv.innerText = hearts;
 
-            document.getElementById('hudCoins').innerText = `🪙 ${playerArcadeState.coins.toString().padStart(2, '0')}`;
+            const hudCoin = document.getElementById('hudCoins');
+            if (hudCoin) hudCoin.innerText = `🪙 ${playerArcadeState.coins.toString().padStart(2, '0')}`;
             
             const powerNames = {0: "SMALL", 1: "SUPER", 2: "FIRE"};
-            document.getElementById('hudPower').innerText = powerNames[playerArcadeState.marioMode] || "SMALL";
+            const hudPow = document.getElementById('hudPower');
+            if (hudPow) hudPow.innerText = powerNames[playerArcadeState.marioMode] || "SMALL";
 
             const delta = playerArcadeState.lastDdaDelta[idx] || "+0.0%";
-            document.getElementById('hudDDAShift').innerText = delta;
+            const hudShift = document.getElementById('hudDDAShift');
+            if (hudShift) {
+                hudShift.innerText = delta;
+                if (hudShift.style) hudShift.style.color = delta.startsWith('+') && delta !== '+0.0%' ? 'var(--neon-magenta)' : (delta.startsWith('-') ? 'var(--neon-cyan)' : '#8892b0');
+            }
 
             const btnPlay = document.getElementById('btnPlayStart');
             if (btnPlay) {
                 btnPlay.innerText = `▶ PRESS START: PLAY WORLD 1-${idx}`;
                 btnPlay.disabled = playerArcadeState.lives <= 0;
             }
+
+            const btnLaunch = document.getElementById('btnLaunchPlayArcade');
+            if (btnLaunch) {
+                btnLaunch.innerText = `▶ PRESS START: PLAY WORLD 1-${idx}`;
+                btnLaunch.disabled = playerArcadeState.lives <= 0;
+            }
+
+            renderPlayerNextTilePreview();
         }
 
-        // DEATH ZONE OVERLAY
+        // Aliased updateArcadeHUD for tests
+        function updateArcadeHUD() {
+            updateRetroHUD();
+        }
+
+        // PLAYER ARCADE WORKSPACE: UNLOCKED LEVEL SELECTOR
+        function renderArcadeLevelSelector() {
+            const container = document.getElementById('arcadeLevelSelector');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!campaignData || !campaignData.history || campaignData.history.length === 0) {
+                container.innerHTML = '<span style="color: var(--text-dim); font-size: 0.6rem; font-style: italic;">NO CAMPAIGN LOADED. GENERATE SEQUENCE FIRST.</span>';
+                return;
+            }
+
+            const total = campaignData.history.length || (numLevels || 5);
+            for (let i = 1; i <= total; i++) {
+                const btn = document.createElement('button');
+                const isUnlocked = i <= playerArcadeState.maxUnlockedLevel;
+                const isActive = i === playerArcadeState.activeLevelIdx;
+                const isCleared = i < playerArcadeState.maxUnlockedLevel;
+
+                if (!isUnlocked) {
+                    btn.className = 'retro-tab-btn locked';
+                    btn.innerText = `WORLD 1-${i} 🔒`;
+                    btn.disabled = true;
+                } else {
+                    btn.className = `retro-tab-btn ${isActive ? 'active' : ''}`;
+                    btn.innerText = `WORLD 1-${i} ${isCleared ? '✔' : '🎮'}`;
+                    btn.onclick = () => selectArcadeLevel(i);
+                }
+
+                if (isActive) {
+                    btn.style.borderColor = 'var(--neon-gold)';
+                    btn.style.boxShadow = '0 0 10px rgba(255, 230, 0, 0.6), 2px 2px 0 #000';
+                }
+
+                container.appendChild(btn);
+            }
+        }
+
+        function selectArcadeLevel(idx) {
+            if (idx > playerArcadeState.maxUnlockedLevel) return;
+            playerArcadeState.activeLevelIdx = idx;
+            selectedLevelIdx = idx - 1;
+            renderArcadeLevelSelector();
+            updateRetroHUD();
+            renderRetroLevelView();
+            saveRetroSharedSessionState();
+        }
+
+        function renderPlayerNextTilePreview() {
+            const idx = playerArcadeState.activeLevelIdx;
+            const container = document.getElementById('playerNextTileGrid');
+            if (!container) return;
+
+            let levelText = playerArcadeState.levelTexts[idx];
+            if (!levelText && campaignData && campaignData.history && campaignData.history[idx - 1]) {
+                levelText = campaignData.history[idx - 1].level_text;
+            }
+
+            if (levelText) {
+                container.innerHTML = formatRetroTiles(levelText);
+            } else {
+                container.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 30px 10px; font-size: 0.65rem;">⚠️ NO LEVEL MAP AVAILABLE.<br>GENERATE SEQUENCE IN DESIGNER WORKSPACE FIRST.</div>';
+            }
+        }
+
+        // DEATH ZONE OVERLAY & HEATMAP
         function toggleRetroDeathZone() {
             showDeathZone = !showDeathZone;
+            isDeathZoneVisible = showDeathZone;
+
             const btn = document.getElementById('btnDeathToggle');
+            if (btn) {
+                if (showDeathZone) {
+                    if (btn.style) {
+                        btn.style.background = '#fff';
+                        btn.style.color = '#000';
+                    }
+                    if (btn.classList) btn.classList.add('active');
+                } else {
+                    if (btn.style) {
+                        btn.style.background = 'var(--neon-magenta)';
+                        btn.style.color = '#fff';
+                    }
+                    if (btn.classList) btn.classList.remove('active');
+                }
+            }
+
             if (showDeathZone) {
-                btn.style.background = '#fff';
-                btn.style.color = '#000';
                 fetchRetroDeathZoneTelemetry();
             } else {
-                btn.style.background = 'var(--neon-magenta)';
-                btn.style.color = '#fff';
                 const canvas = document.getElementById('heatmapCanvas');
                 if (canvas) {
                     const ctx = canvas.getContext('2d');
@@ -1435,6 +2462,11 @@
                 }
             }
             saveRetroSharedSessionState();
+        }
+
+        // Aliased toggleDeathZoneOverlay for tests
+        function toggleDeathZoneOverlay() {
+            toggleRetroDeathZone();
         }
 
         async function fetchRetroDeathZoneTelemetry() {
@@ -1449,6 +2481,12 @@
                 }
             } catch (err) {
                 console.error("Failed to fetch death zone telemetry:", err);
+            }
+        }
+
+        function refreshDeathZone() {
+            if (showDeathZone || isDeathZoneVisible) {
+                fetchRetroDeathZoneTelemetry();
             }
         }
 
@@ -1467,9 +2505,12 @@
             canvas.height = gridH;
             canvas.style.width = gridW + 'px';
             canvas.style.height = gridH + 'px';
+            canvas.style.display = 'block';
 
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (!ctx) return;
+            if (typeof ctx.clearRect === 'function') ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (typeof ctx.createRadialGradient !== 'function') return;
 
             if (!points || points.length === 0) return;
 
@@ -1485,9 +2526,18 @@
                 const px = (pt.x + 0.5) * charW;
                 const py = (pt.y + 0.5) * charH;
 
-                // 8-bit Neon Red Target Reticle
+                // 8-bit Neon Red Target Reticle & Gradient
+                const grad = ctx.createRadialGradient(px, py, 2, px, py, 22);
+                grad.addColorStop(0, 'rgba(255, 49, 49, 0.95)');
+                grad.addColorStop(0.6, 'rgba(255, 0, 127, 0.5)');
+                grad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(px, py, 22, 0, Math.PI * 2);
+                ctx.fill();
+
                 ctx.strokeStyle = '#ff3131';
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 2.5;
                 ctx.beginPath();
                 ctx.arc(px, py, 16, 0, Math.PI * 2);
                 ctx.stroke();
@@ -1527,25 +2577,44 @@
             }
         }
 
+        // Aliased watchAIPlayCurrentLevel for tests
+        function watchAIPlayCurrentLevel() {
+            watchRetroAiPlay();
+        }
+
         // LAUNCH HUMAN PLAY
         async function launchRetroHumanPlay() {
             if (!campaignData || !campaignData.history || campaignData.history.length === 0) {
                 alert("CANNOT PLAY: Please insert coin and generate campaign stages first!");
+                const logEl = document.getElementById('playerSessionLog');
+                if (logEl) logEl.innerHTML = '<strong style="color: var(--neon-red);">⚠️ CANNOT PLAY:</strong> No campaign generated yet. Go to Cabinet Designer &amp; insert coin!';
                 return;
             }
 
             if (playerArcadeState.lives <= 0) {
                 alert("GAME OVER: 0 Lives remaining! Click 'RESET ARCADE PROGRESSION' to restore credits.");
+                const logEl = document.getElementById('playerSessionLog');
+                if (logEl) logEl.innerHTML = '<strong style="color: var(--neon-red);">💀 GAME OVER!</strong> 0 Lives remaining. Reset arcade progression to restart.';
                 return;
             }
 
             const currentIdx = playerArcadeState.activeLevelIdx;
-            const targetDiff = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
-            const nextDesignerTarget = playerArcadeState.levelTargets[currentIdx] || targetDiff;
+            const currentBaseline = (playerArcadeState.designerTargets && playerArcadeState.designerTargets[currentIdx - 1] !== undefined)
+                ? playerArcadeState.designerTargets[currentIdx - 1]
+                : (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].designer_target : 0.5);
+            const nextBaseline = (playerArcadeState.designerTargets && playerArcadeState.designerTargets[currentIdx] !== undefined)
+                ? playerArcadeState.designerTargets[currentIdx]
+                : (campaignData && campaignData.history && campaignData.history[currentIdx] ? campaignData.history[currentIdx].designer_target : currentBaseline);
+            const targetDiff = playerArcadeState.levelTargets[currentIdx - 1] || currentBaseline;
             const isRetry = playerArcadeState.isRetryMap[currentIdx] || false;
-            const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
+            const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
 
             logRetro(`Launching interactive Java window for Stage 1-${currentIdx} (Lives: ${playerArcadeState.lives})...`, "cyan");
+
+            const logEl = document.getElementById('playerSessionLog');
+            if (logEl) {
+                logEl.innerText = `Launching interactive Java Mario window for World 1-${currentIdx}... (Lives: ${playerArcadeState.lives})`;
+            }
 
             try {
                 const resp = await fetch('/api/play-human-level', {
@@ -1566,7 +2635,8 @@
                 const res = await resp.json();
                 if (res.status === 'Success') {
                     logRetro(`Playing Stage 1-${currentIdx} in Java Window... Complete level or lose life to trigger DDA!`);
-                    pollRetroSessionResult(currentIdx, nextDesignerTarget);
+                    if (logEl) logEl.innerHTML = `<strong>Playing World 1-${currentIdx} in Java Window...</strong><br>Complete the level or lose lives to record session telemetry!`;
+                    pollRetroSessionResult(currentIdx, nextBaseline, currentBaseline);
                 } else {
                     logRetro(`Error launching stage: ${res.message}`, "err");
                 }
@@ -1575,7 +2645,12 @@
             }
         }
 
-        function pollRetroSessionResult(currentIdx, nextDesignerTarget) {
+        // Aliased launchHumanPlay for tests
+        function launchHumanPlay() {
+            launchRetroHumanPlay();
+        }
+
+        function pollRetroSessionResult(currentIdx, nextBaseline, currentBaseline) {
             if (browserGameLoopId) clearInterval(browserGameLoopId);
 
             let pollAttempts = 0;
@@ -1588,15 +2663,15 @@
                 }
 
                 try {
-                    const currentDesignerTarget = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
                     const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
                     const resp = await fetch('/api/check-session-result', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             level_index: currentIdx,
-                            next_designer_target: nextDesignerTarget,
-                            current_designer_target: currentDesignerTarget,
+                            next_designer_target: nextBaseline,
+                            current_designer_target: currentBaseline,
+                            baseline_designer_target: currentBaseline,
                             current_level_text: prevText
                         })
                     });
@@ -1615,6 +2690,7 @@
                         playerArcadeState.marioMode = sess.mario_mode;
 
                         const maxLevels = numLevels || 5;
+                        let unlockMsg = "";
 
                         if (sess.won) {
                             playerArcadeState.isRetryMap[currentIdx] = false;
@@ -1628,27 +2704,30 @@
                                 playerArcadeState.activeLevelIdx = nextLvlNum;
                                 selectedLevelIdx = nextZeroIdx;
 
-                                if (dda && dda.adjusted_target !== undefined) {
-                                    playerArcadeState.levelTargets[nextZeroIdx] = dda.adjusted_target;
-                                    playerArcadeState.lastDdaDelta[nextLvlNum] = dda.delta_pct;
-                                }
+                                const clampedTarget = (dda && dda.adjusted_target !== undefined)
+                                    ? Math.round(Math.max(Math.max(0.0, nextBaseline - 0.10), Math.min(Math.min(1.0, nextBaseline + 0.10), dda.adjusted_target)) * 1000) / 1000
+                                    : nextBaseline;
+
+                                playerArcadeState.levelTargets[nextZeroIdx] = clampedTarget;
+                                playerArcadeState.lastDdaDelta[nextLvlNum] = dda.delta_pct;
                                 if (res.next_level && res.next_level.level_text) {
                                     playerArcadeState.levelTexts[nextLvlNum] = res.next_level.level_text;
                                 }
 
                                 if (campaignData && campaignData.history && campaignData.history[nextZeroIdx]) {
                                     const nextStep = campaignData.history[nextZeroIdx];
-                                    if (dda && dda.adjusted_target !== undefined) {
-                                        nextStep.target_difficulty = dda.adjusted_target;
-                                        nextStep.dda_result = dda;
-                                    }
+                                    nextStep.designer_target = nextBaseline;
+                                    nextStep.target_difficulty = clampedTarget;
+                                    nextStep.dda_result = dda;
                                     if (res.next_level) {
                                         nextStep.estimated_difficulty = res.next_level.estimated_difficulty;
                                         nextStep.level_text = res.next_level.level_text;
                                     }
                                 }
-                                logRetro(`STAGE 1-${nextLvlNum} UNLOCKED! Pre-adjusted Target: ${(dda.adjusted_target * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift]`, "cyan");
+                                unlockMsg = `<br><span style="color: var(--neon-green); font-weight: bold;">🎉 STAGE 1-${nextLvlNum} UNLOCKED! Pre-adjusted Target: ${(clampedTarget * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift]</span>`;
+                                logRetro(`STAGE 1-${nextLvlNum} UNLOCKED! Pre-adjusted Target: ${(clampedTarget * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift]`, "cyan");
                             } else {
+                                unlockMsg = `<br><span style="color: var(--neon-gold); font-weight: bold;">🏆 CAMPAIGN COMPLETE! YOU CONQUERED ALL STAGES!</span>`;
                                 logRetro(`🏆 CAMPAIGN COMPLETE! YOU CONQUERED ALL STAGES!`, "cyan");
                             }
                         } else {
@@ -1656,7 +2735,11 @@
                             playerArcadeState.activeLevelIdx = currentIdx;
                             selectedLevelIdx = currentIdx - 1;
 
-                            playerArcadeState.levelTargets[currentIdx - 1] = dda.adjusted_target;
+                            const clampedTarget = (dda && dda.adjusted_target !== undefined)
+                                ? Math.round(Math.max(Math.max(0.0, currentBaseline - 0.10), Math.min(Math.min(1.0, currentBaseline + 0.10), dda.adjusted_target)) * 1000) / 1000
+                                : currentBaseline;
+
+                            playerArcadeState.levelTargets[currentIdx - 1] = clampedTarget;
                             playerArcadeState.lastDdaDelta[currentIdx] = dda.delta_pct;
                             if (res.next_level && res.next_level.level_text) {
                                 playerArcadeState.levelTexts[currentIdx] = res.next_level.level_text;
@@ -1664,17 +2747,30 @@
 
                             if (campaignData && campaignData.history && campaignData.history[currentIdx - 1]) {
                                 const step = campaignData.history[currentIdx - 1];
-                                step.target_difficulty = dda.adjusted_target;
+                                step.designer_target = currentBaseline;
+                                step.target_difficulty = clampedTarget;
                                 step.dda_result = dda;
                                 if (res.next_level && res.next_level.level_text) {
                                     step.level_text = res.next_level.level_text;
                                     step.estimated_difficulty = res.next_level.estimated_difficulty;
                                 }
+                                step.player_performance = {
+                                    played: true,
+                                    won: false,
+                                    kills: sess.kills,
+                                    total_enemies: sess.total_enemies,
+                                    time_taken: 30.0,
+                                    struggle_reason: sess.struggle_reason,
+                                    completion_pct: sess.completion_pct
+                                };
+                                step.death_info = res.death_info || step.death_info;
                             }
 
                             if (finalLives <= 0) {
+                                unlockMsg = `<br><span style="color: var(--neon-red); font-weight: bold;">💀 GAME OVER! 0 Lives Left. Session stopped. Reset arcade credits.</span>`;
                                 logRetro(`💀 GAME OVER! 0 Lives Remaining. Session halted. Reset credits to play again.`, "err");
                             } else {
+                                unlockMsg = `<br><span style="color: var(--neon-red); font-weight: bold;">☠ MARIO DIED (${finalLives} Lives Left). Stage 1-${currentIdx} difficulty adapted (${dda.delta_pct}).</span>`;
                                 logRetro(`☠ MARIO DIED (${finalLives} Lives Left). Stage 1-${currentIdx} difficulty adapted by DDA (${dda.delta_pct}) for retry.`, "warn");
                             }
                         }
@@ -1682,11 +2778,28 @@
                         renderRetroDashboard();
                         updateRetroHUD();
                         saveRetroSharedSessionState();
+
+                        const logEl = document.getElementById('playerSessionLog');
+                        if (logEl) {
+                            logEl.innerHTML = `
+                                <strong>Outcome:</strong> ${sess.won ? "WIN ✅" : "LOSS ❌"}<br>
+                                <strong>Struggle Reason:</strong> ${sess.struggle_reason}<br>
+                                <strong>Lives Left:</strong> ${finalLives} | <strong>Coins:</strong> ${sess.coins}<br>
+                                <strong>Enemies Defeated:</strong> ${sess.kills} / ${sess.total_enemies}<br>
+                                <strong>DDA Shift:</strong> ${dda.delta_pct} (${dda.action})
+                                ${unlockMsg}
+                            `;
+                        }
                     }
                 } catch (err) {
                     console.error("Polling error:", err);
                 }
             }, 1000);
+        }
+
+        // Aliased startPollingSessionResult for tests
+        function startPollingSessionResult(currentIdx, nextDesignerTarget) {
+            pollRetroSessionResult(currentIdx, nextDesignerTarget);
         }
 
         function resetRetroArcade() {
@@ -1702,7 +2815,18 @@
             updateRetroHUD();
             saveRetroSharedSessionState();
             logRetro("Arcade credits reset! 3 lives restored. Unlocked stage maps preserved.", "cyan");
+
+            const logEl = document.getElementById('playerSessionLog');
+            if (logEl) {
+                logEl.innerHTML = 'Arcade credits reset. 3 lives restored! Click "PRESS START" to begin.';
+            }
+
             alert("Arcade Credits Reset! 3 Lives restored.");
+        }
+
+        // Aliased resetCampaign for tests
+        function resetCampaign() {
+            resetRetroArcade();
         }
 
         // --- SHARED SESSION STATE PERSISTENCE ---
@@ -1718,8 +2842,14 @@
                 isDeathZoneVisible: showDeathZone,
                 scrollLeft: viewCont ? viewCont.scrollLeft : 0,
                 retroTerminalHTML: document.getElementById('retroTerminalLog') ? document.getElementById('retroTerminalLog').innerHTML : '',
+                playerSessionLogHTML: document.getElementById('playerSessionLog') ? document.getElementById('playerSessionLog').innerHTML : '',
                 timestamp: Date.now()
             };
+        }
+
+        // Aliased getFullSessionState for tests
+        function getFullSessionState() {
+            return getFullRetroSessionState();
         }
 
         function saveRetroSharedSessionState() {
@@ -1730,6 +2860,11 @@
             } catch (e) {
                 console.warn("Could not save shared state in Retro UI:", e);
             }
+        }
+
+        // Aliased saveSharedSessionState for tests
+        function saveSharedSessionState() {
+            saveRetroSharedSessionState();
         }
 
         function loadRetroSharedSessionState() {
@@ -1744,6 +2879,8 @@
                     numLevels = state.numLevels;
                     const sel = document.getElementById('retroNumLevels');
                     if (sel) sel.value = numLevels.toString();
+                    const disp = document.getElementById('numLevelsDisplay');
+                    if (disp) disp.innerText = numLevels.toString();
                 }
 
                 if (Array.isArray(state.curve) && state.curve.length > 0) {
@@ -1752,11 +2889,16 @@
                         const prev = retroCurve[retroCurve.length - 1] || 50;
                         retroCurve.push(Math.min(95, prev + 10));
                     }
-                    renderEqualizer();
                 }
+                renderCurveInputs();
+                renderEqualizer();
+                updateDesignerChartFromInputs();
 
                 if (state.playerArcadeState) {
                     playerArcadeState = Object.assign(playerArcadeState, state.playerArcadeState);
+                    if (!playerArcadeState.designerTargets && playerArcadeState.levelTargets) {
+                        playerArcadeState.designerTargets = [...playerArcadeState.levelTargets];
+                    }
                 }
 
                 if (state.campaignData && state.campaignData.history && state.campaignData.history.length > 0) {
@@ -1768,22 +2910,31 @@
                     renderRetroDashboard();
                     logRetro("★ RESTORED CAMPAIGN SEQUENCE & DDA TELEMETRY ★", "cyan");
                 } else {
+                    renderCurveInputs();
                     renderEqualizer();
                     updateRetroHUD();
                 }
 
                 if (state.isDeathZoneVisible) {
                     showDeathZone = true;
+                    isDeathZoneVisible = true;
                     const btn = document.getElementById('btnDeathToggle');
                     if (btn) {
-                        btn.style.background = '#fff';
-                        btn.style.color = '#000';
+                        if (btn.style) {
+                            btn.style.background = '#fff';
+                            btn.style.color = '#000';
+                        }
+                        if (btn.classList) btn.classList.add('active');
                     }
                     fetchRetroDeathZoneTelemetry();
                 }
 
                 if (state.retroTerminalHTML && document.getElementById('retroTerminalLog')) {
                     document.getElementById('retroTerminalLog').innerHTML = state.retroTerminalHTML;
+                }
+
+                if (state.playerSessionLogHTML && document.getElementById('playerSessionLog')) {
+                    document.getElementById('playerSessionLog').innerHTML = state.playerSessionLogHTML;
                 }
 
                 if (typeof state.scrollLeft === 'number' && document.querySelector('.retro-level-view-container')) {
@@ -1798,6 +2949,11 @@
                 console.error("Failed to load shared session state in Retro UI:", e);
                 return false;
             }
+        }
+
+        // Aliased loadSharedSessionState for tests
+        function loadSharedSessionState() {
+            return loadRetroSharedSessionState();
         }
 
         function pullRetroLever() {
@@ -1826,6 +2982,11 @@
             }, 350);
         }
 
+        // Aliased navigateToRetro for tests
+        function navigateToRetro() {
+            pullRetroLever();
+        }
+
         window.onload = function() {
             if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('mario_nav_transitioning')) {
                 document.body.classList.add('retro-fade-in');
@@ -1834,10 +2995,24 @@
 
             const restored = loadRetroSharedSessionState();
             if (!restored) {
+                renderCurveInputs();
                 renderEqualizer();
+                renderVisualizerInitialState();
                 updateRetroHUD();
             }
         };
+
+        let chartResizeTimeout = null;
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('resize', function() {
+                clearTimeout(chartResizeTimeout);
+                chartResizeTimeout = setTimeout(() => {
+                    if (chartInstance && typeof chartInstance.resize === 'function') {
+                        chartInstance.resize();
+                    }
+                }, 100);
+            });
+        }
     </script>
 </body>
 </html>

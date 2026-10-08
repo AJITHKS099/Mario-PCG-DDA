@@ -24,6 +24,7 @@ public class Enemy extends MarioSprite {
     protected MarioImage wingGraphics;
     protected MarioImage graphics;
 
+    // Explanation: Constructs and initializes a new Enemy instance with specified parameters.
     public Enemy(boolean visuals, float x, float y, int dir, SpriteType type) {
         super(x, y, type);
         this.width = 4;
@@ -53,6 +54,7 @@ public class Enemy extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this Enemy for forward simulation.
     @Override
     public MarioSprite clone() {
         Enemy e = new Enemy(false, this.x, this.y, this.facing, this.type);
@@ -68,6 +70,7 @@ public class Enemy extends MarioSprite {
         return e;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     public void collideCheck() {
         if (!this.alive) {
             return;
@@ -104,6 +107,7 @@ public class Enemy extends MarioSprite {
         }
     }
 
+    // Explanation: Executes the update graphics routine on Enemy.
     private void updateGraphics() {
         wingTime++;
         this.wingGraphics.index = 32 + wingTime / 4 % 2;
@@ -122,6 +126,7 @@ public class Enemy extends MarioSprite {
         this.graphics.index = this.type.getStartIndex() + runFrame;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this Enemy on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -166,6 +171,7 @@ public class Enemy extends MarioSprite {
         }
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for Enemy.
     private boolean move(float xa, float ya) {
         while (xa > 8) {
             if (!move(8, 0))
@@ -257,6 +263,7 @@ public class Enemy extends MarioSprite {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya) {
         int x = (int) (_x / 16);
         int y = (int) (_y / 16);
@@ -268,6 +275,7 @@ public class Enemy extends MarioSprite {
         return blocking;
     }
 
+    // Explanation: Executes the shell collide check routine on Enemy.
     public boolean shellCollideCheck(Shell shell) {
         if (!this.alive) {
             return false;
@@ -299,6 +307,7 @@ public class Enemy extends MarioSprite {
         return false;
     }
 
+    // Explanation: Executes the fireball collide check routine on Enemy.
     public boolean fireballCollideCheck(Fireball fireball) {
         if (!this.alive) {
             return false;
@@ -331,6 +340,7 @@ public class Enemy extends MarioSprite {
         return false;
     }
 
+    // Explanation: Resolves collision and displacement effects when a tile block is bumped from below.
     public void bumpCheck(int xTile, int yTile) {
         if (!this.alive) {
             return;
@@ -354,6 +364,7 @@ public class Enemy extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this Enemy onto the target display canvas.
     @Override
     public void render(Graphics og) {
         if (winged) {

@@ -9,41 +9,50 @@ public class SpriteState {
     public boolean onGround = false; // standing on ground
     public float x, y, xa = 0, ya = 0;
 
+    // Explanation: Executes the height routine on SpriteState.
     public float height() {
         return -1;
     }
 
+    // Explanation: Executes the dead routine on SpriteState.
     public boolean dead() {
         return false;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this SpriteState for forward simulation.
     public SpriteState clone() {
         return null;
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for SpriteState.
     public boolean move(WorldState ws) {
         return false;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     public WorldState collideCheck(WorldState ws, MarioState ms) {
         return ws;
     }
 
     // you may destructively update ws here as it's fresh for the purpose of this
     // stomp
+    // Explanation: Executes the stomp routine on SpriteState.
     public SpriteState stomp(WorldState ws, MarioState ms) {
         return this;
     }
 
+    // Explanation: Executes the shell collide check routine on SpriteState.
     public SpriteState shellCollideCheck(ShellState shell) {
         return this;
     }
 
+    // Explanation: Resolves collision and displacement effects when a tile block is bumped from below.
     public SpriteState bumpCheck(int xTile, int yTile, MarioState ms) {
         return this;
     }
 
+    // Explanation: Executes the new enemy routine on SpriteState.
     static public SpriteState newEnemy(float x, float y, int type, MarioState ms) {
         switch (type) {
             case KIND_BULLET_BILL:
@@ -59,6 +68,7 @@ public class SpriteState {
     }
 
     // default resync: dead reckoning
+    // Explanation: Executes the resync routine on SpriteState.
     public void resync(float x, float y, float prev_x, float prev_y) {
         this.x = x;
         this.y = y;
@@ -90,6 +100,7 @@ public class SpriteState {
     public static final int KIND_COIN_ANIM = 20;
     public static final int KIND_FIREBALL = 25;
 
+    // Explanation: Executes the spiky routine on SpriteState.
     public boolean spiky() {
         return type >= KIND_SPIKY && type <= KIND_FLOWER_ENEMY;
     }

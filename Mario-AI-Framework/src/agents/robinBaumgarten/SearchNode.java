@@ -19,10 +19,12 @@ public class SearchNode {
     boolean[] action;
     int repetitions = 1;
 
+    // Explanation: Executes the calc remaining time routine on SearchNode.
     public float calcRemainingTime(float marioX, float marioXA) {
         return (100000 - (maxForwardMovement(marioXA, 1000) + marioX)) / Helper.maxMarioSpeed - 1000;
     }
 
+    // Explanation: Returns the current remaining time value.
     public float getRemainingTime() {
         if (remainingTime > 0)
             return remainingTime;
@@ -30,6 +32,7 @@ public class SearchNode {
             return remainingTimeEstimated;
     }
 
+    // Explanation: Executes the estimate remaining time child routine on SearchNode.
     public float estimateRemainingTimeChild(boolean[] action, int repetitions) {
         float[] childbehaviorDistanceAndSpeed = Helper.estimateMaximumForwardMovement(
                 this.sceneSnapshot.getMarioFloatVelocity()[0], action, repetitions);
@@ -37,6 +40,7 @@ public class SearchNode {
                 childbehaviorDistanceAndSpeed[1]);
     }
 
+    // Explanation: Constructs and initializes a new SearchNode instance with specified parameters.
     public SearchNode(boolean[] action, int repetitions, SearchNode parent) {
         this.parentPos = parent;
         if (parent != null) {
@@ -51,6 +55,7 @@ public class SearchNode {
             timeElapsed = 0;
     }
 
+    // Explanation: Executes the initialize root routine on SearchNode.
     public void initializeRoot(MarioForwardModel model) {
         if (this.parentPos == null) {
             this.sceneSnapshot = model.clone();
@@ -58,6 +63,7 @@ public class SearchNode {
         }
     }
 
+    // Explanation: Executes the simulate pos routine on SearchNode.
     public float simulatePos() {
         this.sceneSnapshot = parentPos.sceneSnapshot.clone();
         for (int i = 0; i < repetitions; i++) {
@@ -74,6 +80,7 @@ public class SearchNode {
         return remainingTime;
     }
 
+    // Explanation: Executes the generate children routine on SearchNode.
     public ArrayList<SearchNode> generateChildren() {
         ArrayList<SearchNode> list = new ArrayList<SearchNode>();
         ArrayList<boolean[]> possibleActions = Helper.createPossibleActions(this);
@@ -86,6 +93,7 @@ public class SearchNode {
         return list;
     }
 
+    // Explanation: Checks and returns whether is leaf node condition is met.
     public boolean isLeafNode() {
         if (this.sceneSnapshot == null) {
             return false;
@@ -93,6 +101,7 @@ public class SearchNode {
         return this.sceneSnapshot.getGameStatus() != GameStatus.RUNNING;
     }
 
+    // Explanation: Executes the max forward movement routine on SearchNode.
     private float maxForwardMovement(float initialSpeed, int ticks) {
         float y = ticks;
         float s0 = initialSpeed;

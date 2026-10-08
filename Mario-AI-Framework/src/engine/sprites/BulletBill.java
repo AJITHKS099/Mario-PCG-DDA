@@ -12,6 +12,7 @@ import engine.helper.SpriteType;
 public class BulletBill extends MarioSprite {
     private MarioImage graphics;
 
+    // Explanation: Constructs and initializes a new BulletBill instance with specified parameters.
     public BulletBill(boolean visuals, float x, float y, int dir) {
         super(x, y, SpriteType.BULLET_BILL);
         this.width = 4;
@@ -27,6 +28,7 @@ public class BulletBill extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this BulletBill for forward simulation.
     @Override
     public MarioSprite clone() {
         BulletBill sprite = new BulletBill(false, x, y, this.facing);
@@ -37,6 +39,7 @@ public class BulletBill extends MarioSprite {
         return sprite;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this BulletBill on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -52,12 +55,14 @@ public class BulletBill extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this BulletBill onto the target display canvas.
     @Override
     public void render(Graphics og) {
         super.render(og);
         this.graphics.render(og, (int) (this.x - this.world.cameraX), (int) (this.y - this.world.cameraY));
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     public void collideCheck() {
         if (!this.alive) {
             return;
@@ -81,11 +86,13 @@ public class BulletBill extends MarioSprite {
         }
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for BulletBill.
     private boolean move(float xa, float ya) {
         x += xa;
         return true;
     }
 
+    // Explanation: Executes the fireball collide check routine on BulletBill.
     public boolean fireballCollideCheck(Fireball fireball) {
         if (!this.alive) {
             return false;
@@ -100,6 +107,7 @@ public class BulletBill extends MarioSprite {
         return false;
     }
 
+    // Explanation: Executes the shell collide check routine on BulletBill.
     public boolean shellCollideCheck(Shell shell) {
         if (!this.alive) {
             return false;

@@ -17,6 +17,7 @@ public class AStarTree {
     private ArrayList<boolean[]> currentActionPlan;
     int ticksBeforeReplanning = 0;
 
+    // Explanation: Executes the search routine on AStarTree.
     private MarioForwardModel search(MarioTimer timer) {
         SearchNode current = bestPosition;
         boolean currentGood = false;
@@ -64,6 +65,7 @@ public class AStarTree {
         return current.sceneSnapshot;
     }
 
+    // Explanation: Executes the start search routine on AStarTree.
     private void startSearch(MarioForwardModel model, int repetitions) {
         SearchNode startPos = new SearchNode(null, repetitions, null);
         startPos.initializeRoot(model);
@@ -77,6 +79,7 @@ public class AStarTree {
         furthestPosition = startPos;
     }
 
+    // Explanation: Executes the extract plan routine on AStarTree.
     private ArrayList<boolean[]> extractPlan() {
         ArrayList<boolean[]> actions = new ArrayList<boolean[]>();
 
@@ -100,6 +103,7 @@ public class AStarTree {
         return actions;
     }
 
+    // Explanation: Executes the pick best pos routine on AStarTree.
     private SearchNode pickBestPos(ArrayList<SearchNode> posPool) {
         SearchNode bestPos = null;
         float bestPosCost = 10000000;
@@ -114,6 +118,7 @@ public class AStarTree {
         return bestPos;
     }
 
+    // Explanation: Executes the optimise routine on AStarTree.
     public boolean[] optimise(MarioForwardModel model, MarioTimer timer) {
         int planAhead = 2;
         int stepsPerSearch = 2;
@@ -145,10 +150,12 @@ public class AStarTree {
         return action;
     }
 
+    // Explanation: Executes the visited routine on AStarTree.
     private void visited(int x, int y, int t) {
         visitedStates.add(new int[]{x, y, t});
     }
 
+    // Explanation: Checks and returns whether is in visited condition is met.
     private boolean isInVisited(int x, int y, int t) {
         int timeDiff = 5;
         int xDiff = 2;

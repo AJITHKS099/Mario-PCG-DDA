@@ -20,6 +20,7 @@ public enum EventType {
         value = newValue;
     }
 
+    // Explanation: Returns the current value value.
     public int getValue() {
         return value;
     }

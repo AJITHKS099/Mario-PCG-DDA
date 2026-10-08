@@ -5,11 +5,13 @@ class MarioPhysicsValidator:
     Discrete 2D Physics A* Pathfinding Solver for Mario Levels.
     Simulates Mario's run, jump, gravity, tile collisions, pit bounds, and hazards.
     """
+    # Explanation: Initializes A* reachability solver with level geometry, start position, exit goal, and Mario physics constants.
     def __init__(self, max_nodes=5000):
         self.max_nodes = max_nodes
         self.solid_tiles = set(['X', 'S', 'Q', '?', 'D', 't', 'T', 'B', 'b', '#'])
         self.hazard_tiles = set(['g', 'k', 'r', 'y', 'G', 'K', 'R'])
 
+    # Explanation: Executes A* pathfinding search through level grid to determine if exit flagpole can be reached without dying.
     def is_level_solvable(self, level_source):
         """
         Evaluates whether a level layout is solvable by Mario using A* pathfinding.
@@ -147,6 +149,7 @@ class MarioPhysicsValidator:
 # Global Instance
 _validator_instance = MarioPhysicsValidator()
 
+# Explanation: Executes A* pathfinding search through level grid to determine if exit flagpole can be reached without dying.
 def is_level_solvable(level_source):
     return _validator_instance.is_level_solvable(level_source)
 

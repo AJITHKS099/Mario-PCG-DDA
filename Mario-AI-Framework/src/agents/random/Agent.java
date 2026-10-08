@@ -11,6 +11,7 @@ public class Agent implements MarioAgent {
     private Random rnd;
     private ArrayList<boolean[]> choices;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         rnd = new Random();
@@ -53,11 +54,13 @@ public class Agent implements MarioAgent {
         choices.add(new boolean[]{true, false, false, true, true});
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         return choices.get(rnd.nextInt(choices.size()));
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "RandomAgent";

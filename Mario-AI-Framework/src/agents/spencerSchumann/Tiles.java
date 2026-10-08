@@ -17,6 +17,7 @@ public class Tiles {
     public static final byte COIN = 7;
     public static final byte UNKNOWN = -1;
 
+    // Explanation: Checks and returns whether is wall condition is met.
     public static boolean isWall(int tile) {
         switch (tile) {
             case SOLID:
@@ -33,6 +34,7 @@ public class Tiles {
         public int startRow = 0;
         int[] tiles = null;
 
+        // Explanation: Sets the tile to the specified value.
         public void setTile(int y, int tile) {
             if (tiles == null) {
                 tiles = new int[1];
@@ -63,6 +65,7 @@ public class Tiles {
             }
         }
 
+        // Explanation: Returns the current tile value.
         public int getTile(int y) {
             if (y < startRow || y >= startRow + tiles.length) {
                 return UNKNOWN;
@@ -74,10 +77,12 @@ public class Tiles {
 
     ArrayList<Column> columns;
 
+    // Explanation: Constructs and initializes a default instance of Tiles.
     public Tiles() {
         columns = new ArrayList<Column>();
     }
 
+    // Explanation: Sets the tile to the specified value.
     private void setTile(int x, int y, int tile) {
         if (x < 0) {
             return;
@@ -93,6 +98,7 @@ public class Tiles {
         c.setTile(y, tile);
     }
 
+    // Explanation: Returns the current tile value.
     public int getTile(int x, int y) {
         if (x < 0) {
             return EMPTY;
@@ -107,6 +113,7 @@ public class Tiles {
         }
     }
 
+    // Explanation: Returns the current scene value.
     public int[][] getScene(int x, int y, int width, int height) {
         int[][] scene = new int[height][width];
         int row, col;
@@ -118,6 +125,7 @@ public class Tiles {
         return scene;
     }
 
+    // Explanation: Executes the add observation routine on Tiles.
     public void addObservation(MarioForwardModel model) {
         int[][] scene = model.getMarioSceneObservation();
 

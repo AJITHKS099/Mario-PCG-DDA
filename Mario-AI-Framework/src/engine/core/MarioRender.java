@@ -21,6 +21,7 @@ public class MarioRender extends JComponent implements FocusListener {
     Thread animator;
     boolean focused;
 
+    // Explanation: Constructs and initializes a new MarioRender instance with specified parameters.
     public MarioRender(float scale) {
         this.setFocusable(true);
         this.setEnabled(true);
@@ -35,11 +36,13 @@ public class MarioRender extends JComponent implements FocusListener {
         setFocusable(true);
     }
 
+    // Explanation: Executes the init routine on MarioRender.
     public void init() {
         graphicsConfiguration = getGraphicsConfiguration();
         Assets.init(graphicsConfiguration);
     }
 
+    // Explanation: Executes the render world routine on MarioRender.
     public void renderWorld(MarioWorld world, Image image, Graphics g, Graphics og) {
         og.fillRect(0, 0, 256, 240);
         world.render(og);
@@ -62,11 +65,13 @@ public class MarioRender extends JComponent implements FocusListener {
         }
     }
 
+    // Explanation: Executes the draw string drop shadow routine on MarioRender.
     public void drawStringDropShadow(Graphics g, String text, int x, int y, int c) {
         drawString(g, text, x * 8 + 5, y * 8 + 5, 0);
         drawString(g, text, x * 8 + 4, y * 8 + 4, c);
     }
 
+    // Explanation: Executes the draw string routine on MarioRender.
     private void drawString(Graphics g, String text, int x, int y, int c) {
         char[] ch = text.toCharArray();
         for (int i = 0; i < ch.length; i++) {
@@ -74,10 +79,12 @@ public class MarioRender extends JComponent implements FocusListener {
         }
     }
 
+    // Explanation: Executes the focus gained routine on MarioRender.
     public void focusGained(FocusEvent arg0) {
         focused = true;
     }
 
+    // Explanation: Executes the focus lost routine on MarioRender.
     public void focusLost(FocusEvent arg0) {
         focused = false;
     }

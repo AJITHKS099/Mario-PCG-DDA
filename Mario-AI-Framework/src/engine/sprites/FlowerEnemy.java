@@ -7,6 +7,7 @@ public class FlowerEnemy extends Enemy {
     private float yStart;
     private int tick, waitTime;
 
+    // Explanation: Constructs and initializes a new FlowerEnemy instance with specified parameters.
     public FlowerEnemy(boolean visuals, float x, float y) {
         super(visuals, x, y, 0, SpriteType.ENEMY_FLOWER);
         this.winged = false;
@@ -21,6 +22,7 @@ public class FlowerEnemy extends Enemy {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this FlowerEnemy for forward simulation.
     @Override
     public MarioSprite clone() {
         FlowerEnemy sprite = new FlowerEnemy(false, this.x, this.y);
@@ -38,6 +40,7 @@ public class FlowerEnemy extends Enemy {
         return sprite;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this FlowerEnemy on each game tick.
     @Override
     public void update() {
         if (!this.alive) {

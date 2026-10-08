@@ -66,12 +66,14 @@ public class Agent implements MarioAgent {
 
     /**********/
 
+    // Explanation: Executes the probe routine on Agent.
     private double probe(int x, int y, int[][] scene) {
         int realX = x + 8;
         int realY = y + 8;
         return (scene[realX][realY] != 0) ? 1 : 0;
     }
 
+    // Explanation: Executes the probe_enemies routine on Agent.
     private double probe_enemies(int x, int y, int[][] scene) {
         int realX = x + 8;
         int realY = y + 8;
@@ -84,6 +86,7 @@ public class Agent implements MarioAgent {
         return result;
     }
 
+    // Explanation: Executes the push_ mario_ x_pos_to_buffer routine on Agent.
     private void push_Mario_X_pos_to_buffer(float Mario_X_pos) {
         for (int i = 0; i < buffer_of_Mario_X.length - 1; i++) {
             buffer_of_Mario_X[i] = buffer_of_Mario_X[i + 1];
@@ -95,6 +98,7 @@ public class Agent implements MarioAgent {
         }
     }
 
+    // Explanation: Executes the push_inputs_and_actions_to_buffer routine on Agent.
     private void push_inputs_and_actions_to_buffer(double[] inputs, int action_in_progress_type) {
         for (int i = 0; i < buffer_of_inputs.length - 1; i++) {
             for (int j = 0; j < buffer_of_inputs[i].length; j++) {
@@ -115,6 +119,7 @@ public class Agent implements MarioAgent {
         }
     }
 
+    // Explanation: Executes the detector_of_holes_push_inputs_to_buffer routine on Agent.
     private void detector_of_holes_push_inputs_to_buffer(double[] inputs) {
         for (int i = 0; i < detector_of_holes_buffer_of_inputs.length - 1; i++) {
             for (int j = 0; j < detector_of_holes_buffer_of_inputs[i].length; j++) {
@@ -131,6 +136,7 @@ public class Agent implements MarioAgent {
         }
     }
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         cbrn = new CyberNeuron(numberOfInputs, numberOfOutputs);
@@ -156,6 +162,7 @@ public class Agent implements MarioAgent {
         }
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         boolean[] action = new boolean[MarioActions.numberOfActions()];
@@ -505,6 +512,7 @@ public class Agent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "SergeyPolikarpovAgent";

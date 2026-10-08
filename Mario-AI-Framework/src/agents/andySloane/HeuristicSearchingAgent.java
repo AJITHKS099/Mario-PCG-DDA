@@ -23,6 +23,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
     float pred_x, pred_y;
     boolean won = false;
 
+    // Explanation: Executes the cost routine on HeuristicSearchingAgent.
     protected final float cost(MarioState s, MarioState initial) {
         float damage = Tunables.HurtCost * s.hurt;
         if (s.dead)
@@ -134,6 +135,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
         // unreachable
     }
 
+    // Explanation: Executes the useless_action routine on HeuristicSearchingAgent.
     static final public boolean useless_action(int a, MarioState s) {
         // speed without left or right: useless
         if ((a & MarioState.ACT_SPEED) > 0 && !((a & MarioState.ACT_LEFT) > 0 || (a & MarioState.ACT_RIGHT) > 0))
@@ -162,6 +164,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
 
     protected abstract int searchForAction(MarioState initialState, WorldState ws);
 
+    // Explanation: Executes the mario min routine on HeuristicSearchingAgent.
     public static MarioState marioMin(MarioState a, MarioState b) {
         if (a == null)
             return b;
@@ -173,6 +176,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
         return b;
     }
 
+    // Explanation: Initializes and prepares HeuristicSearchingAgent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         ms = null;
@@ -180,6 +184,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
         won = false;
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         if (won) // we won! we can't do anything!
@@ -237,10 +242,12 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Executes the epsilon routine on HeuristicSearchingAgent.
     private static boolean epsilon(float a, float b) {
         return Math.abs(a - b) < 0.01;
     }
 
+    // Explanation: Executes the resync routine on HeuristicSearchingAgent.
     private void resync(MarioForwardModel model, boolean x, boolean y) {
         float[] mpos = model.getMarioFloatPos();
         ms.x = mpos[0];
@@ -260,6 +267,7 @@ public abstract class HeuristicSearchingAgent implements MarioAgent {
         }
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "AndySloaneAgent";

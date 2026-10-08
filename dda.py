@@ -5,6 +5,7 @@ strictly enforcing a 10% (0.10) maximum variance bound relative to the designer'
 """
 
 class DynamicDifficultyAdjuster:
+    # Explanation: Initializes Bayesian Dynamic Difficulty Adjuster parameters, prior belief distribution, and historical session logs.
     def __init__(self, max_variance=0.10, decay_factor=0.70):
         """
         :param max_variance: Maximum allowed delta from designer baseline (default 0.10 = 10%)
@@ -14,10 +15,12 @@ class DynamicDifficultyAdjuster:
         self.decay_factor = decay_factor
         self.session_history = []
 
+    # Explanation: Resets session history and restores the default prior belief distribution for difficulty adjustments.
     def reset_session(self):
         """Resets cumulative session telemetry when a new campaign series is generated."""
         self.session_history = []
 
+    # Explanation: Computes normalized player performance score (0.0 to 1.0) combining victory, completion percentage, damage taken, and enemy eliminations.
     def _calculate_raw_performance(self, player_performance):
         won = player_performance.get('won', True)
         lives_lost = player_performance.get('lives_lost', 0 if won else 1)
@@ -34,19 +37,22 @@ class DynamicDifficultyAdjuster:
         else:
             return -0.5 - (0.2 * lives_lost) + (completion_pct * 0.3)
 
-    def calculate_adjustment(self, designer_target, player_performance=None, session_history=None):
+    # Explanation: Calculates updated difficulty target using Bayesian performance likelihood and bounds adjustments within maximum allowed variance.
+    def calculate_adjustment(self, designer_target, player_performance=None, session_history=None, baseline_target=None):
         """
-        Calculates the new target difficulty based on cumulative session performance across all played levels.
+        Calculates the new target difficulty based on cumulative session performance across all played levels,
+        strictly bounded within ±max_variance of the baseline designer target curve.
         """
         if player_performance is not None:
             self.session_history.append(player_performance)
 
         history = session_history if session_history is not None else self.session_history
+        anchor_baseline = baseline_target if baseline_target is not None else designer_target
 
         if not history:
             return {
-                "designer_target": designer_target,
-                "adjusted_target": designer_target,
+                "designer_target": anchor_baseline,
+                "adjusted_target": anchor_baseline,
                 "delta": 0.0,
                 "delta_pct": "+0.0%",
                 "raw_performance": 0.0,
@@ -72,11 +78,12 @@ class DynamicDifficultyAdjuster:
         delta = cum_performance * self.max_variance
         delta = max(-self.max_variance, min(self.max_variance, delta))
 
-        min_allowed = max(0.0, designer_target - self.max_variance)
-        max_allowed = min(1.0, designer_target + self.max_variance)
+        min_allowed = max(0.0, anchor_baseline - self.max_variance)
+        max_allowed = min(1.0, anchor_baseline + self.max_variance)
 
-        adjusted_target = round(max(min_allowed, min(max_allowed, designer_target + delta)), 3)
-        actual_delta = round(adjusted_target - designer_target, 3)
+        adjusted_target = round(max(min_allowed, min(max_allowed, anchor_baseline + delta)), 3)
+        actual_delta = round(adjusted_target - anchor_baseline, 3)
+        actual_delta = max(-self.max_variance, min(self.max_variance, actual_delta))
 
         if actual_delta > 0.01:
             reason = f"Cumulative session trend: strong performance across {n} level(s) (+{actual_delta*100:.1f}% difficulty shift)."
@@ -87,19 +94,19 @@ class DynamicDifficultyAdjuster:
 
         dda_changes = []
         if actual_delta < -0.01:
-            dda_changes.append(f"Reduced hazard density (Target difficulty lowered from {designer_target*100:.0f}% to {adjusted_target*100:.0f}%)")
+            dda_changes.append(f"Reduced hazard density (Target difficulty lowered from {anchor_baseline*100:.0f}% to {adjusted_target*100:.0f}%)")
             dda_changes.append("Narrowed maximum gap widths for safer platforming")
             dda_changes.append("Decreased enemy patrol frequency & Piranha Pipe spawns")
             dda_changes.append("Added +1 Mushroom Power-Up Question Block")
         elif actual_delta > 0.01:
-            dda_changes.append(f"Increased challenge density (Target difficulty raised from {designer_target*100:.0f}% to {adjusted_target*100:.0f}%)")
+            dda_changes.append(f"Increased challenge density (Target difficulty raised from {anchor_baseline*100:.0f}% to {adjusted_target*100:.0f}%)")
             dda_changes.append("Increased Koopa & Piranha Flower Pipe frequency")
             dda_changes.append("Slightly widened platforming pit gaps")
         else:
             dda_changes.append("Maintained target difficulty curve without structural shifts")
 
         return {
-            "designer_target": designer_target,
+            "designer_target": anchor_baseline,
             "adjusted_target": adjusted_target,
             "delta": actual_delta,
             "delta_pct": f"{actual_delta * 100:+.1f}%",

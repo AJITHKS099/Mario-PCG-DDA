@@ -8,11 +8,13 @@ public class FireballState extends SpriteState {
     public static final float width = 4;
     public static final float height = 12;
 
+    // Explanation: Executes the height routine on FireballState.
     @Override
     public final float height() {
         return 12;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this FireballState for forward simulation.
     @Override
     public SpriteState clone() {
         FireballState e = new FireballState(x, y, false);
@@ -33,10 +35,12 @@ public class FireballState extends SpriteState {
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for FireballState.
     public boolean move(WorldState ws) {
         return true;
     }
 
+    // Explanation: Executes the resync routine on FireballState.
     @Override
     public void resync(float x, float y, float prev_x, float prev_y) {
         this.x = x;
@@ -48,6 +52,7 @@ public class FireballState extends SpriteState {
             ya += 2;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     @Override
     public WorldState collideCheck(WorldState ws, MarioState ms) {
         return ws;

@@ -40,6 +40,7 @@ public class MarioLevelModel {
      *
      * @return tiles that spawn enemies
      */
+    // Explanation: Get array of level tiles that can spawn enemies.
     public static char[] getEnemyTiles() {
         return new char[]{BULLET_BILL, PIPE_FLOWER};
     }
@@ -49,6 +50,7 @@ public class MarioLevelModel {
      *
      * @return list of tiles that can be bumped by the player
      */
+    // Explanation: List of tiles that can be bumped by the player.
     public static char[] getBumpableTiles() {
         return new char[]{NORMAL_BRICK, COIN_BRICK, LIFE_BRICK, SPECIAL_BRICK,
                 SPECIAL_QUESTION_BLOCK, COIN_QUESTION_BLOCK};
@@ -59,6 +61,7 @@ public class MarioLevelModel {
      *
      * @return array of all tiles that block player movement
      */
+    // Explanation: List all the tiles that can block the player movement.
     public static char[] getBlockTiles() {
         return new char[]{GROUND, PYRAMID_BLOCK, USED_BLOCK,
                 NORMAL_BRICK, COIN_BRICK, LIFE_BRICK, SPECIAL_BRICK,
@@ -71,6 +74,7 @@ public class MarioLevelModel {
      *
      * @return list of all solid tiles that don't interact
      */
+    // Explanation: Tiles that block the player and not interactive.
     public static char[] getBlockNonSpecialTiles() {
         return new char[]{GROUND, PYRAMID_BLOCK, USED_BLOCK, PIPE};
     }
@@ -80,6 +84,7 @@ public class MarioLevelModel {
      *
      * @return list of all non blocking tiles
      */
+    // Explanation: List of all tiles that won't block the player movement.
     public static char[] getNonBlockingTiles() {
         return new char[]{COIN, COIN_HIDDEN_BLOCK, LIFE_HIDDEN_BLOCK, PLATFORM_BACKGROUND};
     }
@@ -89,6 +94,7 @@ public class MarioLevelModel {
      *
      * @return list of all collectible scene tiles
      */
+    // Explanation: Get a list of all scene tiles that could produce something collected by the player.
     public static char[] getCollectablesTiles() {
         return new char[]{COIN,
                 COIN_BRICK, LIFE_BRICK, SPECIAL_BRICK,
@@ -103,6 +109,7 @@ public class MarioLevelModel {
      * @param winged boolean to indicate if its a winged enemy
      * @return correct character based on winged
      */
+    // Explanation: Get the correct version of the enemy char.
     public static char getWingedEnemyVersion(char enemy, boolean winged) {
         if (!winged) {
             if (enemy == GOOMBA_WINGED) {
@@ -139,6 +146,7 @@ public class MarioLevelModel {
      *
      * @return array of all enemy characters
      */
+    // Explanation: A list of all enemy characters.
     public static char[] getEnemyCharacters() {
         return new char[]{GOOMBA, GOOMBA_WINGED, RED_KOOPA, RED_KOOPA_WINGED,
                 GREEN_KOOPA, GREEN_KOOPA_WINGED, SPIKY, SPIKY_WINGED};
@@ -150,6 +158,7 @@ public class MarioLevelModel {
      * @param wings true if the list contain winged enemies and false otherwise
      * @return an array of all wings enemy or not winged
      */
+    // Explanation: List of all enemy character based on wings.
     public static char[] getEnemyCharacters(boolean wings) {
         if (wings) {
             return new char[]{GOOMBA_WINGED, RED_KOOPA_WINGED, GREEN_KOOPA_WINGED, SPIKY_WINGED};
@@ -168,6 +177,7 @@ public class MarioLevelModel {
      * @param levelWidth  the width of the level
      * @param levelHeight the height of the level
      */
+    // Explanation: Create the Level Model.
     public MarioLevelModel(int levelWidth, int levelHeight) {
         this.map = new char[levelWidth][levelHeight];
     }
@@ -175,6 +185,7 @@ public class MarioLevelModel {
     /**
      * create a similar clone to the current map
      */
+    // Explanation: Create a similar clone to the current map.
     public MarioLevelModel clone() {
         MarioLevelModel model = new MarioLevelModel(this.getWidth(), this.getHeight());
         for (int x = 0; x < model.getWidth(); x++) {
@@ -190,6 +201,7 @@ public class MarioLevelModel {
      *
      * @return map width
      */
+    // Explanation: Get map width.
     public int getWidth() {
         return this.map.length;
     }
@@ -199,6 +211,7 @@ public class MarioLevelModel {
      *
      * @return map height
      */
+    // Explanation: Get map height.
     public int getHeight() {
         return this.map[0].length;
     }
@@ -210,6 +223,7 @@ public class MarioLevelModel {
      * @param y y tile position
      * @return the tile value
      */
+    // Explanation: Get the value of the tile in certain location.
     public char getBlock(int x, int y) {
         int currentX = x;
         int currentY = y;
@@ -227,6 +241,7 @@ public class MarioLevelModel {
      * @param y     the y tile position
      * @param value the tile value to be set
      */
+    // Explanation: Set a tile on the map with certain value.
     public void setBlock(int x, int y, char value) {
         if (x < 0 || y < 0 || x > this.map.length - 1 || y > this.map[0].length - 1) return;
         this.map[x][y] = value;
@@ -241,6 +256,7 @@ public class MarioLevelModel {
      * @param height the height of the rectangle
      * @param value  the tile value
      */
+    // Explanation: Set a rectangle area of the map with a certain tile value.
     public void setRectangle(int startX, int startY, int width, int height, char value) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -254,6 +270,7 @@ public class MarioLevelModel {
      *
      * @param level the input string level
      */
+    // Explanation: Copy the string level to the current map.
     public void copyFromString(String level) {
         this.copyFromString(0, 0, 0, 0, this.getWidth(), this.getHeight(), level);
     }
@@ -269,6 +286,7 @@ public class MarioLevelModel {
      * @param height  the height of the copied protion
      * @param level   the level string
      */
+    // Explanation: Copy portion from string to the current map.
     public void copyFromString(int targetX, int targetY, int sourceX, int sourceY, int width, int height, String level) {
         String[] lines = level.split("\n");
         for (int y = 0; y < height; y++) {
@@ -283,6 +301,7 @@ public class MarioLevelModel {
     /**
      * clear the whole map
      */
+    // Explanation: Clear the whole map.
     public void clearMap() {
         this.setRectangle(0, 0, this.getWidth(), this.getHeight(), EMPTY);
     }
@@ -292,6 +311,7 @@ public class MarioLevelModel {
      *
      * @return the map in form of string
      */
+    // Explanation: Get the string value of the map.
     public String getMap() {
         String result = "";
         for (int y = 0; y < map[0].length; y++) {
@@ -310,6 +330,7 @@ public class MarioLevelModel {
      * @param timer amount of time allowed to test that level
      * @return statistical results about the level
      */
+    // Explanation: Test the current level using a specific agent.
     public MarioResult testALevelWithAgent(MarioAgent agent, int timer) {
         MarioGame game = new MarioGame();
         return game.runGame(agent, this.getMap(), timer);

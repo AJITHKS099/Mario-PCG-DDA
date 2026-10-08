@@ -16,6 +16,7 @@ public class Fireball extends MarioSprite {
     private MarioImage graphics;
     private int anim = 0;
 
+    // Explanation: Constructs and initializes a new Fireball instance with specified parameters.
     public Fireball(boolean visuals, float x, float y, int facing) {
         super(x, y, SpriteType.FIREBALL);
         this.facing = facing;
@@ -32,6 +33,7 @@ public class Fireball extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this Fireball for forward simulation.
     @Override
     public MarioSprite clone() {
         Fireball f = new Fireball(false, this.x, this.y, this.facing);
@@ -44,6 +46,7 @@ public class Fireball extends MarioSprite {
         return f;
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for Fireball.
     private boolean move(float xa, float ya) {
         while (xa > 8) {
             if (!move(8, 0))
@@ -127,6 +130,7 @@ public class Fireball extends MarioSprite {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya) {
         int x = (int) (_x / 16);
         int y = (int) (_y / 16);
@@ -138,6 +142,7 @@ public class Fireball extends MarioSprite {
         return blocking;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this Fireball on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -185,6 +190,7 @@ public class Fireball extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this Fireball onto the target display canvas.
     @Override
     public void render(Graphics og) {
         super.render(og);

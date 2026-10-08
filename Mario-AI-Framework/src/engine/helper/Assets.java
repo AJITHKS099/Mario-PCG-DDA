@@ -27,6 +27,7 @@ public class Assets {
     final static String curDir = System.getProperty("user.dir");
     final static String img = curDir + "/img/";
 
+    // Explanation: Executes the init routine on Assets.
     public static void init(GraphicsConfiguration gc) {
         try {
             mario = cutImage(gc, "mariosheet.png", 32, 32);
@@ -43,6 +44,7 @@ public class Assets {
 
     }
 
+    // Explanation: Returns the current image value.
     private static Image getImage(GraphicsConfiguration gc, String imageName) throws IOException {
         BufferedImage source = null;
         try {
@@ -71,6 +73,7 @@ public class Assets {
         return image;
     }
 
+    // Explanation: Executes the cut image routine on Assets.
     private static Image[][] cutImage(GraphicsConfiguration gc, String imageName, int xSize, int ySize) throws IOException {
         Image source = getImage(gc, imageName);
         Image[][] images = new Image[source.getWidth(null) / xSize][source.getHeight(null) / ySize];

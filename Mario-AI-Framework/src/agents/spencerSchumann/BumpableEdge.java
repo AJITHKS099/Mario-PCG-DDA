@@ -8,6 +8,7 @@ public class BumpableEdge extends Edge {
 
     int type;
 
+    // Explanation: Constructs and initializes a new BumpableEdge instance with specified parameters.
     public BumpableEdge(float x1, float y1, float x2, float y2, int type) {
         super(x1, y1, x2, y2);
         this.type = type;

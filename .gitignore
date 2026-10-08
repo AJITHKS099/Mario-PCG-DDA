@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# Build & documentation artifacts (not needed to run the application)
+bin/
+documentation/
+DFDs/
+Remarks/
+legacy/
+tests/
+.agents/
+*.pdf
+
+# Runtime logs and game session output
+*.log
+last_result.txt
+mario_out.txt
+mario_model.json
+Mario-AI-Framework/last_result.txt
+Mario-AI-Framework/session_test.log
+Mario-AI-Framework/levels/level_*.txt
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

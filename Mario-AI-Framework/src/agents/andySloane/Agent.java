@@ -7,12 +7,14 @@ public final class Agent extends HeuristicSearchingAgent {
     private PrioQ pq;
     private static final int maxSteps = 800;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         super.initialize(model, timer);
         pq = new PrioQ(Tunables.MaxBreadth);
     }
 
+    // Explanation: Executes the search for action routine on Agent.
     @Override
     protected int searchForAction(MarioState initialState, WorldState ws) {
         pq.clear();

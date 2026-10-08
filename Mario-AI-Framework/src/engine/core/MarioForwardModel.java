@@ -64,6 +64,7 @@ public class MarioForwardModel {
     // Enemies Detail 2
     public static final int OBS_ENEMY = 1;
 
+    // Explanation: Returns the current sprite type generalization value.
     public static int getSpriteTypeGeneralization(SpriteType sprite, int detail) {
         switch (detail) {
             case (0):
@@ -114,6 +115,7 @@ public class MarioForwardModel {
         return OBS_UNDEF;
     }
 
+    // Explanation: Returns the current block value generalization value.
     public static int getBlockValueGeneralization(int tile, int detail) {
         if (tile == 0) {
             return OBS_NONE;
@@ -222,6 +224,7 @@ public class MarioForwardModel {
      * @param world the current level world that is being used. This class hides the
      *              world object so the agents won't cheat.
      */
+    // Explanation: Create a forward model object.
     public MarioForwardModel(MarioWorld world) {
         this.world = world;
     }
@@ -231,6 +234,7 @@ public class MarioForwardModel {
      *
      * @return a clone from the current forward model state
      */
+    // Explanation: Create a clone from the current forward model state.
     public MarioForwardModel clone() {
         MarioForwardModel model = new MarioForwardModel(this.world.clone());
         model.fallKill = this.fallKill;
@@ -248,6 +252,7 @@ public class MarioForwardModel {
      *
      * @param actions a list of all the button states
      */
+    // Explanation: Advance the forward model using the action array.
     public void advance(boolean[] actions) {
         this.world.update(actions);
         for (MarioEvent e : this.world.lastFrameEvents) {
@@ -283,6 +288,7 @@ public class MarioForwardModel {
      *
      * @return GameStatus the current state (WIN, LOSE, TIME_OUT, RUNNING)
      */
+    // Explanation: Get the current state of the running game.
     public GameStatus getGameStatus() {
         return this.world.gameStatus;
     }
@@ -292,6 +298,7 @@ public class MarioForwardModel {
      *
      * @return value between 0 to 1 to indicate the percentage of distance traversed
      */
+    // Explanation: The percentage of distance traversed between mario and the goal.
     public float getCompletionPercentage() {
         return this.world.mario.x / (this.world.level.exitTileX * 16);
     }
@@ -301,6 +308,7 @@ public class MarioForwardModel {
      *
      * @return the first value is level width and second is level height
      */
+    // Explanation: Get the current level dimensions.
     public float[] getLevelFloatDimensions() {
         return new float[]{this.world.level.width, this.world.level.height};
     }
@@ -310,6 +318,7 @@ public class MarioForwardModel {
      *
      * @return the number of time ticks before timeout each frame removes 30 frames
      */
+    // Explanation: Get the remaining time before the game timesout.
     public int getRemainingTime() {
         return this.world.currentTimer;
     }
@@ -319,6 +328,7 @@ public class MarioForwardModel {
      *
      * @return the actual mario position in the current state
      */
+    // Explanation: Get mario position.
     public float[] getMarioFloatPos() {
         return new float[]{this.world.mario.x, this.world.mario.y};
     }
@@ -328,6 +338,7 @@ public class MarioForwardModel {
      *
      * @return the actual mario velocity in the current state
      */
+    // Explanation: Get mario velocity.
     public float[] getMarioFloatVelocity() {
         return new float[]{this.world.mario.xa, this.world.mario.ya};
     }
@@ -337,6 +348,7 @@ public class MarioForwardModel {
      *
      * @return true if the agent can press the button longer and false otherwise
      */
+    // Explanation: If mario can press the jump button while in the air to reach higher areas.
     public boolean getMarioCanJumpHigher() {
         return this.world.mario.jumpTime > 0;
     }
@@ -346,6 +358,7 @@ public class MarioForwardModel {
      *
      * @return the current mario mode (0-small, 1-large, 2-fire)
      */
+    // Explanation: Get the current mario mode.
     public int getMarioMode() {
         int value = 0;
         if (this.world.mario.isLarge) {
@@ -362,6 +375,7 @@ public class MarioForwardModel {
      *
      * @return true if mario is touching the ground and false otherwise
      */
+    // Explanation: Get to know if mario is touching the ground.
     public boolean isMarioOnGround() {
         return this.world.mario.onGround;
     }
@@ -371,6 +385,7 @@ public class MarioForwardModel {
      *
      * @return true if mario can jump and false otherwise
      */
+    // Explanation: Get to know if mario is able to jump.
     public boolean mayMarioJump() {
         return this.world.mario.mayJump;
     }
@@ -381,6 +396,7 @@ public class MarioForwardModel {
      * @return an array of 3 floats that contain the enemy type, x position, y
      * position for each enemy sprite
      */
+    // Explanation: Get a 3x float list that contain the type of enemies, x position, y position.
     public float[] getEnemiesFloatPos() {
         ArrayList<MarioSprite> enemiesAlive = this.world.getEnemies();
         float[] enemyPos = new float[enemiesAlive.size() * 3];
@@ -397,6 +413,7 @@ public class MarioForwardModel {
      *
      * @return number of enemies killed in the game
      */
+    // Explanation: Get the number of enemies killed in the game.
     public int getKillsTotal() {
         return this.fallKill + this.fireKill + this.shellKill + this.stompKill;
     }
@@ -406,6 +423,7 @@ public class MarioForwardModel {
      *
      * @return number of enemies killed by fireballs
      */
+    // Explanation: Get the number of enemies killed by fireballs.
     public int getKillsByFire() {
         return this.fireKill;
     }
@@ -415,6 +433,7 @@ public class MarioForwardModel {
      *
      * @return number of enemies killed by stomping
      */
+    // Explanation: Get the number of enemies killed by stomping.
     public int getKillsByStomp() {
         return this.stompKill;
     }
@@ -424,6 +443,7 @@ public class MarioForwardModel {
      *
      * @return number of enemies killed by a koopa shell
      */
+    // Explanation: Get the number of enemies killed by a koopa shell.
     public int getKillsByShell() {
         return this.shellKill;
     }
@@ -433,6 +453,7 @@ public class MarioForwardModel {
      *
      * @return the number of enemies that fell from the game screen
      */
+    // Explanation: Get the number of enemies that fell from the game screen.
     public int getKillsByFall() {
         return this.fallKill;
     }
@@ -442,6 +463,7 @@ public class MarioForwardModel {
      *
      * @return number of 100 coins collected by mario
      */
+    // Explanation: Get the number 100 coins collected by mario.
     public int getNumLives() {
         return this.world.lives;
     }
@@ -451,6 +473,7 @@ public class MarioForwardModel {
      *
      * @return the number of collected mushrooms by mario
      */
+    // Explanation: Get the number of mushroom collected by mario.
     public int getNumCollectedMushrooms() {
         return this.mushrooms;
     }
@@ -460,6 +483,7 @@ public class MarioForwardModel {
      *
      * @return the number of collected fire flowers by mario
      */
+    // Explanation: Get the number of fire flowers collected by mario.
     public int getNumCollectedFireflower() {
         return this.flowers;
     }
@@ -469,6 +493,7 @@ public class MarioForwardModel {
      *
      * @return the number of collected coins by mario
      */
+    // Explanation: Get the number of coins collected by mario.
     public int getNumCollectedCoins() {
         return this.world.coins;
     }
@@ -478,6 +503,7 @@ public class MarioForwardModel {
      *
      * @return the number of destroyed bricks by large or fire mario
      */
+    // Explanation: Get the number of destroyed bricks by large or fire mario.
     public int getNumDestroyedBricks() {
         return this.breakBlock;
     }
@@ -487,6 +513,7 @@ public class MarioForwardModel {
      *
      * @return the x and y location of mario on the screen as tile values
      */
+    // Explanation: Get the tile location of mario with respect to the screen.
     public int[] getMarioScreenTilePos() {
         return new int[]{(int) ((this.world.mario.x - this.world.cameraX) / 16), (int) (this.world.mario.y / 16)};
     }
@@ -497,6 +524,7 @@ public class MarioForwardModel {
      *
      * @return 2D grid that have all the information about all objects on the screen
      */
+    // Explanation: The current screen status as a 2D tile grid around the center of screen with.
     public int[][] getScreenCompleteObservation() {
         return this.getScreenCompleteObservation(1, 0);
     }
@@ -509,6 +537,7 @@ public class MarioForwardModel {
      * number to indicate a certain enemy. Look at SpriteTypes for enemy
      * values (Detail 0).
      */
+    // Explanation: The current enemies on the screen as a 2D tile grid around the center of.
     public int[][] getScreenEnemiesObservation() {
         return this.getScreenEnemiesObservation(0);
     }
@@ -521,6 +550,7 @@ public class MarioForwardModel {
      * value that reflect the type of the tile in that area. Look at
      * TileTypes for the meaning of values (Detail 1)
      */
+    // Explanation: The current objects (not enemies) on the screen as a 2D tile grid around the.
     public int[][] getScreenSceneObservation() {
         return this.getScreenSceneObservation(1);
     }
@@ -531,6 +561,7 @@ public class MarioForwardModel {
      *
      * @return 2D grid that have all the information about all objects on the screen
      */
+    // Explanation: The current screen status as a 2D tile grid around mario with scene detail.
     public int[][] getMarioCompleteObservation() {
         return this.getMarioCompleteObservation(1, 0);
     }
@@ -543,6 +574,7 @@ public class MarioForwardModel {
      * number to indicate a certain enemy. Look at SpriteTypes for enemy
      * values (Detail 0).
      */
+    // Explanation: The current enemies on the screen as a 2D tile grid around mario with a.
     public int[][] getMarioEnemiesObservation() {
         return this.getMarioEnemiesObservation(0);
     }
@@ -555,6 +587,7 @@ public class MarioForwardModel {
      * value that reflect the type of the tile in that area. Look at
      * TileTypes for the meaning of values (Detail 1)
      */
+    // Explanation: The current objects (not enemies) on the screen as a 2D tile grid around.
     public int[][] getMarioSceneObservation() {
         return this.getMarioSceneObservation(1);
     }
@@ -568,6 +601,7 @@ public class MarioForwardModel {
      *                    detailed, 2 binary detail
      * @return 2D grid that have all the information about all objects on the screen
      */
+    // Explanation: The current screen status as a 2D tile grid around the center of screen.
     public int[][] getScreenCompleteObservation(int sceneDetail, int enemyDetail) {
         return this.world.getMergedObservation(this.world.cameraX + MarioGame.width / 2, MarioGame.height / 2,
                 sceneDetail, enemyDetail);
@@ -583,6 +617,7 @@ public class MarioForwardModel {
      * number to indicate a certain enemy. Look at SpriteTypes for enemy
      * values (Detail 0).
      */
+    // Explanation: The current enemies on the screen as a 2D tile grid around the center of.
     public int[][] getScreenEnemiesObservation(int detail) {
         return this.world.getEnemiesObservation(this.world.cameraX + MarioGame.width / 2, MarioGame.height / 2, detail);
     }
@@ -597,6 +632,7 @@ public class MarioForwardModel {
      * value that reflect the type of the tile in that area. Look at
      * TileTypes for the meaning of values (Detail 1)
      */
+    // Explanation: The current objects (not enemies) on the screen as a 2D tile grid around the.
     public int[][] getScreenSceneObservation(int detail) {
         return this.world.getSceneObservation(this.world.cameraX + MarioGame.width / 2, MarioGame.height / 2, detail);
     }
@@ -610,6 +646,7 @@ public class MarioForwardModel {
      *                    detailed, 2 binary detail
      * @return 2D grid that have all the information about all objects on the screen
      */
+    // Explanation: The current screen status as a 2D tile grid around mario.
     public int[][] getMarioCompleteObservation(int sceneDetail, int enemyDetail) {
         return this.world.getMergedObservation(this.world.mario.x, this.world.mario.y, sceneDetail, enemyDetail);
     }
@@ -623,6 +660,7 @@ public class MarioForwardModel {
      * number to indicate a certain enemy. Look at SpriteTypes for enemy
      * values (Detail 0).
      */
+    // Explanation: The current enemies on the screen as a 2D tile grid around mario.
     public int[][] getMarioEnemiesObservation(int detail) {
         return this.world.getEnemiesObservation(this.world.mario.x, this.world.mario.y, detail);
     }
@@ -637,6 +675,7 @@ public class MarioForwardModel {
      * value that reflect the type of the tile in that area. Look at
      * TileTypes for the meaning of values (Detail 1)
      */
+    // Explanation: The current objects (not enemies) on the screen as a 2D tile grid around.
     public int[][] getMarioSceneObservation(int detail) {
         return this.world.getSceneObservation(this.world.mario.x, this.world.mario.y, detail);
     }

@@ -38,6 +38,7 @@ public class MarioWorld {
 
     private MarioBackground[] backgrounds = new MarioBackground[2];
 
+    // Explanation: Constructs and initializes a new MarioWorld instance with specified parameters.
     public MarioWorld(MarioEvent[] killEvents) {
         this.pauseTimer = 0;
         this.gameStatus = GameStatus.RUNNING;
@@ -51,6 +52,7 @@ public class MarioWorld {
         this.killEvents = killEvents;
     }
 
+    // Explanation: Executes the initialize visuals routine on MarioWorld.
     public void initializeVisuals(GraphicsConfiguration graphicsConfig) {
         int[][] tempBackground = new int[][]{
                 new int[]{42},
@@ -85,6 +87,7 @@ public class MarioWorld {
         backgrounds[1] = new MarioBackground(graphicsConfig, MarioGame.width, tempBackground);
     }
 
+    // Explanation: Executes the initialize level routine on MarioWorld.
     public void initializeLevel(String level, int timer) {
         this.currentTimer = timer;
         this.level = new MarioLevel(level, this.visuals);
@@ -95,6 +98,7 @@ public class MarioWorld {
         this.sprites.add(this.mario);
     }
 
+    // Explanation: Returns the current enemies value.
     public ArrayList<MarioSprite> getEnemies() {
         ArrayList<MarioSprite> enemies = new ArrayList<>();
         for (MarioSprite sprite : sprites) {
@@ -105,6 +109,7 @@ public class MarioWorld {
         return enemies;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this MarioWorld for forward simulation.
     public MarioWorld clone() {
         MarioWorld world = new MarioWorld(this.killEvents);
         world.visuals = false;
@@ -133,6 +138,7 @@ public class MarioWorld {
         return world;
     }
 
+    // Explanation: Executes the add event routine on MarioWorld.
     public void addEvent(EventType eventType, int eventParam) {
         int marioState = 0;
         if (this.mario.isLarge) {
@@ -144,10 +150,12 @@ public class MarioWorld {
         this.lastFrameEvents.add(new MarioEvent(eventType, eventParam, mario.x, mario.y, marioState, this.currentTick));
     }
 
+    // Explanation: Executes the add effect routine on MarioWorld.
     public void addEffect(MarioEffect effect) {
         this.effects.add(effect);
     }
 
+    // Explanation: Executes the add sprite routine on MarioWorld.
     public void addSprite(MarioSprite sprite) {
         this.addedSprites.add(sprite);
         sprite.alive = true;
@@ -156,6 +164,7 @@ public class MarioWorld {
         sprite.update();
     }
 
+    // Explanation: Executes the remove sprite routine on MarioWorld.
     public void removeSprite(MarioSprite sprite) {
         this.removedSprites.add(sprite);
         sprite.alive = false;
@@ -163,30 +172,36 @@ public class MarioWorld {
         sprite.world = null;
     }
 
+    // Explanation: Executes the check shell collide routine on MarioWorld.
     public void checkShellCollide(Shell shell) {
         shellsToCheck.add(shell);
     }
 
+    // Explanation: Executes the check fireball collide routine on MarioWorld.
     public void checkFireballCollide(Fireball fireball) {
         fireballsToCheck.add(fireball);
     }
 
+    // Explanation: Executes the win routine on MarioWorld.
     public void win() {
         this.addEvent(EventType.WIN, 0);
         this.gameStatus = GameStatus.WIN;
     }
 
+    // Explanation: Executes the lose routine on MarioWorld.
     public void lose() {
         this.addEvent(EventType.LOSE, 0);
         this.gameStatus = GameStatus.LOSE;
         this.mario.alive = false;
     }
 
+    // Explanation: Executes the timeout routine on MarioWorld.
     public void timeout() {
         this.gameStatus = GameStatus.TIME_OUT;
         this.mario.alive = false;
     }
 
+    // Explanation: Returns the current scene observation value.
     public int[][] getSceneObservation(float centerX, float centerY, int detail) {
         int[][] ret = new int[MarioGame.tileWidth][MarioGame.tileHeight];
         int centerXInMap = (int) centerX / 16;
@@ -214,6 +229,7 @@ public class MarioWorld {
         return ret;
     }
 
+    // Explanation: Returns the current enemies observation value.
     public int[][] getEnemiesObservation(float centerX, float centerY, int detail) {
         int[][] ret = new int[MarioGame.tileWidth][MarioGame.tileHeight];
         int centerXInMap = (int) centerX / 16;
@@ -240,6 +256,7 @@ public class MarioWorld {
         return ret;
     }
 
+    // Explanation: Returns the current merged observation value.
     public int[][] getMergedObservation(float centerX, float centerY, int sceneDetail, int enemiesDetail) {
         int[][] ret = new int[MarioGame.tileWidth][MarioGame.tileHeight];
         int centerXInMap = (int) centerX / 16;
@@ -286,10 +303,12 @@ public class MarioWorld {
         return ret;
     }
 
+    // Explanation: Checks and returns whether is enemy condition is met.
     private boolean isEnemy(MarioSprite sprite) {
         return sprite instanceof Enemy || sprite instanceof FlowerEnemy || sprite instanceof BulletBill;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this MarioWorld on each game tick.
     public void update(boolean[] actions) {
         if (this.gameStatus != GameStatus.RUNNING) {
             return;
@@ -450,6 +469,7 @@ public class MarioWorld {
         }
     }
 
+    // Explanation: Executes the bump routine on MarioWorld.
     public void bump(int xTile, int yTile, boolean canBreakBricks) {
         int block = this.level.getBlock(xTile, yTile);
         ArrayList<TileFeature> features = TileFeature.getTileType(block);
@@ -495,6 +515,7 @@ public class MarioWorld {
         }
     }
 
+    // Explanation: Executes the bump into routine on MarioWorld.
     public void bumpInto(int xTile, int yTile) {
         int block = level.getBlock(xTile, yTile);
         if (TileFeature.getTileType(block).contains(TileFeature.PICKABLE)) {
@@ -511,6 +532,7 @@ public class MarioWorld {
         }
     }
 
+    // Explanation: Renders the visual graphics for this MarioWorld onto the target display canvas.
     public void render(Graphics og) {
         for (int i = 0; i < backgrounds.length; i++) {
             this.backgrounds[i].render(og, (int) cameraX, (int) cameraY);

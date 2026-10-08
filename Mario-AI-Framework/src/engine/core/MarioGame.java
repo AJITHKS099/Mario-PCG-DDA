@@ -60,6 +60,7 @@ public class MarioGame {
     /**
      * Create a mario game to be played
      */
+    // Explanation: Create a mario game to be played.
     public MarioGame() {
 
     }
@@ -69,10 +70,12 @@ public class MarioGame {
      *
      * @param killEvents events that will kill the player
      */
+    // Explanation: Create a mario game with a different forward model where the player on certain event.
     public MarioGame(MarioEvent[] killEvents) {
         this.killEvents = killEvents;
     }
 
+    // Explanation: Returns the current delay value.
     private int getDelay(int fps) {
         if (fps <= 0) {
             return 0;
@@ -80,6 +83,7 @@ public class MarioGame {
         return 1000 / fps;
     }
 
+    // Explanation: Sets the agent to the specified value.
     private void setAgent(MarioAgent agent) {
         this.agent = agent;
         if (agent instanceof KeyAdapter) {
@@ -104,6 +108,7 @@ public class MarioGame {
      * @param timer number of ticks for that level to be played. Setting timer to anything &lt;=0 will make the time infinite
      * @return statistics about the current game
      */
+    // Explanation: Play a certain mario level.
     public MarioResult playGame(String level, int timer) {
         return this.runGame(new Agent(), level, timer, 0, true, 30, 2);
     }
@@ -116,6 +121,7 @@ public class MarioGame {
      * @param marioState the initial state that mario appears in. 0 small mario, 1 large mario, and 2 fire mario.
      * @return statistics about the current game
      */
+    // Explanation: Play a certain mario level.
     public MarioResult playGame(String level, int timer, int marioState) {
         return this.runGame(new Agent(), level, timer, marioState, true, 30, 2);
     }
@@ -129,6 +135,7 @@ public class MarioGame {
      * @param fps        the number of frames per second that the update function is following
      * @return statistics about the current game
      */
+    // Explanation: Play a certain mario level.
     public MarioResult playGame(String level, int timer, int marioState, int fps) {
         return this.runGame(new Agent(), level, timer, marioState, true, fps, 2);
     }
@@ -143,6 +150,7 @@ public class MarioGame {
      * @param scale      the screen scale, that scale value is multiplied by the actual width and height
      * @return statistics about the current game
      */
+    // Explanation: Play a certain mario level.
     public MarioResult playGame(String level, int timer, int marioState, int fps, float scale) {
         return this.runGame(new Agent(), level, timer, marioState, true, fps, scale);
     }
@@ -155,6 +163,7 @@ public class MarioGame {
      * @param timer number of ticks for that level to be played. Setting timer to anything &lt;=0 will make the time infinite
      * @return statistics about the current game
      */
+    // Explanation: Run a certain mario level with a certain agent.
     public MarioResult runGame(MarioAgent agent, String level, int timer) {
         return this.runGame(agent, level, timer, 0, false, 0, 2);
     }
@@ -168,6 +177,7 @@ public class MarioGame {
      * @param marioState the initial state that mario appears in. 0 small mario, 1 large mario, and 2 fire mario.
      * @return statistics about the current game
      */
+    // Explanation: Run a certain mario level with a certain agent.
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState) {
         return this.runGame(agent, level, timer, marioState, false, 0, 2);
     }
@@ -182,6 +192,7 @@ public class MarioGame {
      * @param visuals    show the game visuals if it is true and false otherwise
      * @return statistics about the current game
      */
+    // Explanation: Run a certain mario level with a certain agent.
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState, boolean visuals) {
         return this.runGame(agent, level, timer, marioState, visuals, visuals ? 30 : 0, 2);
     }
@@ -197,6 +208,7 @@ public class MarioGame {
      * @param fps        the number of frames per second that the update function is following
      * @return statistics about the current game
      */
+    // Explanation: Run a certain mario level with a certain agent.
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState, boolean visuals, int fps) {
         return this.runGame(agent, level, timer, marioState, visuals, fps, 2);
     }
@@ -213,10 +225,12 @@ public class MarioGame {
      * @param scale      the screen scale, that scale value is multiplied by the actual width and height
      * @return statistics about the current game
      */
+    // Explanation: Run a certain mario level with a certain agent.
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState, boolean visuals, int fps, float scale) {
         return this.runGame(agent, level, timer, marioState, visuals, fps, scale, 3, 0);
     }
 
+    // Explanation: Executes the run game routine on MarioGame.
     public MarioResult runGame(MarioAgent agent, String level, int timer, int marioState, boolean visuals, int fps, float scale, int lives, int coins) {
         if (visuals) {
             this.window = new JFrame("Mario AI Framework");
@@ -238,6 +252,7 @@ public class MarioGame {
         return this.gameLoop(level, timer, marioState, visuals, fps, lives, coins);
     }
 
+    // Explanation: Executes the game loop routine on MarioGame.
     private MarioResult gameLoop(String level, int timer, int marioState, boolean visual, int fps, int lives, int coins) {
         this.world = new MarioWorld(this.killEvents);
         this.world.visuals = visual;

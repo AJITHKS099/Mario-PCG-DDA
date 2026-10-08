@@ -19,6 +19,7 @@ public class MarioState {
 
     private boolean first = true;
 
+    // Explanation: Updates physics, animation, and state transitions for this MarioState on each game tick.
     public void update(MarioForwardModel model) {
         mode = model.getMarioMode();
         if (mode > 0) {
@@ -43,6 +44,7 @@ public class MarioState {
         y = pos[1];
     }
 
+    // Explanation: Creates and returns an independent duplicate of this MarioState for forward simulation.
     @Override
     public MarioState clone() {
         MarioState m = new MarioState();
@@ -59,6 +61,7 @@ public class MarioState {
         return m;
     }
 
+    // Explanation: Executes the equals routine on MarioState.
     public boolean equals(MarioState other) {
         return x == other.x &&
                 y == other.y &&

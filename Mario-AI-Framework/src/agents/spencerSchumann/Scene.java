@@ -20,6 +20,7 @@ public class Scene {
     public float originX;
     public float originY;
 
+    // Explanation: Creates and returns an independent duplicate of this Scene for forward simulation.
     @Override
     public Scene clone() {
         // TODO: I should really be calling s.clone() here; see Object.clone().
@@ -28,6 +29,7 @@ public class Scene {
         return s;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this Scene on each game tick.
     public void update(Scene scene) {
         // TODO: no deep copy of edges; will this cause problems?
         clearEdges();
@@ -36,6 +38,7 @@ public class Scene {
         originY = scene.originY;
     }
 
+    // Explanation: Executes the clear edges routine on Scene.
     public void clearEdges() {
         floors.clear();
         walls.clear();
@@ -44,14 +47,17 @@ public class Scene {
         enemyEmitters.clear();
     }
 
+    // Explanation: Constructs and initializes a default instance of Scene.
     private Scene() {
     }
 
+    // Explanation: Constructs and initializes a new Scene instance with specified parameters.
     public Scene(float originX, float originY) {
         this.originX = originX;
         this.originY = originY;
     }
 
+    // Explanation: Constructs and initializes a new Scene instance with specified parameters.
     public Scene(MarioForwardModel model, int[][] scene) {
         long startTime = System.nanoTime();
 
@@ -85,6 +91,7 @@ public class Scene {
 
     // Expand vectorized block from an initial starting point, and mark
     // all tiles that are part of this block as visited
+    // Explanation: Executes the expand wall routine on Scene.
     private void expandWall(int[][] scene, boolean[][] visited, int x, int y) {
         if (visited[y][x]) {
             return;
@@ -130,6 +137,7 @@ public class Scene {
     }
 
     // Expand ledge
+    // Explanation: Executes the expand ledge routine on Scene.
     private void expandLedge(int[][] scene, boolean[][] visited, int x, int y) {
         if (visited[y][x]) {
             return;
@@ -152,6 +160,7 @@ public class Scene {
     }
 
     // Coalesce adjacent edges of the same type into one
+    // Explanation: Executes the coalesce routine on Scene.
     private void coalesce() {
         // TODO
         // Note: should I have a contiguous ceiling, or break it up for
@@ -163,6 +172,7 @@ public class Scene {
         // NOTE: bumpables shouldn't be coalesced.
     }
 
+    // Explanation: Executes the coalesce routine on Scene.
     private void coalesce(ArrayList<Edge> edges) {
         // Super stupid way for now.
         // TODO: optimize.  Without coalesce, everything runs in about
@@ -204,6 +214,7 @@ public class Scene {
     }
 
     // Add the edges in the subscene to this scene
+    // Explanation: Executes the add routine on Scene.
     private void add(Scene subscene) {
         floors.addAll(subscene.floors);
         walls.addAll(subscene.walls);

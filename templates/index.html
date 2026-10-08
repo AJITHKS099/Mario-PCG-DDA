@@ -8,8 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Local Offline-First Chart.js Bundle with CDN Fallback -->
+    <script src="/static/vendor/chart.umd.js"></script>
+    <script id="chart-cdn-fallback">
+        if (typeof Chart === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>');
+        }
+    </script>
     <style>
         :root {
             --bg-dark: #0b0f19;
@@ -287,7 +292,17 @@
             position: relative;
             height: 280px;
             width: 100%;
+            min-width: 0;
+            min-height: 0;
             margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .chart-wrapper canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100%;
         }
 
         /* Level Visualizer Tabs */
@@ -877,7 +892,8 @@
             activeLevelIdx: 1,      // Selected level (1 to N)
             maxUnlockedLevel: 1,    // Maximum unlocked level (1 to N)
             designerCurve: [0.20, 0.40, 0.65, 0.80, 0.50],
-            levelTargets: [0.20, 0.40, 0.65, 0.80, 0.50],
+            designerTargets: [0.20, 0.40, 0.65, 0.80, 0.50], // Immutable baseline targets
+            levelTargets: [0.20, 0.40, 0.65, 0.80, 0.50],    // Dynamic adapted targets (bounded within ±10%)
             levelTexts: {},         // Stores level layout per level index for retries
             lastDdaDelta: {},       // Stores last DDA adjustment delta per level
             isRetryMap: {},         // Tracks whether next play is a retry of failed level
@@ -901,9 +917,23 @@
                 const inputEl = document.getElementById('p' + i);
                 designerCurve.push(inputEl ? parseFloat(inputEl.value) || 0 : 50);
             }
+
             if (!campaignData) {
                 initChart(labels, designerCurve);
+            } else if (campaignData.history && campaignData.history.length !== numLevels) {
+                campaignData = null;
+                renderVisualizerInitialState();
+                initChart(labels, designerCurve);
+            } else if (chartInstance && chartInstance.data && chartInstance.data.datasets && chartInstance.data.datasets.length > 0) {
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets[0].data = designerCurve;
+                if (typeof chartInstance.update === 'function') {
+                    chartInstance.update();
+                }
+            } else {
+                initChart(labels, designerCurve);
             }
+
             saveSharedSessionState();
         }
 
@@ -935,15 +965,24 @@
             const plrBtn = document.getElementById('btnPlayerMode');
 
             if (mode === 'designer') {
-                desWS.classList.remove('hidden');
-                plrWS.classList.add('hidden');
-                desBtn.classList.add('active');
-                plrBtn.classList.remove('active');
+                if (desWS) desWS.classList.remove('hidden');
+                if (plrWS) plrWS.classList.add('hidden');
+                if (desBtn) desBtn.classList.add('active');
+                if (plrBtn) plrBtn.classList.remove('active');
+
+                setTimeout(() => {
+                    if (chartInstance) {
+                        if (typeof chartInstance.resize === 'function') chartInstance.resize();
+                        if (typeof chartInstance.update === 'function') chartInstance.update();
+                    } else {
+                        updateDesignerChartFromInputs();
+                    }
+                }, 40);
             } else {
-                desWS.classList.add('hidden');
-                plrWS.classList.remove('hidden');
-                desBtn.classList.remove('active');
-                plrBtn.classList.add('active');
+                if (desWS) desWS.classList.add('hidden');
+                if (plrWS) plrWS.classList.remove('hidden');
+                if (desBtn) desBtn.classList.remove('active');
+                if (plrBtn) plrBtn.classList.add('active');
                 renderArcadeLevelSelector();
                 updateArcadeHUD();
             }
@@ -976,9 +1015,18 @@
         }
 
         function initChart(labels, designerCurve, ddaCurve = null, actualCurve = null) {
-            const ctx = document.getElementById('curveChart').getContext('2d');
-            if (chartInstance) {
+            const canvasEl = document.getElementById('curveChart');
+            if (!canvasEl || typeof canvasEl.getContext !== 'function') return;
+            if (typeof Chart === 'undefined') {
+                console.warn("Chart.js is not loaded yet.");
+                return;
+            }
+            const ctx = canvasEl.getContext('2d');
+            if (!ctx) return;
+
+            if (chartInstance && typeof chartInstance.destroy === 'function') {
                 chartInstance.destroy();
+                chartInstance = null;
             }
 
             const datasets = [
@@ -989,7 +1037,9 @@
                     borderWidth: 3,
                     borderDash: [5, 5],
                     tension: 0.2,
-                    pointRadius: 5
+                    pointRadius: 5,
+                    pointBackgroundColor: '#a5b4fc',
+                    pointHoverRadius: 7
                 }
             ];
 
@@ -1000,7 +1050,9 @@
                     borderColor: '#ec4899',
                     borderWidth: 3,
                     tension: 0.2,
-                    pointRadius: 6
+                    pointRadius: 6,
+                    pointBackgroundColor: '#ec4899',
+                    pointHoverRadius: 8
                 });
             }
 
@@ -1013,38 +1065,63 @@
                     fill: true,
                     borderWidth: 2,
                     tension: 0.2,
-                    pointRadius: 4
+                    pointRadius: 4,
+                    pointBackgroundColor: '#10b981',
+                    pointHoverRadius: 6
                 });
             }
 
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            min: 0,
-                            max: 100,
-                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
-                            ticks: { color: '#94a3b8' }
-                        }
+            try {
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: datasets
                     },
-                    plugins: {
-                        legend: {
-                            labels: { color: '#e2e8f0', font: { family: 'Inter', size: 12 } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        resizeDelay: 50,
+                        layout: {
+                            padding: { top: 6, bottom: 4, left: 4, right: 8 }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                                ticks: { 
+                                    color: '#94a3b8',
+                                    stepSize: 20,
+                                    font: { family: 'Inter', size: 11 }
+                                }
+                            },
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                                ticks: { 
+                                    color: '#94a3b8',
+                                    font: { family: 'Inter', size: 11 }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                align: 'center',
+                                labels: { 
+                                    color: '#e2e8f0', 
+                                    font: { family: 'Inter', size: 11 },
+                                    boxWidth: 12,
+                                    padding: 10
+                                }
+                            }
                         }
                     }
-                }
-            });
+                });
+            } catch (e) {
+                console.warn("Chart.js init warning:", e);
+            }
         }
 
         async function generateCampaign() {
@@ -1065,6 +1142,8 @@
 
             // Reset frontend Arcade state DDA shifts when generating a new campaign sequence
             playerArcadeState.lastDdaDelta = {};
+            playerArcadeState.designerCurve = curve.map(v => v > 1 ? v / 100.0 : v);
+            playerArcadeState.designerTargets = curve.map(v => v > 1 ? v / 100.0 : v);
             playerArcadeState.levelTargets = curve.map(v => v > 1 ? v / 100.0 : v);
             playerArcadeState.levelTexts = {};
             playerArcadeState.activeLevelIdx = 1;
@@ -1108,6 +1187,7 @@
                                     if (campaignData && campaignData.history) {
                                         campaignData.history.forEach(h => {
                                             playerArcadeState.levelTexts[h.level] = h.level_text;
+                                            playerArcadeState.designerTargets[h.level - 1] = h.designer_target;
                                             playerArcadeState.levelTargets[h.level - 1] = h.target_difficulty;
                                         });
                                     }
@@ -1191,7 +1271,12 @@
             const history = campaignData.history;
             const labels = history.map(h => `Level ${h.level}`);
             const designerCurve = history.map(h => Math.round(h.designer_target > 1 ? h.designer_target : h.designer_target * 100));
-            const ddaCurve = history.map(h => Math.round(h.target_difficulty > 1 ? h.target_difficulty : h.target_difficulty * 100));
+            const ddaCurve = history.map(h => {
+                const base = Math.round(h.designer_target > 1 ? h.designer_target : h.designer_target * 100);
+                const rawTgt = Math.round(h.target_difficulty > 1 ? h.target_difficulty : h.target_difficulty * 100);
+                // Strict ±10% clamp relative to designer target
+                return Math.max(base - 10, Math.min(base + 10, rawTgt));
+            });
             const actualCurve = history.map(h => Math.round(h.estimated_difficulty > 1 ? h.estimated_difficulty : h.estimated_difficulty * 100));
 
             initChart(labels, designerCurve, ddaCurve, actualCurve);
@@ -1218,10 +1303,13 @@
                 const card = document.createElement('div');
                 card.className = 'telemetry-card';
 
-                const deltaVal = step.target_difficulty - step.designer_target;
-                const deltaPct = (deltaVal * 100).toFixed(1);
-                const deltaStr = deltaVal > 0 ? `+${deltaPct}%` : `${deltaPct}%`;
-                const deltaClass = deltaVal > 0 ? 'delta-positive' : (deltaVal < 0 ? 'delta-negative' : 'delta-neutral');
+                const baseDiff = step.designer_target > 1 ? step.designer_target / 100.0 : step.designer_target;
+                const tgtDiff = step.target_difficulty > 1 ? step.target_difficulty / 100.0 : step.target_difficulty;
+                const rawDelta = tgtDiff - baseDiff;
+                const clampedDelta = Math.max(-0.10, Math.min(0.10, rawDelta));
+                const deltaPct = (clampedDelta * 100).toFixed(1);
+                const deltaStr = clampedDelta > 0.0001 ? `+${deltaPct}%` : (clampedDelta < -0.0001 ? `${deltaPct}%` : '+0.0%');
+                const deltaClass = clampedDelta > 0.0001 ? 'delta-positive' : (clampedDelta < -0.0001 ? 'delta-negative' : 'delta-neutral');
 
                 const won = step.player_performance ? step.player_performance.won : false;
                 const played = step.player_performance ? step.player_performance.played : false;
@@ -1609,10 +1697,15 @@
             }
 
             const currentIdx = playerArcadeState.activeLevelIdx;
-            const targetDiff = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
-            const nextDesignerTarget = playerArcadeState.levelTargets[currentIdx] || targetDiff;
+            const currentBaseline = (playerArcadeState.designerTargets && playerArcadeState.designerTargets[currentIdx - 1] !== undefined) 
+                ? playerArcadeState.designerTargets[currentIdx - 1] 
+                : (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].designer_target : 0.5);
+            const nextBaseline = (playerArcadeState.designerTargets && playerArcadeState.designerTargets[currentIdx] !== undefined)
+                ? playerArcadeState.designerTargets[currentIdx]
+                : (campaignData && campaignData.history && campaignData.history[currentIdx] ? campaignData.history[currentIdx].designer_target : currentBaseline);
+            const targetDiff = playerArcadeState.levelTargets[currentIdx - 1] || currentBaseline;
             const isRetry = playerArcadeState.isRetryMap[currentIdx] || false;
-            const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
+            const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
 
             if (!prevText) {
                 alert(`Cannot Play: World 1-${currentIdx} layout has not been generated or validated yet.`);
@@ -1641,7 +1734,7 @@
                 const res = await resp.json();
                 if (res.status === 'Success') {
                     logEl.innerHTML = `<strong>Playing World 1-${currentIdx} in Java Window...</strong><br>Complete the level or lose lives to record session telemetry!`;
-                    startPollingSessionResult(currentIdx, nextDesignerTarget);
+                    startPollingSessionResult(currentIdx, nextBaseline, currentBaseline);
                 } else {
                     logEl.innerText = "Error launching game window: " + (res.message || "Failed");
                 }
@@ -1651,7 +1744,7 @@
             }
         }
 
-        function startPollingSessionResult(currentIdx, nextDesignerTarget) {
+        function startPollingSessionResult(currentIdx, nextBaseline, currentBaseline) {
             if (browserGameLoopId) clearInterval(browserGameLoopId);
 
             let pollAttempts = 0;
@@ -1664,15 +1757,15 @@
                 }
 
                 try {
-                    const currentDesignerTarget = playerArcadeState.levelTargets[currentIdx - 1] || 0.5;
                     const prevText = playerArcadeState.levelTexts[currentIdx] || (campaignData && campaignData.history && campaignData.history[currentIdx - 1] ? campaignData.history[currentIdx - 1].level_text : null);
                     const resp = await fetch('/api/check-session-result', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             level_index: currentIdx,
-                            next_designer_target: nextDesignerTarget,
-                            current_designer_target: currentDesignerTarget,
+                            next_designer_target: nextBaseline,
+                            current_designer_target: currentBaseline,
+                            baseline_designer_target: currentBaseline,
                             current_level_text: prevText
                         })
                     });
@@ -1723,10 +1816,13 @@
                                 selectedLevelIdx = nextZeroIdx;
 
                                 // Dynamically Pre-Adjust Level k+1 Target & Map Layout BEFORE Level k+1 is played!
-                                if (dda && dda.adjusted_target !== undefined) {
-                                    playerArcadeState.levelTargets[nextZeroIdx] = dda.adjusted_target;
-                                    playerArcadeState.lastDdaDelta[nextLvlNum] = dda.delta_pct;
-                                }
+                                // STRICT CLAMP: Target difficulty strictly bounded within ±10% (±0.10) of nextBaseline
+                                const clampedTarget = (dda && dda.adjusted_target !== undefined)
+                                    ? Math.round(Math.max(Math.max(0.0, nextBaseline - 0.10), Math.min(Math.min(1.0, nextBaseline + 0.10), dda.adjusted_target)) * 1000) / 1000
+                                    : nextBaseline;
+
+                                playerArcadeState.levelTargets[nextZeroIdx] = clampedTarget;
+                                playerArcadeState.lastDdaDelta[nextLvlNum] = dda.delta_pct;
                                 if (res.next_level && res.next_level.level_text) {
                                     playerArcadeState.levelTexts[nextLvlNum] = res.next_level.level_text;
                                 }
@@ -1734,17 +1830,16 @@
                                 // Update campaignData history step for Level k+1
                                 if (campaignData && campaignData.history && campaignData.history[nextZeroIdx]) {
                                     const nextStep = campaignData.history[nextZeroIdx];
-                                    if (dda && dda.adjusted_target !== undefined) {
-                                        nextStep.target_difficulty = dda.adjusted_target;
-                                        nextStep.dda_result = dda;
-                                    }
+                                    nextStep.designer_target = nextBaseline;
+                                    nextStep.target_difficulty = clampedTarget;
+                                    nextStep.dda_result = dda;
                                     if (res.next_level) {
                                         nextStep.estimated_difficulty = res.next_level.estimated_difficulty;
                                         nextStep.level_text = res.next_level.level_text;
                                     }
                                 }
 
-                                unlockMsg = `<br><span style="color: #10b981; font-weight: bold;">🎉 COURSE CLEAR! World 1-${nextLvlNum} UNLOCKED! (Pre-Adjusted Target: ${(dda.adjusted_target * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift])</span>`;
+                                unlockMsg = `<br><span style="color: #10b981; font-weight: bold;">🎉 COURSE CLEAR! World 1-${nextLvlNum} UNLOCKED! (Pre-Adjusted Target: ${(clampedTarget * 100).toFixed(0)}% [${dda.delta_pct} DDA Shift])</span>`;
                             } else {
                                 unlockMsg = `<br><span style="color: #facc15; font-weight: bold;">🏆 CAMPAIGN COMPLETE! YOU BEAT ALL LEVELS!</span>`;
                             }
@@ -1754,8 +1849,12 @@
                             playerArcadeState.activeLevelIdx = currentIdx; // STRICTLY RETAIN CURRENT LEVEL SLOT (e.g. World 1-1)
                             selectedLevelIdx = currentIdx - 1;             // STRICTLY RETAIN CURRENT LEVEL VIEW
 
-                            // Apply DDA reduced target difficulty and adapted level layout for current level slot
-                            playerArcadeState.levelTargets[currentIdx - 1] = dda.adjusted_target;
+                            // Apply DDA reduced target difficulty strictly clamped within ±10% (±0.10) of currentBaseline
+                            const clampedTarget = (dda && dda.adjusted_target !== undefined)
+                                ? Math.round(Math.max(Math.max(0.0, currentBaseline - 0.10), Math.min(Math.min(1.0, currentBaseline + 0.10), dda.adjusted_target)) * 1000) / 1000
+                                : currentBaseline;
+
+                            playerArcadeState.levelTargets[currentIdx - 1] = clampedTarget;
                             playerArcadeState.lastDdaDelta[currentIdx] = dda.delta_pct;
                             if (res.next_level && res.next_level.level_text) {
                                 playerArcadeState.levelTexts[currentIdx] = res.next_level.level_text;
@@ -1763,7 +1862,8 @@
 
                             if (campaignData && campaignData.history && campaignData.history[currentIdx - 1]) {
                                 const step = campaignData.history[currentIdx - 1];
-                                step.target_difficulty = dda.adjusted_target;
+                                step.designer_target = currentBaseline;
+                                step.target_difficulty = clampedTarget;
                                 step.dda_result = dda;
                                 if (res.next_level && res.next_level.level_text) {
                                     step.level_text = res.next_level.level_text;
@@ -1813,7 +1913,7 @@
             const curve = [];
             for (let i = 1; i <= numLevels; i++) {
                 const el = document.getElementById('p' + i);
-                curve.push(el ? parseFloat(el.value) || 50 : (playerArcadeState.levelTargets[i-1] ? Math.round(playerArcadeState.levelTargets[i-1] * 100) : 50));
+                curve.push(el ? parseFloat(el.value) || 50 : (playerArcadeState.designerTargets && playerArcadeState.designerTargets[i-1] ? Math.round(playerArcadeState.designerTargets[i-1] * 100) : (playerArcadeState.levelTargets[i-1] ? Math.round(playerArcadeState.levelTargets[i-1] * 100) : 50)));
             }
 
             const viewCont = document.querySelector('.level-view-container');
@@ -1855,18 +1955,23 @@
                     if (disp) disp.innerText = numLevels;
                 }
 
+                renderCurveInputs();
+
                 if (Array.isArray(state.curve) && state.curve.length > 0) {
-                    renderCurveInputs();
                     for (let i = 1; i <= numLevels; i++) {
                         const el = document.getElementById('p' + i);
                         if (el && state.curve[i - 1] !== undefined) {
                             el.value = Math.round(state.curve[i - 1] > 1 ? state.curve[i - 1] : state.curve[i - 1] * 100);
                         }
                     }
+                    updateDesignerChartFromInputs();
                 }
 
                 if (state.playerArcadeState) {
                     playerArcadeState = Object.assign(playerArcadeState, state.playerArcadeState);
+                    if (!playerArcadeState.designerTargets && playerArcadeState.levelTargets) {
+                        playerArcadeState.designerTargets = [...playerArcadeState.levelTargets];
+                    }
                 }
 
                 if (state.campaignData && state.campaignData.history && state.campaignData.history.length > 0) {
@@ -1942,6 +2047,18 @@
                 updateArcadeHUD();
             }
         };
+
+        let chartResizeTimeout = null;
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+            window.addEventListener('resize', function() {
+                clearTimeout(chartResizeTimeout);
+                chartResizeTimeout = setTimeout(() => {
+                    if (chartInstance && typeof chartInstance.resize === 'function') {
+                        chartInstance.resize();
+                    }
+                }, 100);
+            });
+        }
     </script>
 </body>
 </html>

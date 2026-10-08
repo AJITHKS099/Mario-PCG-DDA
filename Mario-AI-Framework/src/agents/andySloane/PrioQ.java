@@ -7,10 +7,12 @@ public class PrioQ {
     private MarioState[] queue;
     private int size = 0;
 
+    // Explanation: Constructs and initializes a new PrioQ instance with specified parameters.
     public PrioQ(int initialCapacity) {
         this.queue = new MarioState[initialCapacity];
     }
 
+    // Explanation: Executes the offer routine on PrioQ.
     public boolean offer(MarioState e) {
         if (e == null)
             throw new NullPointerException();
@@ -25,26 +27,31 @@ public class PrioQ {
         return true;
     }
 
+    // Explanation: Checks and returns whether is empty condition is met.
     public boolean isEmpty() {
         return size == 0;
     }
 
+    // Explanation: Executes the size routine on PrioQ.
     public int size() {
         return size;
     }
 
+    // Explanation: Executes the clear routine on PrioQ.
     public void clear() {
         for (int i = 0; i < size; i++)
             queue[i] = null;
         size = 0;
     }
 
+    // Explanation: Executes the peek routine on PrioQ.
     public MarioState peek() {
         if (size == 0)
             return null;
         return queue[0];
     }
 
+    // Explanation: Executes the poll routine on PrioQ.
     public MarioState poll() {
         if (size == 0)
             return null;
@@ -57,6 +64,7 @@ public class PrioQ {
         return result;
     }
 
+    // Explanation: Executes the drop routine on PrioQ.
     public void drop() {
         Arrays.sort(queue, 0, size, comparator);
         int l = size >> 1;
@@ -66,6 +74,7 @@ public class PrioQ {
             siftDown(i, queue[i]);
     }
 
+    // Explanation: Executes the sift up routine on PrioQ.
     private void siftUp(int k, MarioState x) {
         while (k > 0) {
             int parent = (k - 1) >>> 1;
@@ -78,6 +87,7 @@ public class PrioQ {
         queue[k] = x;
     }
 
+    // Explanation: Executes the sift down routine on PrioQ.
     private void siftDown(int k, MarioState x) {
         int half = size >>> 1;
         while (k < half) {
@@ -94,6 +104,7 @@ public class PrioQ {
         queue[k] = x;
     }
 
+    // Explanation: Executes the compare routine on PrioQ.
     private int compare(MarioState a, MarioState b) {
         if (a.cost < b.cost)
             return -1;

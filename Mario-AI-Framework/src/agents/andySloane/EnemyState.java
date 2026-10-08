@@ -7,11 +7,13 @@ public class EnemyState extends SpriteState {
 
     public static final float width = 4;
 
+    // Explanation: Executes the height routine on EnemyState.
     @Override
     public final float height() {
         return type >= 4 && type <= 7 ? 24 : 12;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this EnemyState for forward simulation.
     @Override
     public SpriteState clone() {
         EnemyState e = new EnemyState(x, y, type);
@@ -24,10 +26,12 @@ public class EnemyState extends SpriteState {
         return e;
     }
 
+    // Explanation: Executes the avoid cliffs routine on EnemyState.
     public final boolean avoidCliffs() {
         return type == KIND_RED_KOOPA;
     }
 
+    // Explanation: Executes the winged routine on EnemyState.
     public final boolean winged() {
         switch (type) {
             case KIND_GOOMBA_WINGED:
@@ -39,6 +43,7 @@ public class EnemyState extends SpriteState {
         return false;
     }
 
+    // Explanation: Executes the spiky routine on EnemyState.
     public final boolean spiky() {
         switch (type) {
             case KIND_FLOWER_ENEMY:
@@ -49,6 +54,7 @@ public class EnemyState extends SpriteState {
         return false;
     }
 
+    // Explanation: Executes the no fireball death routine on EnemyState.
     public final boolean noFireballDeath() {
         switch (type) {
             case KIND_SPIKY:
@@ -58,6 +64,7 @@ public class EnemyState extends SpriteState {
         return false;
     }
 
+    // Explanation: Executes the dead routine on EnemyState.
     @Override
     public final boolean dead() {
         return deadTime != 0;
@@ -76,6 +83,7 @@ public class EnemyState extends SpriteState {
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for EnemyState.
     public boolean move(WorldState ws) {
         if (deadTime > 0) {
             deadTime--;
@@ -123,6 +131,7 @@ public class EnemyState extends SpriteState {
         return true;
     }
 
+    // Explanation: Executes the resync routine on EnemyState.
     @Override
     public void resync(float x, float y, float prev_x, float prev_y) {
         this.x = x;
@@ -155,6 +164,7 @@ public class EnemyState extends SpriteState {
 
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for EnemyState.
     private boolean move(float xa, float ya, WorldState ws) {
         float height = this.height();
 
@@ -246,6 +256,7 @@ public class EnemyState extends SpriteState {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya, WorldState ws) {
         int x = (int) (_x / 16);
         int y = (int) (_y / 16);
@@ -255,6 +266,7 @@ public class EnemyState extends SpriteState {
         return ws.isBlocking(x, y, xa, ya);
     }
 
+    // Explanation: Executes the stomp routine on EnemyState.
     @Override
     public SpriteState stomp(WorldState ws, MarioState ms) {
         EnemyState e = (EnemyState) clone();
@@ -271,6 +283,7 @@ public class EnemyState extends SpriteState {
         return e;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     @Override
     public WorldState collideCheck(WorldState ws, MarioState ms) {
         if (deadTime != 0)

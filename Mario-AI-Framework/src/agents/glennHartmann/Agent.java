@@ -11,6 +11,7 @@ public class Agent implements MarioAgent {
     private int speedCount = 0; // counter to determine if you should shoot again
 
     // determines if jumping will cause you to hit an enemy or not
+    // Explanation: Executes the safe to jump from enemies routine on Agent.
     private boolean safeToJumpFromEnemies(byte[][] enemiesFromBitmap) {
         for (int y = 5; y <= 9; y++) {
             for (int x = 11; x <= 14; x++) {
@@ -24,6 +25,7 @@ public class Agent implements MarioAgent {
     }
 
     // determines if jumping will land you in a gap
+    // Explanation: Executes the safe to jump from gaps routine on Agent.
     private boolean safeToJumpFromGaps(byte[][] levelSceneFromBitmap) {
         for (int y = 9; y <= 9; y++) {
             boolean b = false;
@@ -43,6 +45,7 @@ public class Agent implements MarioAgent {
 
     // determines if there are enemies close enough to pose a danger to you -
     // implies you should jump
+    // Explanation: Executes the danger from enemies routine on Agent.
     private boolean dangerFromEnemies(byte[][] enemiesFromBitmap) {
         for (int y = 7; y <= 9; y++) {
             for (int x = 8; x <= 12; x++) {
@@ -57,6 +60,7 @@ public class Agent implements MarioAgent {
 
     // determines if there is a gap close enough to pose a danger to you - implies
     // you should jump
+    // Explanation: Executes the danger from gaps routine on Agent.
     private boolean dangerFromGaps(byte[][] levelSceneFromBitmap) {
         for (int y = 9; y <= 10; y++) {
             for (int x = 9; x <= 12; x++) {
@@ -70,12 +74,14 @@ public class Agent implements MarioAgent {
     }
 
     // determines if it's safe to jump
+    // Explanation: Executes the safe to jump routine on Agent.
     private boolean safeToJump(byte[][] levelSceneFromBitmap, byte[][] enemiesFromBitmap) {
         return safeToJumpFromGaps(levelSceneFromBitmap) && safeToJumpFromEnemies(enemiesFromBitmap);
     }
 
     // determines if there is something blocking your path that you need to jump
     // over
+    // Explanation: Executes the block routine on Agent.
     private boolean block(byte[][] levelSceneFromBitmap) {
         for (int y = 8; y <= 8; y++) {
             for (int x = 9; x <= 12; x++) {
@@ -89,6 +95,7 @@ public class Agent implements MarioAgent {
     }
 
     // function from ForwardAgent.java - I did not write this
+    // Explanation: Executes the decode routine on Agent.
     private byte[][] decode(MarioForwardModel model, int[][] state) {
         byte[][] dstate = new byte[model.obsGridWidth][model.obsGridHeight];
         for (int i = 0; i < dstate.length; ++i)
@@ -107,6 +114,7 @@ public class Agent implements MarioAgent {
         return dstate;
     }
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         action = new boolean[MarioActions.numberOfActions()];
@@ -115,6 +123,7 @@ public class Agent implements MarioAgent {
         action[MarioActions.JUMP.getValue()] = false;
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         byte[][] levelSceneFromBitmap = decode(model, model.getMarioSceneObservation()); // map of the scene
@@ -151,6 +160,7 @@ public class Agent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "GlennHartmannAgent";

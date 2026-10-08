@@ -15,18 +15,22 @@ public enum MarioActions {
         name = newName;
     }
 
+    // Explanation: Returns the current value value.
     public int getValue() {
         return value;
     }
 
+    // Explanation: Returns the current string value.
     public String getString() {
         return name;
     }
 
+    // Explanation: Executes the number of actions routine on MarioActions.
     public static int numberOfActions() {
         return MarioActions.values().length;
     }
 
+    // Explanation: Returns the current action value.
     public static MarioActions getAction(int value) {
         return MarioActions.values()[value];
     }

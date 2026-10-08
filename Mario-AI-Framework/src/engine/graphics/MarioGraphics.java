@@ -9,6 +9,7 @@ public abstract class MarioGraphics {
     public boolean flipX, flipY;
     public int width, height;
 
+    // Explanation: Constructs and initializes a default instance of MarioGraphics.
     public MarioGraphics() {
         this.visible = true;
         this.alpha = 1;

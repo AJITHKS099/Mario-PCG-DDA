@@ -12,6 +12,7 @@ public class FireFlower extends MarioSprite {
     private MarioImage graphics;
     private int life;
 
+    // Explanation: Constructs and initializes a new FireFlower instance with specified parameters.
     public FireFlower(boolean visuals, float x, float y) {
         super(x, y, SpriteType.FIRE_FLOWER);
         this.width = 4;
@@ -27,6 +28,7 @@ public class FireFlower extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this FireFlower for forward simulation.
     @Override
     public MarioSprite clone() {
         FireFlower f = new FireFlower(false, x, y);
@@ -40,6 +42,7 @@ public class FireFlower extends MarioSprite {
         return f;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     @Override
     public void collideCheck() {
         if (!this.alive) {
@@ -57,6 +60,7 @@ public class FireFlower extends MarioSprite {
         }
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this FireFlower on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -74,6 +78,7 @@ public class FireFlower extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this FireFlower onto the target display canvas.
     @Override
     public void render(Graphics og) {
         super.render(og);

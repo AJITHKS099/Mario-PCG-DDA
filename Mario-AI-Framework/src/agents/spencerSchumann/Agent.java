@@ -16,6 +16,7 @@ public class Agent implements MarioAgent {
     private boolean manualOverride = false;
     private PlanRunner planRunner;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         tiles = new Tiles();
@@ -24,6 +25,7 @@ public class Agent implements MarioAgent {
         enemySim = new EnemySimulator();
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         float[] marioPos = model.getMarioFloatPos();
@@ -58,6 +60,7 @@ public class Agent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "SpencerShumannAgent";

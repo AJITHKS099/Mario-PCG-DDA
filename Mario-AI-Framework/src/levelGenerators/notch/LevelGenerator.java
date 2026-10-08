@@ -19,24 +19,28 @@ public class LevelGenerator implements MarioLevelGenerator {
     private int type;
     private Random random;
 
+    // Explanation: Constructs and initializes a default instance of LevelGenerator.
     public LevelGenerator() {
         random = new Random();
         this.type = random.nextInt(3);
         this.difficulty = random.nextInt(5);
     }
 
+    // Explanation: Constructs and initializes a new LevelGenerator instance with specified parameters.
     public LevelGenerator(int type, int difficulty) {
         random = new Random();
         this.type = type;
         this.difficulty = difficulty;
     }
 
+    // Explanation: Constructs and initializes a new LevelGenerator instance with specified parameters.
     public LevelGenerator(int type, int difficulty, Random random) {
         this.random = random;
         this.type = type;
         this.difficulty = difficulty;
     }
 
+    // Explanation: Executes the build zone routine on LevelGenerator.
     private int buildZone(MarioLevelModel model, int x, int maxLength) {
         int t = random.nextInt(totalOdds);
         int type = 0;
@@ -61,6 +65,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return 0;
     }
 
+    // Explanation: Executes the build jump routine on LevelGenerator.
     private int buildJump(MarioLevelModel model, int xo, int maxLength) {
         int js = random.nextInt(4) + 2;
         int jl = random.nextInt(2) + 2;
@@ -92,6 +97,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return length;
     }
 
+    // Explanation: Executes the build cannons routine on LevelGenerator.
     private int buildCannons(MarioLevelModel model, int xo, int maxLength) {
         int length = random.nextInt(10) + 2;
         if (length > maxLength)
@@ -121,6 +127,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return length;
     }
 
+    // Explanation: Executes the build hill straight routine on LevelGenerator.
     private int buildHillStraight(MarioLevelModel model, int xo, int maxLength) {
         int length = random.nextInt(10) + 10;
         if (length > maxLength)
@@ -183,6 +190,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return length;
     }
 
+    // Explanation: Executes the add enemy line routine on LevelGenerator.
     private void addEnemyLine(MarioLevelModel model, int x0, int x1, int y) {
         char[] enemies = new char[]{MarioLevelModel.GOOMBA,
                 MarioLevelModel.GREEN_KOOPA,
@@ -201,6 +209,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Executes the build tubes routine on LevelGenerator.
     private int buildTubes(MarioLevelModel model, int xo, int maxLength) {
         int length = random.nextInt(10) + 5;
         if (length > maxLength)
@@ -236,6 +245,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return length;
     }
 
+    // Explanation: Executes the build straight routine on LevelGenerator.
     private int buildStraight(MarioLevelModel model, int xo, int maxLength, boolean safe) {
         int length = random.nextInt(10) + 2;
         if (safe)
@@ -261,6 +271,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return length;
     }
 
+    // Explanation: Executes the decorate routine on LevelGenerator.
     private void decorate(MarioLevelModel model, int x0, int x1, int floor) {
         if (floor < 1)
             return;
@@ -307,6 +318,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Returns the current generated level value.
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         model.clearMap();
@@ -362,6 +374,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return model.getMap();
     }
 
+    // Explanation: Returns the current generator name value.
     @Override
     public String getGeneratorName() {
         return "NotchLevelGenerator";

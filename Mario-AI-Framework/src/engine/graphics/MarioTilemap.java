@@ -14,6 +14,7 @@ public class MarioTilemap extends MarioGraphics {
     public float[][] moveShift;
     public int animationIndex;
 
+    // Explanation: Constructs and initializes a new MarioTilemap instance with specified parameters.
     public MarioTilemap(Image[][] sheet, int[][] currentIndeces) {
         this.sheet = sheet;
         this.currentIndeces = currentIndeces;
@@ -22,6 +23,7 @@ public class MarioTilemap extends MarioGraphics {
         this.animationIndex = 0;
     }
 
+    // Explanation: Renders the visual graphics for this MarioTilemap onto the target display canvas.
     @Override
     public void render(Graphics og, int x, int y) {
         this.animationIndex = (this.animationIndex + 1) % 5;

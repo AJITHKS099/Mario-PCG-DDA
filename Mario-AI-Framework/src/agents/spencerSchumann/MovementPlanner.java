@@ -31,6 +31,7 @@ public class MovementPlanner {
         this.enemySim = enemySim;
     }
 
+    // Explanation: Executes the flight time for jump routine on MovementPlanner.
     private int flightTimeForJump(int jumpTime, float height) {
         Scene simScene = new Scene(0, 0);
         simScene.floors.add(new Edge(-10.0f, height, 10.0f, height));
@@ -55,6 +56,7 @@ public class MovementPlanner {
         }
     }
 
+    // Explanation: Executes the ticks to pos routine on MovementPlanner.
     private int ticksToPos(float pos) {
         Scene simScene = new Scene(0, 0);
         simScene.floors.add(new Edge(-1000.0f, 1.0f, pos, 1.0f));
@@ -73,6 +75,7 @@ public class MovementPlanner {
         }
     }
 
+    // Explanation: Executes the pos from ticks routine on MovementPlanner.
     private float posFromTicks(int ticks) {
         Scene simScene = new Scene(0, 0);
         simScene.floors.add(new Edge(-1000.0f, 1.0f, ticks * 100.0f, 1.0f));  //TODO: 20.0f should be max speed
@@ -91,6 +94,7 @@ public class MovementPlanner {
         return sim.mario.x;
     }
 
+    // Explanation: Executes the check plan routine on MovementPlanner.
     private boolean checkPlan(PlanRunner plan, Edge targetFloor) {
         MotionSimulator sim = new MotionSimulator(scene, mario);
         projectedX = new float[plan.getLength() + 1];
@@ -119,6 +123,7 @@ public class MovementPlanner {
                 sim.mario.y == targetFloor.y1 - 1.0f;
     }
 
+    // Explanation: Executes the plan jump routine on MovementPlanner.
     private PlanRunner planJump(Edge currentFloor, Edge targetFloor) {
         float ydiff = targetFloor.y1 - currentFloor.y1;
         // TODO: this is still a hack.  Should be -3, not +4, and time step shouldn't have the +1.
@@ -171,6 +176,7 @@ public class MovementPlanner {
     }
 
     class BestTarget implements Comparator<Edge> {
+        // Explanation: Executes the compare routine on MovementPlanner.
         public int compare(Edge o1, Edge o2) {
             if (o1.x2 > o2.x2)
                 return -1;
@@ -184,6 +190,7 @@ public class MovementPlanner {
         }
     }
 
+    // Explanation: Executes the find target floors routine on MovementPlanner.
     private ArrayList<Edge> findTargetFloors(Edge currentFloor) {
         // Phase 1: find a floor that is above and to the right of the
         // current floor.  The nearest such floor is the target.
@@ -203,6 +210,7 @@ public class MovementPlanner {
         return targets;
     }
 
+    // Explanation: Executes the find current floor routine on MovementPlanner.
     private Edge findCurrentFloor() {
         for (Edge e : scene.floors) {
             if ((mario.y == e.y1 - 1) &&
@@ -214,6 +222,7 @@ public class MovementPlanner {
         return null;
     }
 
+    // Explanation: Executes the plan movement routine on MovementPlanner.
     public PlanRunner planMovement() {
         Edge currentFloor;
         ArrayList<Edge> targetFloors;
@@ -238,6 +247,7 @@ public class MovementPlanner {
         return null;
     }
 
+    // Explanation: Returns the current target floor value.
     public Edge getTargetFloor() {
         return targetFloor;
     }

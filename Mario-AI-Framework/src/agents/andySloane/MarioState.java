@@ -28,6 +28,7 @@ public final class MarioState extends SpriteState {
     public int action;
     public MarioState pred; // predecessor
 
+    // Explanation: Constructs and initializes a new MarioState instance with specified parameters.
     public MarioState(float _x, float _y, float _xa, float _ya) {
         x = _x;
         y = _y;
@@ -35,15 +36,18 @@ public final class MarioState extends SpriteState {
         ya = _ya;
     }
 
+    // Explanation: Executes the height routine on MarioState.
     public float height() {
         return big ? 24 : 12;
     }
 
+    // Explanation: Executes the print routine on MarioState.
     public void print() {
         System.out.printf("g=%d a:%d x:(%f,%f) v:(%f,%f) %s%s%s cost=%f\n", (int) g, action, x, y, xa, ya,
                 onGround ? "G" : "g", mayJump ? "J" : "j", sliding ? "S" : "s", cost);
     }
 
+    // Explanation: Creates and returns an independent duplicate of this MarioState for forward simulation.
     public MarioState clone() {
         MarioState n = new MarioState(x, y, xa, ya);
         n.facing = facing;
@@ -65,6 +69,7 @@ public final class MarioState extends SpriteState {
         return n;
     }
 
+    // Explanation: Executes the next routine on MarioState.
     public MarioState next(int action, WorldState ws) {
         MarioState n = clone();
         n.action = action;
@@ -81,6 +86,7 @@ public final class MarioState extends SpriteState {
         return n;
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for MarioState.
     public void move(int action) {
         boolean ducking = false; // just... we aren't doing this
         float sideWaysSpeed = (action & ACT_SPEED) != 0 ? 1.2f : 0.6f;
@@ -207,6 +213,7 @@ public final class MarioState extends SpriteState {
         // System.out.println("move: (xa,ya)5 = " + xa + "," + ya);
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for MarioState.
     private boolean move(float xa, float ya) {
         while (xa > 8) {
             if (!move(8, 0))
@@ -306,6 +313,7 @@ public final class MarioState extends SpriteState {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya) {
         int x = (int) (_x / 16); // block's quantized pos
         int y = (int) (_y / 16);
@@ -331,6 +339,7 @@ public final class MarioState extends SpriteState {
         return blocking;
     }
 
+    // Explanation: Executes the stomp routine on MarioState.
     public void stomp(SpriteState enemy) {
         float targetY = enemy.y - enemy.height() / 2;
         move(0, targetY - y);
@@ -344,6 +353,7 @@ public final class MarioState extends SpriteState {
         invulnerableTime = 1;
     }
 
+    // Explanation: Returns the current hurt value.
     public void getHurt() {
         if (invulnerableTime > 0)
             return;
@@ -362,6 +372,7 @@ public final class MarioState extends SpriteState {
         hurtThisStep = true;
     }
 
+    // Explanation: Executes the mario mode routine on MarioState.
     public int marioMode() {
         return ((big) ? 1 : 0) + ((fire) ? 1 : 0);
     }

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, Response, stream_with_context
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context, send_from_directory
 from pipeline import run_pipeline_sequence, generate_single_level_pipeline
 from dda import DynamicDifficultyAdjuster
 from generator import generate_mario_level, tweak_level_for_dda
@@ -8,8 +8,13 @@ import os
 import subprocess
 import time
 import json
+import jinja2
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+app.jinja_loader = jinja2.ChoiceLoader([
+    app.jinja_loader,
+    jinja2.FileSystemLoader(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'themes'))
+])
 
 MARIO_DIR = os.path.abspath("Mario-AI-Framework")
 
@@ -32,21 +37,38 @@ PRESETS = {
     }
 }
 
+# Explanation: Renders and serves the default modern Glassmorphism dashboard user interface.
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# Explanation: Renders and serves the retro 8-bit arcade cabinet web user interface.
 @app.route('/retro')
 def retro_home():
     return render_template('retro.html')
 
+# Explanation: Renders and serves the TOXIN//GRID cyberpunk theme web user interface.
+@app.route('/cyberpunk')
+def cyberpunk_home():
+    return render_template('cyberpunk.html')
+
+THEMES_STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'themes')
+
+# Explanation: Serves static media files, background artwork, and theme assets from the themes directory.
+@app.route('/themes/<path:filename>')
+def themes_static(filename):
+    return send_from_directory(THEMES_STATIC_DIR, filename)
+
+# Explanation: Returns a JSON dictionary of standard designer pacing difficulty curves (Linear, Spike, Wave, Boss).
 @app.route('/api/presets', methods=['GET'])
 def get_presets():
     return jsonify(PRESETS)
 
 ACTIVE_DEATH_ZONES = {}
 ACTIVE_SESSION_DDA = DynamicDifficultyAdjuster(max_variance=0.10)
+ACTIVE_DESIGNER_CURVE = [0.20, 0.40, 0.65, 0.80, 0.50]
 
+# Explanation: Generates a single procedural Mario level conditioned on target difficulty and returns its ASCII layout.
 @app.route('/api/generate-single-level', methods=['POST'])
 def generate_single_level():
     """Generates a single campaign level tuned to target_difficulty."""
@@ -66,9 +88,11 @@ def generate_single_level():
         "level_text": level_text
     })
 
+# Explanation: Streams real-time Server-Sent Events (SSE) while compiling and validating each level in a campaign sequence.
 @app.route('/api/generate-sequence-stream', methods=['POST'])
 def generate_sequence_stream():
     """Streams real-time level compilation & validation progress for full campaign sequence generation."""
+    global ACTIVE_DESIGNER_CURVE
     data = request.get_json() or {}
     curve = data.get("curve", [0.20, 0.40, 0.65, 0.80, 0.50])
     player_skill = data.get("player_skill", "average")
@@ -76,8 +100,10 @@ def generate_sequence_stream():
 
     ACTIVE_SESSION_DDA.reset_session()
     normalized_curve = [float(v) / 100.0 if float(v) > 1.0 else float(v) for v in curve]
+    ACTIVE_DESIGNER_CURVE = list(normalized_curve)
     ACTIVE_DEATH_ZONES.clear()
 
+    # Explanation: Generator yielding Server-Sent Events with progress updates and completed level payloads during campaign compilation.
     def generate_events():
         session = MarioCampaignSession(dda_max_variance=max_variance)
         history = []
@@ -135,6 +161,7 @@ def generate_sequence_stream():
 
     return Response(stream_with_context(generate_events()), mimetype='text/event-stream')
 
+# Explanation: Generates and validates a complete campaign sequence synchronously and returns all level layouts.
 @app.route('/api/generate-sequence', methods=['POST'])
 def generate_sequence():
     """Generates a sequence of levels for a full campaign based on designer curve."""
@@ -143,11 +170,13 @@ def generate_sequence():
     player_skill = data.get("player_skill", "average")
     max_variance = data.get("max_variance", 0.10)
 
+    global ACTIVE_DESIGNER_CURVE
     # Reset cumulative DDA session history for newly generated campaign sequence
     ACTIVE_SESSION_DDA.reset_session()
 
     # Normalize input values to 0.0 - 1.0 if provided on 0 - 100 scale
     normalized_curve = [float(v) / 100.0 if float(v) > 1.0 else float(v) for v in curve]
+    ACTIVE_DESIGNER_CURVE = list(normalized_curve)
     
     results = run_pipeline_sequence(normalized_curve, dda_variance=max_variance, player_skill=player_skill)
     
@@ -172,6 +201,7 @@ def generate_sequence():
         "data": results
     })
 
+# Explanation: Runs headless A* agent simulation on a level and returns the 2D coordinate trajectory for overlay visualization.
 @app.route('/api/watch-ai-play', methods=['POST'])
 def watch_ai_play():
     """Launches Java window with Robin Baumgarten AI agent solving the level in real-time."""
@@ -214,6 +244,7 @@ def watch_ai_play():
         print(f"[API ERROR] Failed to launch AI playback: {e}", flush=True)
         return jsonify({"status": "Error", "message": str(e)}), 500
 
+# Explanation: Launches the interactive Java Mario game window in a subprocess for player evaluation.
 @app.route('/api/play-human-level', methods=['POST'])
 def play_human_level():
     """Launches Java interactive game window for human player."""
@@ -250,11 +281,12 @@ def play_human_level():
     req_level_text = data.get("level_text", None)
 
     structural_changes = []
-    if is_retry and prev_level_text:
-        level_text, structural_changes = tweak_level_for_dda(prev_level_text, retry_dda_delta)
-    elif req_level_text:
+    if req_level_text and req_level_text.strip():
         level_text = req_level_text
         structural_changes = ["Loaded active campaign sequence level layout"]
+    elif is_retry and prev_level_text and prev_level_text.strip():
+        bounded_retry_delta = max(-0.10, min(0.10, retry_dda_delta))
+        level_text, structural_changes = tweak_level_for_dda(prev_level_text, bounded_retry_delta)
     else:
         return jsonify({
             "status": "Error",
@@ -289,6 +321,7 @@ def play_human_level():
         print(f"[API ERROR] Failed to launch interactive game window: {e}", flush=True)
         return jsonify({"status": "Error", "message": str(e)}), 500
 
+# Explanation: Polls game session results from file, calculates Bayesian DDA adjustments on win or death, and returns adapted levels.
 @app.route('/api/check-session-result', methods=['POST'])
 def check_session_result():
     """Polls for completion of human interactive play in Java window."""
@@ -366,9 +399,11 @@ def check_session_result():
     if current_lvl_num not in ACTIVE_DEATH_ZONES:
         ACTIVE_DEATH_ZONES[current_lvl_num] = []
 
+    # Determine which level slot is being evaluated / adjusted
     if session_update["won"]:
         session_update["struggle_reason"] = "Course Clear! Flagpole reached."
-        target_to_adjust = next_designer_target
+        target_lvl_num = current_lvl_num + 1
+        target_fallback = next_designer_target
     else:
         pct_int = int(session_update["completion_pct"] * 100)
         session_update["struggle_reason"] = f"Died at {pct_int}% distance."
@@ -382,16 +417,41 @@ def check_session_result():
             "completion_pct": session_update["completion_pct"]
         }
         ACTIVE_DEATH_ZONES[current_lvl_num].append(death_marker)
-        target_to_adjust = current_designer_target
+        target_lvl_num = current_lvl_num
+        target_fallback = current_designer_target
 
-    adjustment = ACTIVE_SESSION_DDA.calculate_adjustment(target_to_adjust, {
-        "won": session_update["won"],
-        "lives_lost": 0 if session_update["won"] else 1,
-        "completion_pct": session_update["completion_pct"] if session_update["completion_pct"] > 0 else (1.0 if session_update["won"] else 0.4),
-        "time_taken": 30.0,
-        "target_time": 40.0,
-        "mario_mode": session_update["mario_mode"]
-    })
+    # Determine authoritative immutable designer baseline for target_lvl_num
+    if 1 <= target_lvl_num <= len(ACTIVE_DESIGNER_CURVE):
+        baseline_target = float(ACTIVE_DESIGNER_CURVE[target_lvl_num - 1])
+    else:
+        req_base = data.get("baseline_target", data.get("baseline_designer_target", None))
+        baseline_target = float(req_base) if req_base is not None else float(target_fallback)
+
+    adjustment = ACTIVE_SESSION_DDA.calculate_adjustment(
+        baseline_target,
+        {
+            "won": session_update["won"],
+            "lives_lost": 0 if session_update["won"] else 1,
+            "completion_pct": session_update["completion_pct"] if session_update["completion_pct"] > 0 else (1.0 if session_update["won"] else 0.4),
+            "time_taken": 30.0,
+            "target_time": 40.0,
+            "mario_mode": session_update["mario_mode"]
+        },
+        baseline_target=baseline_target
+    )
+
+    # STRICT CLAMP: Guarantee adjusted target difficulty never exceeds ±max_variance (±10% / ±0.10) relative to designer baseline
+    max_var = getattr(ACTIVE_SESSION_DDA, "max_variance", 0.10)
+    hard_min = max(0.0, baseline_target - max_var)
+    hard_max = min(1.0, baseline_target + max_var)
+    clamped_target = round(max(hard_min, min(hard_max, float(adjustment["adjusted_target"]))), 3)
+    clamped_delta = round(clamped_target - baseline_target, 3)
+    clamped_delta = max(-max_var, min(max_var, clamped_delta))
+
+    adjustment["designer_target"] = baseline_target
+    adjustment["adjusted_target"] = clamped_target
+    adjustment["delta"] = clamped_delta
+    adjustment["delta_pct"] = f"{clamped_delta * 100:+.1f}%"
 
     current_level_text = data.get("current_level_text", None)
 
@@ -403,15 +463,32 @@ def check_session_result():
             modified_text, structural_changes = tweak_level_for_dda(current_level_text, adjustment["delta"], telemetry=session_update)
             next_level = {
                 "level": current_lvl_num,
+                "designer_target": baseline_target,
                 "target_difficulty": adjustment["adjusted_target"],
                 "estimated_difficulty": calculate_difficulty(modified_text),
                 "level_text": modified_text,
                 "structural_changes": structural_changes
             }
         else:
-            next_level = generate_single_level_pipeline(adjustment["adjusted_target"])
+            single_pipe = generate_single_level_pipeline(adjustment["adjusted_target"])
+            next_level = {
+                "level": current_lvl_num,
+                "designer_target": baseline_target,
+                "target_difficulty": adjustment["adjusted_target"],
+                "estimated_difficulty": single_pipe["estimated_difficulty"],
+                "level_text": single_pipe["level_text"],
+                "structural_changes": ["Generated adapted level layout for retry"]
+            }
     else:
-        next_level = generate_single_level_pipeline(adjustment["adjusted_target"])
+        single_pipe = generate_single_level_pipeline(adjustment["adjusted_target"])
+        next_level = {
+            "level": target_lvl_num,
+            "designer_target": baseline_target,
+            "target_difficulty": adjustment["adjusted_target"],
+            "estimated_difficulty": single_pipe["estimated_difficulty"],
+            "level_text": single_pipe["level_text"],
+            "structural_changes": ["Generated pre-adjusted level layout for unlocked level"]
+        }
 
     return jsonify({
         "status": "Success",
@@ -425,6 +502,7 @@ def check_session_result():
         }
     })
 
+# Explanation: Retrieves recorded player death coordinates for rendering death zone reticle overlays.
 @app.route('/api/telemetry/death-zone/<int:level_id>', methods=['GET'])
 @app.route('/api/telemetry/heatmap/<int:level_id>', methods=['GET'])
 def get_telemetry_death_zone(level_id):

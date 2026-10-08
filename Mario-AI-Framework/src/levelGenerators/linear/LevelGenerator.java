@@ -21,6 +21,7 @@ public class LevelGenerator implements MarioLevelGenerator {
 
     private Random rnd;
 
+    // Explanation: Executes the place pipe routine on LevelGenerator.
     private void placePipe(MarioLevelModel model, int x, int y, int height) {
         char pipeType = MarioLevelModel.PIPE;
         if (this.rnd.nextDouble() < 0.2) {
@@ -29,6 +30,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         model.setRectangle(x, y - height + 1, 2, height, pipeType);
     }
 
+    // Explanation: Executes the place interesting arrangement routine on LevelGenerator.
     private void placeInterestingArrangement(MarioLevelModel model, int x, int y, int width) {
         for (int i = 0; i < width / 2; i++) {
             char type = MarioLevelModel.getBumpableTiles()[this.rnd.nextInt(MarioLevelModel.getBumpableTiles().length)];
@@ -46,6 +48,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Executes the place enemy routine on LevelGenerator.
     private void placeEnemy(MarioLevelModel model, int x1, int x2, int y) {
         boolean winged = this.rnd.nextDouble() < 0.1;
         char enemyType = MarioLevelModel.getEnemyCharacters(false)[this.rnd.nextInt(MarioLevelModel.getEnemyCharacters(false).length)];
@@ -61,6 +64,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Returns the current generated level value.
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         this.rnd = new Random();
@@ -143,6 +147,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return model.getMap();
     }
 
+    // Explanation: Returns the current generator name value.
     @Override
     public String getGeneratorName() {
         return "LinearLevelGenerator";

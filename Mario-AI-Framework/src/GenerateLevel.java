@@ -5,6 +5,7 @@ import engine.core.MarioResult;
 import engine.core.MarioTimer;
 
 public class GenerateLevel {
+    // Explanation: Formats and displays detailed game outcome metrics including completion percentage, lives, coins, and kills.
     public static void printResults(MarioResult result) {
         System.out.println("****************************************************************");
         System.out.println("Game Status: " + result.getGameStatus().toString() +
@@ -21,6 +22,7 @@ public class GenerateLevel {
         System.out.println("****************************************************************");
     }
 
+    // Explanation: Entry point that generates a procedural Mario level and runs an AI agent simulation to evaluate and display results.
     public static void main(String[] args) {
         MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();
         String level = generator.getGeneratedLevel(new MarioLevelModel(150, 16), new MarioTimer(5 * 60 * 60 * 1000));

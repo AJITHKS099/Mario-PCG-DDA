@@ -3,6 +3,7 @@ import random
 
 VGLC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "TheVGLC", "Super Mario Bros", "Processed"))
 
+# Explanation: Converts Video Game Level Corpus (VGLC) tile characters into Mario-AI framework compatible glyphs.
 def map_vglc_symbol_to_mario_ai(symbol):
     """
     Maps VGLC text symbols to Mario-AI-Framework format:
@@ -24,6 +25,7 @@ def map_vglc_symbol_to_mario_ai(symbol):
         return 'g'  # Default enemy to Goomba
     return symbol
 
+# Explanation: Loads and parses all Super Mario Bros ASCII level files from the VGLC corpus directory.
 def load_vglc_levels(vglc_folder=VGLC_DIR, target_height=16):
     """
     Loads and normalizes all VGLC Super Mario Bros level files.
@@ -62,6 +64,7 @@ def load_vglc_levels(vglc_folder=VGLC_DIR, target_height=16):
 
     return levels
 
+# Explanation: Calculates hazard density score of a level slice based on pits, enemies, and obstacles.
 def compute_column_hazard_score(col):
     """
     Calculates difficulty/hazard score of a single column slice.
@@ -82,6 +85,7 @@ def compute_column_hazard_score(col):
     return max(0.0, score)
 
 class VGLCMarkovModel:
+    # Explanation: Executes the init routine.
     def __init__(self, vglc_folder=VGLC_DIR):
         self.levels = load_vglc_levels(vglc_folder)
         self.transitions = {}      # (col_prev2, col_prev1) -> list of next_col
@@ -89,6 +93,7 @@ class VGLCMarkovModel:
         self.column_hazards = {}   # col_tuple -> hazard_score
         self._train()
 
+    # Explanation: Trains 2nd-order Markov transition probabilities from sequence of 16-high level column slices.
     def _train(self):
         for lvl in self.levels:
             if not lvl or len(lvl) < 16:
@@ -118,6 +123,7 @@ class VGLCMarkovModel:
                 if i < 15 and c1[-1] == 'X' and c2[-1] == 'X':
                     self.start_columns.append(key)
 
+    # Explanation: Probabilistically samples next column slice given previous two columns and target difficulty constraint.
     def sample_next_column(self, col_prev2, col_prev1, target_difficulty=0.5):
         """
         Samples the next column slice based on 2nd-order Markov context and target difficulty.
@@ -150,6 +156,7 @@ class VGLCMarkovModel:
         norm_weights = [w / total_w for w in weights]
         return random.choices(candidates, weights=norm_weights)[0]
 
+    # Explanation: Synthesizes full 2D level column matrix by sampling from trained Markov transition distribution.
     def generate_level_grid(self, target_difficulty=0.5, width=220, height=16, seed=None):
         """
         Generates a 2D level grid string using the trained VGLC Markov model.
@@ -235,6 +242,7 @@ class VGLCMarkovModel:
 # Singleton Instance
 _vglc_model = None
 
+# Explanation: Factory function that retrieves or trains the default 2nd-order Markov transition model on VGLC levels.
 def get_vglc_model():
     global _vglc_model
     if _vglc_model is None:

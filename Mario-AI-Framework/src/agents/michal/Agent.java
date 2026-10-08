@@ -16,6 +16,7 @@ public class Agent implements MarioAgent {
     private STATE state;
     private boolean[] action;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         action = new boolean[MarioActions.numberOfActions()];
@@ -26,6 +27,7 @@ public class Agent implements MarioAgent {
         shootCounter = 0;
     }
 
+    // Explanation: Returns the current location value.
     private int getLocation(int relX, int relY, int[][] scene) {
         int realX = 8 + relX;
         int realY = 8 + relY;
@@ -33,6 +35,7 @@ public class Agent implements MarioAgent {
         return scene[realX][realY];
     }
 
+    // Explanation: Executes the there is obstacle routine on Agent.
     private boolean thereIsObstacle(int[][] scene) {
         int[] inFrontOf = new int[]{getLocation(1, 0, scene), getLocation(2, 0, scene), getLocation(2, -1, scene)};
 
@@ -45,6 +48,7 @@ public class Agent implements MarioAgent {
         return false;
     }
 
+    // Explanation: Executes the there is hole routine on Agent.
     private boolean thereIsHole(int[][] scene) {
         for (int i = 1; i < 3; i++) {
             for (int j = 2; j < 8; j++) {
@@ -57,6 +61,7 @@ public class Agent implements MarioAgent {
         return true;
     }
 
+    // Explanation: Executes the enemy in front routine on Agent.
     private boolean enemyInFront(int[][] enemies) {
         for (int i = 0; i > -2; i--) {
             for (int j = 1; j < 2; j++) {
@@ -68,6 +73,7 @@ public class Agent implements MarioAgent {
         return false;
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         int[][] scene = model.getMarioSceneObservation();
@@ -152,6 +158,7 @@ public class Agent implements MarioAgent {
         return action;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "MichalAgent";

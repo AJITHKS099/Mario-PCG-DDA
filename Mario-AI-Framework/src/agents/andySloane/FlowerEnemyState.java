@@ -8,6 +8,7 @@ public final class FlowerEnemyState extends EnemyState {
 
     public static final float width = 2;
 
+    // Explanation: Creates and returns an independent duplicate of this FlowerEnemyState for forward simulation.
     @Override
     public SpriteState clone() {
         FlowerEnemyState e = new FlowerEnemyState(x, y);
@@ -28,6 +29,7 @@ public final class FlowerEnemyState extends EnemyState {
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for FlowerEnemyState.
     @Override
     public boolean move(WorldState ws) {
         if (deadTime > 0) {
@@ -66,6 +68,7 @@ public final class FlowerEnemyState extends EnemyState {
         return true;
     }
 
+    // Explanation: Executes the resync routine on FlowerEnemyState.
     public void resync(float x, float y, float prev_x, float prev_y) {
         this.x = x;
         this.y = y;

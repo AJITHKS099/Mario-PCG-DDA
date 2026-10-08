@@ -18,15 +18,18 @@ public class MotionSimulator {
     private int ticks;
     public boolean leftWorldEdge = true;
 
+    // Explanation: Constructs and initializes a new MotionSimulator instance with specified parameters.
     public MotionSimulator(Scene scene, MarioState mario) {
         this.scene = scene.clone();
         this.mario = mario.clone();
     }
 
+    // Explanation: Executes the update scene routine on MotionSimulator.
     public void updateScene(Scene scene) {
         this.scene.update(scene);
     }
 
+    // Explanation: Executes the handle horizontal input routine on MotionSimulator.
     private void handleHorizontalInput(boolean[] action) {
         float xSpeed = action[MarioActions.SPEED.getValue()] ? 1.2f : 0.6f;
         if (action[MarioActions.LEFT.getValue()])
@@ -39,6 +42,7 @@ public class MotionSimulator {
     // 1. Simulator sometimes allows jump when it shouldn't: when running off of
     //    edges, and when repeatedly pressing the jump button
 
+    // Explanation: Executes the handle jump input routine on MotionSimulator.
     private void handleJumpInput(boolean[] action) {
         mario.vy *= 0.85f;
         if (!mario.onGround)
@@ -63,6 +67,7 @@ public class MotionSimulator {
     }
 
     // Applies the given action to run one simulation time step
+    // Explanation: Updates physics, animation, and state transitions for this MotionSimulator on each game tick.
     public void update(boolean[] action) {
         handleHorizontalInput(action);
         handleJumpInput(action);
@@ -75,6 +80,7 @@ public class MotionSimulator {
 
     // Add using the goofy 8 at a time method used in Mario.java.
     // Skipping this step causes small errors due to floating point inaccuracy.
+    // Explanation: Executes the goofy add routine on MotionSimulator.
     private float goofyAdd(float a, float b) {
         while (b > 8.0f) {
             b -= 8.0f;
@@ -88,6 +94,7 @@ public class MotionSimulator {
     }
 
     // Move horizontally, checking for collisions
+    // Explanation: Executes the move horizontally routine on MotionSimulator.
     private void moveHorizontally() {
         if (Math.abs(mario.vx) < 0.5f)
             mario.vx = 0.0f;
@@ -126,6 +133,7 @@ public class MotionSimulator {
     }
 
     // Move vertically, checking for collisions
+    // Explanation: Executes the move vertically routine on MotionSimulator.
     private void moveVertically() {
         float newY = goofyAdd(mario.y, mario.vy);
         // Check for floor
@@ -163,30 +171,37 @@ public class MotionSimulator {
         mario.y = newY;
     }
 
+    // Explanation: Returns the current scene value.
     public Scene getScene() {
         return scene;
     }
 
+    // Explanation: Returns the current x value.
     public float getX() {
         return mario.x;
     }
 
+    // Explanation: Sets the x to the specified value.
     public void setX(float x) {
         mario.x = x;
     }
 
+    // Explanation: Returns the current v x value.
     public float getVX() {
         return mario.vx;
     }
 
+    // Explanation: Returns the current y value.
     public float getY() {
         return mario.y;
     }
 
+    // Explanation: Sets the y to the specified value.
     public void setY(float y) {
         mario.y = y;
     }
 
+    // Explanation: Returns the current ticks value.
     public int getTicks() {
         return ticks;
     }

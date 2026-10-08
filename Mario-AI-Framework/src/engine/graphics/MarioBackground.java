@@ -15,6 +15,7 @@ public class MarioBackground extends MarioGraphics {
     private Graphics2D g;
     private int screenWidth;
 
+    // Explanation: Constructs and initializes a new MarioBackground instance with specified parameters.
     public MarioBackground(GraphicsConfiguration graphicsConfiguration, int screenWidth, int[][] indeces) {
         super();
         this.width = indeces[0].length * 16;
@@ -28,6 +29,7 @@ public class MarioBackground extends MarioGraphics {
         updateArea(indeces);
     }
 
+    // Explanation: Executes the update area routine on MarioBackground.
     private void updateArea(int[][] indeces) {
         g.setBackground(new Color(0, 0, 0, 0));
         g.clearRect(0, 0, this.width, this.height);
@@ -40,6 +42,7 @@ public class MarioBackground extends MarioGraphics {
         }
     }
 
+    // Explanation: Renders the visual graphics for this MarioBackground onto the target display canvas.
     @Override
     public void render(Graphics og, int x, int y) {
         int xOff = x % this.width;

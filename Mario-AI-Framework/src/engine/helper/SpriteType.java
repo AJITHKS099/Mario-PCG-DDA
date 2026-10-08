@@ -37,14 +37,17 @@ public enum SpriteType {
         startIndex = newIndex;
     }
 
+    // Explanation: Returns the current value value.
     public int getValue() {
         return value;
     }
 
+    // Explanation: Returns the current start index value.
     public int getStartIndex() {
         return startIndex;
     }
 
+    // Explanation: Executes the spawn sprite routine on SpriteType.
     public MarioSprite spawnSprite(boolean visuals, int xTile, int yTile, int dir) {
         if (this == SpriteType.ENEMY_FLOWER) {
             return new FlowerEnemy(visuals, xTile * 16 + 17, yTile * 16 + 18);

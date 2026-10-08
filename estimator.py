@@ -1,5 +1,6 @@
 import os
 
+# Explanation: Evaluates heuristic difficulty metric (0.0 to 1.0) of an ASCII level based on gaps, enemies, cannons, and block placements.
 def calculate_difficulty(level_source):
     """
     Analyzes a text-based Mario level (file path or string) and scores its difficulty

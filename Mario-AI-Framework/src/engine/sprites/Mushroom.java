@@ -16,6 +16,7 @@ public class Mushroom extends MarioSprite {
     private static final float GROUND_INERTIA = 0.89f;
     private static final float AIR_INERTIA = 0.89f;
 
+    // Explanation: Constructs and initializes a new Mushroom instance with specified parameters.
     public Mushroom(boolean visuals, float x, float y) {
         super(x, y, SpriteType.MUSHROOM);
         this.width = 4;
@@ -32,6 +33,7 @@ public class Mushroom extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this Mushroom for forward simulation.
     @Override
     public MarioSprite clone() {
         Mushroom m = new Mushroom(false, this.x, this.y);
@@ -46,6 +48,7 @@ public class Mushroom extends MarioSprite {
         return m;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     public void collideCheck() {
         if (!this.alive) {
             return;
@@ -62,6 +65,7 @@ public class Mushroom extends MarioSprite {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya) {
         int x = (int) (_x / 16);
         int y = (int) (_y / 16);
@@ -72,6 +76,7 @@ public class Mushroom extends MarioSprite {
         return blocking;
     }
 
+    // Explanation: Resolves collision and displacement effects when a tile block is bumped from below.
     public void bumpCheck(int xTile, int yTile) {
         if (!this.alive) {
             return;
@@ -83,6 +88,7 @@ public class Mushroom extends MarioSprite {
         }
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for Mushroom.
     private boolean move(float xa, float ya) {
         while (xa > 8) {
             if (!move(8, 0))
@@ -166,6 +172,7 @@ public class Mushroom extends MarioSprite {
         }
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this Mushroom on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -204,6 +211,7 @@ public class Mushroom extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this Mushroom onto the target display canvas.
     @Override
     public void render(Graphics og) {
         super.render(og);

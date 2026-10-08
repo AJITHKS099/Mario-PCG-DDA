@@ -10,6 +10,7 @@ public abstract class MarioEffect {
     public int life, startingIndex;
     protected MarioImage graphics;
 
+    // Explanation: Constructs and initializes a new MarioEffect instance with specified parameters.
     public MarioEffect(float x, float y, float xv, float yv, float xa, float ya, int startIndex, int life) {
         this.x = x;
         this.y = y;
@@ -27,6 +28,7 @@ public abstract class MarioEffect {
         this.startingIndex = startIndex;
     }
 
+    // Explanation: Renders the visual graphics for this MarioEffect onto the target display canvas.
     public void render(Graphics og, float cameraX, float cameraY) {
         if (this.life <= 0) {
             return;

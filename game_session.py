@@ -7,6 +7,7 @@ from estimator import calculate_difficulty
 from dda import DynamicDifficultyAdjuster
 
 class MarioCampaignSession:
+    # Explanation: Initializes campaign session state tracking active levels, lives, DDA adjuster, and current progression.
     def __init__(self, initial_lives=3, mario_dir="Mario-AI-Framework", dda_max_variance=0.10):
         self.lives = initial_lives
         self.coins = 0
@@ -15,6 +16,7 @@ class MarioCampaignSession:
         self.dda = DynamicDifficultyAdjuster(max_variance=dda_max_variance)
         self.history = []
 
+    # Explanation: Generates and validates an individual level with A* solver, falling back if unsolvable.
     def generate_and_validate(self, level_index, target_difficulty, max_attempts=10):
         """Generates level tuned to target_difficulty and validates solvability using Robin Baumgarten AI."""
         levels_dir = os.path.join(self.mario_dir, "levels")
@@ -55,6 +57,7 @@ class MarioCampaignSession:
             f.write(best_level_text)
         return rel_path, best_level_text, best_estimated_diff
 
+    # Explanation: Simulates synthetic human player telemetry metrics based on selected skill profile for testing DDA responsiveness.
     def simulate_player_performance(self, target_difficulty, player_skill_profile="average", level_text=""):
         """
         Simulates player performance for demo/headless testing.
@@ -108,6 +111,7 @@ class MarioCampaignSession:
             "struggle_reason": struggle_reason
         }
 
+    # Explanation: Generates and validates a full sequence of levels following the designer's target pacing curve.
     def generate_initial_campaign_sequence(self, designer_curve):
         """
         Generates initial campaign levels matching designer curve targets without guessing or simulating player performance.
@@ -142,6 +146,7 @@ class MarioCampaignSession:
 
         return self.history
 
+    # Explanation: Simulates a complete multi-level playthrough applying DDA adaptations on deaths or wins across all sectors.
     def run_campaign_simulation(self, designer_curve, player_skill="average"):
         """
         Runs a full campaign simulation across the designer curve, updating DDA dynamically.

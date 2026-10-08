@@ -9,6 +9,7 @@ public class Edge {
     float x2;
     float y2;
 
+    // Explanation: Constructs and initializes a new Edge instance with specified parameters.
     public Edge(float x1, float y1, float x2, float y2) {
         this.x1 = x1;
         this.y1 = y1;

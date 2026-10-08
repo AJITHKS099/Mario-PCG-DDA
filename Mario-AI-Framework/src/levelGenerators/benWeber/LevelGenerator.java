@@ -48,16 +48,19 @@ public class LevelGenerator implements MarioLevelGenerator {
     int xExit = 0;
     int yExit = 0;
 
+    // Explanation: Constructs and initializes a default instance of LevelGenerator.
     public LevelGenerator() {
         this(10, 7, 10);
     }
 
+    // Explanation: Constructs and initializes a new LevelGenerator instance with specified parameters.
     public LevelGenerator(int maxGaps, int maxTurtles, int maxCoinBlocks) {
         this.maxGaps = maxGaps;
         this.maxTurtles = maxTurtles;
         this.maxCoinBlocks = maxCoinBlocks;
     }
 
+    // Explanation: Executes the place block routine on LevelGenerator.
     private void placeBlock(MarioLevelModel model, int x, int y) {
         // choose block type
         if (rand.nextDouble() < CHANCE_BLOCK_POWER_UP) {
@@ -85,10 +88,12 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Executes the place pipe routine on LevelGenerator.
     private void placePipe(MarioLevelModel model, int x, int y, int height) {
         model.setRectangle(x, y - height, 2, height, MarioLevelModel.PIPE);
     }
 
+    // Explanation: Sets the ground height to the specified value.
     private void setGroundHeight(MarioLevelModel model, int x, int y, int lastY, int nextY) {
         int mapHeight = model.getHeight();
         model.setRectangle(x, y + 1, 1, mapHeight - 1 - y, MarioLevelModel.GROUND);
@@ -113,6 +118,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
     }
 
+    // Explanation: Returns the current generated level value.
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         this.rand = new Random();
         model.clearMap();
@@ -311,6 +317,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return model.getMap();
     }
 
+    // Explanation: Returns the current generator name value.
     public String getGeneratorName() {
         return "BenWeberLevelGenerator";
     }

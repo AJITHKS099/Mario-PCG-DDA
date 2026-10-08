@@ -44,6 +44,7 @@ public class CyberNeuron {
     private final Random random = new Random();
     private double learningRate = 0.05;
 
+    // Explanation: Constructs and initializes a new CyberNeuron instance with specified parameters.
     public CyberNeuron(int numberOfInputs, int numberOfOutputs) {
         threshold = (int) (0.65 * (127 * numberOfInputs * parallel_inputs / num_bits_in_input));
         sbox = new float[numberOfInputs * parallel_inputs / num_bits_in_input][num_of_cells_in_sbox][numberOfOutputs];   //****//
@@ -55,12 +56,14 @@ public class CyberNeuron {
         initialize_sbox(sbox);
     }
 
+    // Explanation: Constructs and initializes a new CyberNeuron instance with specified parameters.
     public CyberNeuron(float[][][] sbox, int numberOfOutputs) {
         this.sbox = sbox;
         inputs = new double[sbox.length * num_bits_in_input];
         outputs = new double[numberOfOutputs];
     }
 
+    // Explanation: Executes the initialize_sbox routine on CyberNeuron.
     protected void initialize_sbox(float[][][] sbox) {
         for (int i = 0; i < sbox.length; i++) {
             for (int j = 0; j < sbox[i].length; j++) {
@@ -72,10 +75,12 @@ public class CyberNeuron {
     }
 
 
+    // Explanation: Returns the current new instance value.
     public CyberNeuron getNewInstance() {
         return new CyberNeuron(sbox.length * num_bits_in_input / parallel_inputs, outputs.length);
     }
 
+    // Explanation: Executes the copy routine on CyberNeuron.
     public CyberNeuron copy() {
         CyberNeuron copy = new CyberNeuron(copy(sbox), outputs.length);
         //copy.setMutationMagnitude(mutationMagnitude);
@@ -94,6 +99,7 @@ public class CyberNeuron {
         return copy;
     }
 
+    // Explanation: Executes the propagate routine on CyberNeuron.
     public double[] propagate(double[] inputIn) {
         if (inputs != inputIn) {
             System.arraycopy(inputIn, 0, this.inputs, 0, inputIn.length);
@@ -137,6 +143,7 @@ public class CyberNeuron {
     }
 
 
+    // Explanation: Executes the back propagate routine on CyberNeuron.
     public double backPropagate(double[] targetOutputs) {
         double[] outputError = new double[outputs.length];
 
@@ -210,18 +217,22 @@ public class CyberNeuron {
         return summedOutputError;
     }
 
+    // Explanation: Returns the current mutation magnitude value.
     public double getMutationMagnitude() {
         return 0;
     }
 
+    // Explanation: Sets the mutation magnitude to the specified value.
     public void setMutationMagnitude(double mutationMagnitude) {
         //this.mutationMagnitude = mutationMagnitude;
     }
 
+    // Explanation: Sets the init parameters to the specified value.
     public static void setInitParameters(double mean, double deviation) {
         System.out.println("PARAMETERS SET: " + mean + "  deviation: " + deviation);
     }
 
+    // Explanation: Executes the println routine on CyberNeuron.
     public void println() {
         System.out.print("\n\n----------------------------------------------------" +
                 "-----------------------------------\n");
@@ -229,20 +240,24 @@ public class CyberNeuron {
                 "-----------------------------------\n");
     }
 
+    // Explanation: Executes the to string routine on CyberNeuron.
     public String toString() {
         return "CyberNeuron by Sergey V. Polikarpov";
     }
 
+    // Explanation: Executes the sset learning rate routine on CyberNeuron.
     public void ssetLearningRate(double learningRate) {
         this.learningRate = learningRate;
     }
 
+    // Explanation: Returns the current outputs value.
     public double[] getOutputs() {
         double[] outputsCopy = new double[outputs.length];
         System.arraycopy(outputs, 0, outputsCopy, 0, outputs.length);
         return outputsCopy;
     }
 
+    // Explanation: Returns the current weights array value.
     public double[] getWeightsArray() {
 
         double[] weights = new double[sbox.length * sbox[0].length * sbox[0][0].length];
@@ -259,6 +274,7 @@ public class CyberNeuron {
         return weights;
     }
 
+    // Explanation: Sets the weights array to the specified value.
     public void setWeightsArray(double[] weights) {
         int k = 0;
 
@@ -272,21 +288,26 @@ public class CyberNeuron {
         }
     }
 
+    // Explanation: Returns the current number of inputs value.
     public int getNumberOfInputs() {
         return inputs.length;
     }
 
+    // Explanation: Executes the randomise routine on CyberNeuron.
     public void randomise() {
     }
 
+    // Explanation: Returns the current array value.
     public double[] getArray() {
         return getWeightsArray();
     }
 
+    // Explanation: Sets the array to the specified value.
     public void setArray(double[] array) {
         setWeightsArray(array);
     }
 
+    // Explanation: Returns the current packed inputs to int value.
     public int[] getPackedInputsToInt(double[] inputs) {
         int[] tmp_inputs = new int[sbox.length];
         for (int m = 0; m < sbox.length; m++) {

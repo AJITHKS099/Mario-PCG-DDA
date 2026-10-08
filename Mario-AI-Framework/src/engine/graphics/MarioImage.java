@@ -7,12 +7,14 @@ public class MarioImage extends MarioGraphics {
     public Image[][] sheet;
     public int index;
 
+    // Explanation: Constructs and initializes a new MarioImage instance with specified parameters.
     public MarioImage(Image[][] sheet, int index) {
         super();
         this.sheet = sheet;
         this.index = index;
     }
 
+    // Explanation: Renders the visual graphics for this MarioImage onto the target display canvas.
     @Override
     public void render(Graphics og, int x, int y) {
         if (!visible) return;

@@ -14,6 +14,7 @@ public class MarioTimer {
      *
      * @param remainingTime the amount of milliseconds before the timer runs out
      */
+    // Explanation: Start a timer.
     public MarioTimer(long remainingTime) {
         this.startTimer = System.currentTimeMillis();
         this.remainingTime = remainingTime;
@@ -24,6 +25,7 @@ public class MarioTimer {
      *
      * @return number of milliseconds remaining in that timer.
      */
+    // Explanation: Get the remaining time in that timer since construction.
     public long getRemainingTime() {
         return Math.max(0, this.remainingTime - (System.currentTimeMillis() - this.startTimer));
     }

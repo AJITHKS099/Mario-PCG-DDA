@@ -3,16 +3,19 @@ package agents.andySloane;
 public final class BulletBillState extends SpriteState {
     public static final float width = 4;
 
+    // Explanation: Executes the height routine on BulletBillState.
     @Override
     public final float height() {
         return 12;
     }
 
+    // Explanation: Executes the dead routine on BulletBillState.
     @Override
     public final boolean dead() {
         return deadTime != 0;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this BulletBillState for forward simulation.
     @Override
     public SpriteState clone() {
         BulletBillState e = new BulletBillState(x, y, facing);
@@ -40,6 +43,7 @@ public final class BulletBillState extends SpriteState {
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for BulletBillState.
     @Override
     public boolean move(WorldState ws) {
         if (deadTime > 0) {
@@ -66,6 +70,7 @@ public final class BulletBillState extends SpriteState {
         return true;
     }
 
+    // Explanation: Executes the stomp routine on BulletBillState.
     @Override
     public SpriteState stomp(WorldState ws, MarioState ms) {
         BulletBillState e = (BulletBillState) clone();
@@ -75,6 +80,7 @@ public final class BulletBillState extends SpriteState {
         return e;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     @Override
     public WorldState collideCheck(WorldState ws, MarioState ms) {
         if (deadTime != 0)

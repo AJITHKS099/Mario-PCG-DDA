@@ -16,6 +16,7 @@ public class LevelGenerator implements MarioLevelGenerator {
     private final float ENMEY_PROB = 0.1f;
     private final int FLOOR_PADDING = 3;
 
+    // Explanation: Returns the current generated level value.
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         Random random = new Random();
@@ -49,6 +50,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return model.getMap();
     }
 
+    // Explanation: Returns the current generator name value.
     @Override
     public String getGeneratorName() {
         return "RandomLevelGenerator";

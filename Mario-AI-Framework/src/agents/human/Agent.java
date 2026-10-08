@@ -11,31 +11,37 @@ import engine.helper.MarioActions;
 public class Agent extends KeyAdapter implements MarioAgent {
     private boolean[] actions = null;
 
+    // Explanation: Initializes and prepares Agent state and configuration before execution begins.
     @Override
     public void initialize(MarioForwardModel model, MarioTimer timer) {
         actions = new boolean[MarioActions.numberOfActions()];
     }
 
+    // Explanation: Evaluates current world state and returns boolean button action array for Mario controller.
     @Override
     public boolean[] getActions(MarioForwardModel model, MarioTimer timer) {
         return actions;
     }
 
+    // Explanation: Returns the current agent name value.
     @Override
     public String getAgentName() {
         return "HumanAgent";
     }
 
+    // Explanation: Executes the key pressed routine on Agent.
     @Override
     public void keyPressed(KeyEvent e) {
         toggleKey(e.getKeyCode(), true);
     }
 
+    // Explanation: Executes the key released routine on Agent.
     @Override
     public void keyReleased(KeyEvent e) {
         toggleKey(e.getKeyCode(), false);
     }
 
+    // Explanation: Executes the toggle key routine on Agent.
     private void toggleKey(int keyCode, boolean isPressed) {
         if (this.actions == null) {
             return;

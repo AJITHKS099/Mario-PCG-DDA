@@ -4,6 +4,7 @@ import time
 from estimator import calculate_difficulty
 from vglc_trainer import get_vglc_model
 
+# Explanation: Replaces vertically stacked question blocks or coins with empty space to avoid unreachable item placements.
 def _fix_stacked_special_blocks(lines):
     """
     Prevents interactive reward blocks (?, Q, 1, 2, C, U, L, etc.) from being stacked
@@ -31,6 +32,7 @@ def _fix_stacked_special_blocks(lines):
 
     return lines
 
+# Explanation: Adds thematic terrain decorations, pipe alignments, and hazard placements across the generated tile grid.
 def _post_process_level_decorations(level_text, target_difficulty=0.5):
     """
     Enhances level layout with progressive enemy hazards (Green/Red Turtles 'k'/'r', Flying Turtles 'K'/'R',
@@ -123,6 +125,7 @@ def _post_process_level_decorations(level_text, target_difficulty=0.5):
 
     return "\n".join(["".join(row) for row in lines])
 
+# Explanation: Constructs raw 2D tile matrix using Markov chain column transitions conditioned on difficulty.
 def _build_raw_level_grid(target_difficulty, width=220, height=16, seed=None):
     """
     Generates a level layout using the VGLC 2nd-order Markov Chain model trained on 31 Super Mario Bros levels.
@@ -133,6 +136,7 @@ def _build_raw_level_grid(target_difficulty, width=220, height=16, seed=None):
 
 from validator import is_level_solvable
 
+# Explanation: Generates a complete Mario level string conditioned on target difficulty using 2nd-order Markov transitions.
 def generate_mario_level(target_difficulty, width=220, height=16, seed=None, max_diff_error=0.05, max_attempts=50):
     """
     Generates a Mario level formatted for Mario-AI-Framework.
@@ -160,6 +164,7 @@ def generate_mario_level(target_difficulty, width=220, height=16, seed=None, max
 
     return best_level if best_level else _build_raw_level_grid(target_difficulty, width=width, height=height)
 
+# Explanation: Modifies existing level layout to dynamically increase or decrease difficulty based on DDA telemetry and player death points.
 def tweak_level_for_dda(base_level_text, dda_delta, telemetry=None):
     """
     Applies targeted DDA spatial micro-adjustments to an existing level layout when retrying,
@@ -204,7 +209,7 @@ def tweak_level_for_dda(base_level_text, dda_delta, telemetry=None):
                 for y in range(ground_y - 1, height):
                     lines[y][pit_x] = 'X'
                 changes_made.append(f"Injected platform ground block across pit gap at col {pit_x}")
-            else:
+            elif height >= 4 and fail_col + 1 < width:
                 # Add floating platform above ground
                 lines[ground_y - 3][fail_col] = 'S'
                 lines[ground_y - 3][fail_col + 1] = 'S'
@@ -227,8 +232,8 @@ def tweak_level_for_dda(base_level_text, dda_delta, telemetry=None):
                 changes_made.append(f"Removed enemy patrol near failure point at col {ex}")
 
         # 3. Small Mario Power-Up Assistance: insert ? block 5 columns prior to failure
-        if mario_mode == 0:
-            powerup_x = max(5, fail_col - 5)
+        if mario_mode == 0 and height >= 6:
+            powerup_x = max(5, min(width - 5, fail_col - 5))
             lines[height - 5][powerup_x] = '?'
             changes_made.append(f"Inserted dynamic Power-Up ? block 5 columns prior to failure point at col {powerup_x}")
 

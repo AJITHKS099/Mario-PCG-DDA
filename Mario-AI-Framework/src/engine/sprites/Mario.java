@@ -30,6 +30,7 @@ public class Mario extends MarioSprite {
     private final float AIR_INERTIA = 0.89f;
     private final int POWERUP_TIME = 3;
 
+    // Explanation: Constructs and initializes a new Mario instance with specified parameters.
     public Mario(boolean visuals, float x, float y) {
         super(x + 8, y + 15, SpriteType.MARIO);
         this.isLarge = this.oldLarge = false;
@@ -41,6 +42,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this Mario for forward simulation.
     @Override
     public MarioSprite clone() {
         Mario sprite = new Mario(false, x - 8, y - 15);
@@ -69,6 +71,7 @@ public class Mario extends MarioSprite {
         return sprite;
     }
 
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for Mario.
     private boolean move(float xa, float ya) {
         while (xa > 8) {
             if (!move(8, 0))
@@ -152,6 +155,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya) {
         int xTile = (int) (_x / 16);
         int yTile = (int) (_y / 16);
@@ -172,6 +176,7 @@ public class Mario extends MarioSprite {
         return blocking;
     }
 
+    // Explanation: Executes the update graphics routine on Mario.
     public void updateGraphics() {
         if (!this.alive) {
             return;
@@ -246,6 +251,7 @@ public class Mario extends MarioSprite {
         graphics.index = frameIndex;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this Mario on each game tick.
     @Override
     public void update() {
         if (!this.alive) {
@@ -373,6 +379,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Executes the stomp routine on Mario.
     public void stomp(Enemy enemy) {
         if (!this.alive) {
             return;
@@ -388,6 +395,7 @@ public class Mario extends MarioSprite {
         invulnerableTime = 1;
     }
 
+    // Explanation: Executes the stomp routine on Mario.
     public void stomp(Shell shell) {
         if (!this.alive) {
             return;
@@ -403,6 +411,7 @@ public class Mario extends MarioSprite {
         invulnerableTime = 1;
     }
 
+    // Explanation: Returns the current hurt value.
     public void getHurt() {
         if (invulnerableTime > 0 || !this.alive)
             return;
@@ -424,6 +433,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Returns the current flower value.
     public void getFlower() {
         if (!this.alive) {
             return;
@@ -440,6 +450,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Returns the current mushroom value.
     public void getMushroom() {
         if (!this.alive) {
             return;
@@ -455,6 +466,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Executes the kick routine on Mario.
     public void kick(Shell shell) {
         if (!this.alive) {
             return;
@@ -463,6 +475,7 @@ public class Mario extends MarioSprite {
         invulnerableTime = 1;
     }
 
+    // Explanation: Executes the stomp routine on Mario.
     public void stomp(BulletBill bill) {
         if (!this.alive) {
             return;
@@ -479,6 +492,7 @@ public class Mario extends MarioSprite {
         invulnerableTime = 1;
     }
 
+    // Explanation: Returns the current mario type value.
     public String getMarioType() {
         if (isFire) {
             return "fire";
@@ -489,6 +503,7 @@ public class Mario extends MarioSprite {
         return "small";
     }
 
+    // Explanation: Executes the collect1 up routine on Mario.
     public void collect1Up() {
         if (!this.alive) {
             return;
@@ -497,6 +512,7 @@ public class Mario extends MarioSprite {
         this.world.lives++;
     }
 
+    // Explanation: Executes the collect coin routine on Mario.
     public void collectCoin() {
         if (!this.alive) {
             return;
@@ -508,6 +524,7 @@ public class Mario extends MarioSprite {
         }
     }
 
+    // Explanation: Renders the visual graphics for this Mario onto the target display canvas.
     @Override
     public void render(Graphics og) {
         super.render(og);

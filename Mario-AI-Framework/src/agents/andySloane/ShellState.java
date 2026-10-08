@@ -8,11 +8,13 @@ public class ShellState extends SpriteState {
     public static final float width = 4;
     public static final float height = 12;
 
+    // Explanation: Executes the height routine on ShellState.
     @Override
     public final float height() {
         return 12;
     }
 
+    // Explanation: Creates and returns an independent duplicate of this ShellState for forward simulation.
     @Override
     public SpriteState clone() {
         ShellState e = new ShellState(x, y, false);
@@ -26,6 +28,7 @@ public class ShellState extends SpriteState {
         return e;
     }
 
+    // Explanation: Executes the dead routine on ShellState.
     @Override
     public final boolean dead() {
         return deadTime != 0;
@@ -41,6 +44,7 @@ public class ShellState extends SpriteState {
     }
 
     // returns false iff we should remove the enemy from the list
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for ShellState.
     public boolean move(WorldState ws) {
         if (carried) {
             ws.checkShellCollide(this);
@@ -88,6 +92,7 @@ public class ShellState extends SpriteState {
         return true;
     }
 
+    // Explanation: Executes the resync routine on ShellState.
     @Override
     public void resync(float x, float y, float prev_x, float prev_y) {
         this.x = x;
@@ -100,6 +105,7 @@ public class ShellState extends SpriteState {
     }
 
     // WOO LET'S COPY AND PASTE THIS SOME MORE!
+    // Explanation: Applies movement velocity, physics gravity, and collision responses for ShellState.
     private boolean move(float xa, float ya, WorldState ws) {
         while (xa > 8) {
             if (!move(8, 0, ws))
@@ -183,6 +189,7 @@ public class ShellState extends SpriteState {
         }
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     private boolean isBlocking(float _x, float _y, float xa, float ya, WorldState ws) {
         int x = (int) (_x / 16);
         int y = (int) (_y / 16);
@@ -192,6 +199,7 @@ public class ShellState extends SpriteState {
         return ws.isBlocking(x, y, xa, ya);
     }
 
+    // Explanation: Executes the stomp routine on ShellState.
     @Override
     public SpriteState stomp(WorldState ws, MarioState ms) {
         ShellState e = (ShellState) clone();
@@ -204,6 +212,7 @@ public class ShellState extends SpriteState {
         return e;
     }
 
+    // Explanation: Checks and resolves collision interactions between this entity and other active sprites.
     @Override
     public WorldState collideCheck(WorldState ws, MarioState ms) {
         if (deadTime != 0)

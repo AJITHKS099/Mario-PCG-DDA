@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOXIN//GRID — Cyberpunk PCG & DDA Protocol</title>
+    <!-- Fonts matching TOXIN//GRID aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Oxanium:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Teko:wght@700&family=Bebas+Neue&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --toxin-green: #a6ff00;
+            --toxin-green-glow: rgba(166, 255, 0, 0.45);
+            --toxin-green-subtle: rgba(166, 255, 0, 0.15);
+            --toxin-green-border: rgba(166, 255, 0, 0.28);
+            --toxin-cyan: #00f0ff;
+            --toxin-cyan-glow: rgba(0, 240, 255, 0.4);
+            --toxin-emerald: #00ff66;
+            --toxin-red: #ff2a55;
+            --toxin-red-glow: rgba(255, 42, 85, 0.45);
+            --toxin-bg: #030604;
+            --toxin-surface: rgba(6, 13, 8, 0.88);
+            --toxin-card: rgba(8, 18, 11, 0.82);
+            --toxin-card-hover: rgba(12, 26, 16, 0.95);
+            --toxin-text: #e8f5e9;
+            --toxin-text-dim: #7d9683;
+            --rail-width: 68px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--toxin-bg);
+            color: var(--toxin-text);
+            font-family: 'Oxanium', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(166, 255, 0, 0.05) 0%, transparent 65%),
+                linear-gradient(rgba(166, 255, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(166, 255, 0, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 48px 48px, 48px 48px;
+        }
+
+        /* AMBIENT BACKGROUND ARTWORK (TOXIN//GRID Operative) */
+        .toxin-bg-art {
+            position: fixed;
+            top: 0;
+            left: var(--rail-width);
+            right: 0;
+            bottom: 0;
+            background-image: url('/themes/toxingrid_bg.jpg');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            opacity: 0.22;
+            filter: contrast(1.15) brightness(0.9);
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: screen;
+        }
+
+        .toxin-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 60% 40%, transparent 20%, rgba(3, 6, 4, 0.75) 75%, #030604 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 1. LEFT VERTICAL SIDEBAR RAIL (Signature Reference Feature) */
+        .toxin-left-rail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--rail-width);
+            height: 100vh;
+            background: rgba(4, 8, 5, 0.96);
+            border-right: 1px solid var(--toxin-green-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .rail-top-icon {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        .rail-top-icon span {
+            background: var(--toxin-green);
+            border-radius: 1px;
+            box-shadow: 0 0 6px var(--toxin-green-glow);
+        }
+
+        .rail-vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--toxin-text-dim);
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .rail-social-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+        .rail-icon-btn {
+            color: var(--toxin-text-dim);
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+        }
+        .rail-icon-btn:hover {
+            color: var(--toxin-green);
+            background: var(--toxin-green-subtle);
+            box-shadow: 0 0 10px var(--toxin-green-glow);
+        }
+
+        .rail-progress-track {
+            width: 2px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            margin: 10px 0;
+        }
+        .rail-progress-thumb {
+            position: absolute;
+            top: 25%;
+            left: -3px;
+            width: 8px;
+            height: 18px;
+            background: var(--toxin-green);
+            box-shadow: 0 0 10px var(--toxin-green-glow);
+            border-radius: 2px;
+        }
+
+        .rail-node-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--toxin-green);
+            letter-spacing: 1px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .rail-node-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--toxin-green);
+            box-shadow: 0 0 8px var(--toxin-green);
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+        }
+
+        /* 2. MAIN APPLICATION CONTENT WRAPPER */
+        .main-wrapper {
+            margin-left: var(--rail-width);
+            position: relative;
+            z-index: 10;
+            padding: 20px 32px 60px 32px;
+            max-width: 1540px;
+        }
+
+        /* 3. TOP NAVIGATION BAR */
+        .toxin-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(166, 255, 0, 0.14);
+            margin-bottom: 28px;
+            gap: 20px;
+        }
+
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-glyph {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--toxin-green);
+            text-shadow: 0 0 12px var(--toxin-green-glow);
+            letter-spacing: -2px;
+        }
+
+        .brand-name {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brand-name span.slash {
+            color: var(--toxin-green);
+        }
+        .brand-name span.biohazard {
+            color: var(--toxin-green);
+            font-size: 1.1rem;
+            margin-left: 2px;
+        }
+
+        /* Nav links (Theme switchers & modules) */
+        .nav-links-cluster {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-link-item {
+            color: var(--toxin-text-dim);
+            text-decoration: none;
+            position: relative;
+            padding: 6px 0;
+            transition: color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #ffffff;
+        }
+        .nav-link-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            width: 14px;
+            height: 3px;
+            background: var(--toxin-green);
+            box-shadow: 0 0 8px var(--toxin-green);
+            border-radius: 1px;
+        }
+
+        .nav-tools-cluster {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .search-trigger {
+            color: var(--toxin-text-dim);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        .search-trigger:hover {
+            color: var(--toxin-green);
+        }
+
+        .sys-online-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+        }
+        .sys-radar-ring {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--toxin-green);
+            position: relative;
+            display: inline-block;
+        }
+        .sys-radar-ring::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 4px;
+            height: 4px;
+            background: var(--toxin-green);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--toxin-green);
+        }
+
+        /* Bracketed CTA Button [ ENTER GRID -> ] */
+        .btn-bracketed-cta {
+            position: relative;
+            background: var(--toxin-green);
+            color: #030604;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            padding: 10px 22px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 20px var(--toxin-green-glow);
+            transition: all 0.25s ease;
+        }
+        .btn-bracketed-cta:hover {
+            background: #bfff2e;
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(166, 255, 0, 0.75);
+        }
+        .btn-bracketed-cta .bracket {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-color: var(--toxin-green);
+            border-style: solid;
+        }
+        .btn-bracketed-cta .tl { top: -4px; left: -4px; border-width: 2px 0 0 2px; }
+        .btn-bracketed-cta .tr { top: -4px; right: -4px; border-width: 2px 2px 0 0; }
+        .btn-bracketed-cta .bl { bottom: -4px; left: -4px; border-width: 0 0 2px 2px; }
+        .btn-bracketed-cta .br { bottom: -4px; right: -4px; border-width: 0 2px 2px 0; }
+
+        /* 4. HERO SECTION WITH MASSIVE DISTRESSED STENCIL HEADLINE */
+        .toxin-hero {
+            position: relative;
+            padding: 10px 0 32px 0;
+        }
+
+        .hero-subtag {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--toxin-green);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 10px var(--toxin-green-glow);
+        }
+
+        .headline-stencil-wrap {
+            position: relative;
+            line-height: 0.88;
+            margin-bottom: 24px;
+        }
+
+        .headline-stencil {
+            font-family: 'Bebas Neue', 'Teko', sans-serif;
+            font-size: clamp(4.5rem, 9.5vw, 8.8rem);
+            font-weight: 900;
+            color: #d6e2d0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 
+                0 0 40px rgba(0, 0, 0, 0.9),
+                2px 2px 0px rgba(166, 255, 0, 0.15);
+            user-select: none;
+            display: block;
+        }
+
+        .headline-stencil.accent-green {
+            color: #ffffff;
+            background: linear-gradient(180deg, #ffffff 40%, rgba(166, 255, 0, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc-blurb {
+            max-width: 580px;
+            font-family: 'Oxanium', sans-serif;
+            font-size: 0.95rem;
+            color: var(--toxin-text-dim);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .hero-desc-blurb strong {
+            color: #ffffff;
+        }
+
+        /* 5. WORKSPACE 2-COLUMN TACTICAL GRID */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 24px;
+            margin-bottom: 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* TACTICAL HUD CARD STYLING */
+        .tactical-card {
+            background: var(--toxin-card);
+            border: 1px solid var(--toxin-green-border);
+            position: relative;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Corner crosshairs on tactical cards */
+        .tactical-card::before, .tactical-card::after {
+            content: '+';
+            position: absolute;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--toxin-green);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .tactical-card::before { top: 4px; left: 6px; }
+        .tactical-card::after { bottom: 4px; right: 6px; }
+
+        .card-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(166, 255, 0, 0.12);
+        }
+
+        .card-header-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--toxin-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .card-header-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--toxin-text-dim);
+            letter-spacing: 1px;
+        }
+
+        /* 6. RIGHT-HAND HUD PANEL ("DATA FEED" & "SYNTHESIZER") */
+        .data-feed-box {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* 3D Waveform Elevation Canvas / Chart */
+        .elevation-wave-container {
+            background: rgba(3, 8, 4, 0.9);
+            border: 1px solid rgba(166, 255, 0, 0.2);
+            border-radius: 4px;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+            height: 120px;
+        }
+        .elevation-wave-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .feed-description-text {
+            font-family: 'Oxanium', sans-serif;
+            font-size: 0.8rem;
+            color: var(--toxin-text-dim);
+            letter-spacing: 1px;
+            line-height: 1.5;
+            text-transform: uppercase;
+        }
+        .feed-description-text strong {
+            color: var(--toxin-green);
+        }
+
+        /* Pacing Preset Buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-preset-chip {
+            background: rgba(166, 255, 0, 0.05);
+            border: 1px solid rgba(166, 255, 0, 0.2);
+            color: var(--toxin-text);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 8px 10px;
+            cursor: pointer;
+            letter-spacing: 1.5px;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .btn-preset-chip:hover, .btn-preset-chip.active {
+            background: var(--toxin-green);
+            color: #000000;
+            border-color: var(--toxin-green);
+            box-shadow: 0 0 12px var(--toxin-green-glow);
+        }
+
+        /* Tactical Sliders */
+        .sliders-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 230px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .slider-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .slider-meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--toxin-text-dim);
+        }
+        .slider-meta-row .val {
+            color: var(--toxin-green);
+            font-weight: 700;
+        }
+
+        .tactical-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+            border-radius: 1px;
+            border: 1px solid rgba(166, 255, 0, 0.15);
+        }
+        .tactical-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--toxin-green);
+            border: 1px solid #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--toxin-green);
+        }
+
+        /* Big CTA Button in Right Panel */
+        .btn-sync-identity {
+            width: 100%;
+            background: var(--toxin-green);
+            color: #030604;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 800;
+            font-size: 0.92rem;
+            letter-spacing: 2px;
+            padding: 14px 20px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 0 25px var(--toxin-green-glow);
+            transition: all 0.25s ease;
+            margin-top: 8px;
+            position: relative;
+        }
+        .btn-sync-identity:hover {
+            background: #baff33;
+            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(166, 255, 0, 0.8);
+        }
+        .btn-sync-identity .sub-lbl {
+            font-size: 0.7rem;
+            font-weight: 600;
+            opacity: 0.8;
+            display: block;
+        }
+
+        /* 7. CENTER TACTICAL MAP MONITOR */
+        .sector-tabs-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .sector-tab-chip {
+            background: rgba(166, 255, 0, 0.04);
+            border: 1px solid rgba(166, 255, 0, 0.2);
+            color: var(--toxin-text-dim);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .sector-tab-chip:hover, .sector-tab-chip.active {
+            background: var(--toxin-green-subtle);
+            color: var(--toxin-green);
+            border-color: var(--toxin-green);
+            box-shadow: 0 0 10px var(--toxin-green-subtle);
+        }
+        .sector-tab-chip.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* 220-COLUMN MAP CONTAINER */
+        .tactical-map-viewport {
+            width: 100%;
+            height: 240px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            background: #020403;
+            border: 1px solid var(--toxin-green-border);
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .tactical-map-viewport::-webkit-scrollbar {
+            height: 10px;
+        }
+        .tactical-map-viewport::-webkit-scrollbar-track {
+            background: #060b07;
+            border-top: 1px solid rgba(166, 255, 0, 0.15);
+        }
+        .tactical-map-viewport::-webkit-scrollbar-thumb {
+            background: var(--toxin-green);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--toxin-green);
+        }
+
+        .level-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            min-width: 100%;
+            height: 100%;
+        }
+
+        #tileGrid {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 13.5px;
+            line-height: 14.5px;
+            letter-spacing: 2px;
+            color: var(--toxin-text-dim);
+            white-space: pre;
+            margin: 0;
+            padding: 10px 14px;
+            display: inline-block;
+            user-select: none;
+        }
+
+        #heatmapCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Sci-Fi Tactical Tile Glyphs */
+        .rtile {
+            display: inline-block;
+            width: 15px;
+            height: 14.5px;
+            text-align: center;
+            line-height: 14.5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            box-sizing: border-box;
+            vertical-align: bottom;
+        }
+
+        .rtile-ground {
+            color: var(--toxin-green);
+            background: #0a170d;
+            border-top: 2px solid var(--toxin-green);
+            border-bottom: 1px solid #040905;
+            font-weight: 800;
+        }
+
+        .rtile-solid {
+            color: var(--toxin-cyan);
+            background: #06151f;
+            border: 1px solid var(--toxin-cyan);
+            box-shadow: inset 0 0 4px rgba(0, 240, 255, 0.4);
+            font-weight: 800;
+        }
+
+        .rtile-question {
+            color: #000;
+            background: var(--toxin-green);
+            border: 1px solid #ffffff;
+            box-shadow: 0 0 10px var(--toxin-green-glow);
+            font-weight: 900;
+        }
+
+        .rtile-hidden {
+            color: var(--toxin-green);
+            background: #07140a;
+            border: 1px dashed var(--toxin-green);
+            opacity: 0.8;
+        }
+
+        .rtile-coin {
+            color: var(--toxin-green);
+            background: transparent;
+            text-shadow: 0 0 8px var(--toxin-green);
+            font-weight: 700;
+        }
+
+        .rtile-goomba {
+            color: #fff;
+            background: var(--toxin-red);
+            border: 1px solid #ff6685;
+            border-radius: 2px;
+            font-weight: 800;
+            text-shadow: 0 0 6px var(--toxin-red);
+        }
+
+        .rtile-koopa {
+            color: #000;
+            background: var(--toxin-emerald);
+            border: 1px solid #86efac;
+            border-radius: 2px;
+            font-weight: 800;
+        }
+
+        .rtile-flying-koopa {
+            color: #fff;
+            background: var(--toxin-cyan);
+            border: 1px solid #7dd3fc;
+            font-weight: 800;
+        }
+
+        .rtile-spiky {
+            color: #fff;
+            background: #ea580c;
+            border: 1px solid #f97316;
+            font-weight: 800;
+        }
+
+        .rtile-bullet {
+            color: #fff;
+            background: #475569;
+            border: 1px solid #94a3b8;
+            font-weight: 800;
+        }
+
+        .rtile-pipe {
+            color: #000;
+            background: var(--toxin-green);
+            border: 1px solid #ffffff;
+            font-weight: 900;
+        }
+
+        .rtile-flag {
+            color: var(--toxin-green);
+            background: #0d2612;
+            border: 1px solid var(--toxin-green);
+            font-weight: 900;
+            box-shadow: 0 0 10px var(--toxin-green-glow);
+        }
+
+        .rtile-sky {
+            color: #070e09;
+            background: transparent;
+        }
+
+        /* Map Action Button Controls */
+        .map-actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.6fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .map-actions-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn-hud-action {
+            background: rgba(166, 255, 0, 0.05);
+            border: 1px solid rgba(166, 255, 0, 0.25);
+            color: var(--toxin-text);
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px 14px;
+            cursor: pointer;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-hud-action:hover:not(:disabled) {
+            background: var(--toxin-green-subtle);
+            color: var(--toxin-green);
+            border-color: var(--toxin-green);
+            box-shadow: 0 0 15px var(--toxin-green-subtle);
+        }
+        .btn-hud-action.active {
+            background: var(--toxin-green);
+            color: #000000;
+            border-color: var(--toxin-green);
+            box-shadow: 0 0 15px var(--toxin-green-glow);
+        }
+        .btn-hud-action:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-hud-action.primary-play {
+            background: var(--toxin-green);
+            color: #030604;
+            border-color: var(--toxin-green);
+            font-weight: 800;
+            box-shadow: 0 0 20px var(--toxin-green-glow);
+        }
+        .btn-hud-action.primary-play:hover:not(:disabled) {
+            background: #bcff38;
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(166, 255, 0, 0.7);
+        }
+
+        /* 8. BOTTOM 5-CARD BENTO TACTICAL DOCK (Exact Reference Mirror) */
+        .toxin-bento-dock {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .toxin-bento-dock {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .toxin-bento-dock {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bento-dock-card {
+            background: var(--toxin-card);
+            border: 1px solid var(--toxin-green-border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            backdrop-filter: blur(8px);
+            min-height: 130px;
+        }
+
+        .bento-card-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--toxin-text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .bento-card-title span.active-tag {
+            color: var(--toxin-green);
+        }
+
+        .bento-stat-hero {
+            font-family: 'Bebas Neue', 'Oxanium', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin: 6px 0;
+        }
+        .bento-stat-hero.green {
+            color: var(--toxin-green);
+            text-shadow: 0 0 14px var(--toxin-green-glow);
+        }
+
+        .bento-sub-stat {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--toxin-text-dim);
+            letter-spacing: 1px;
+        }
+
+        /* Hexagonal wireframe icon for Card 2 */
+        .hex-wireframe {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--toxin-green);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px var(--toxin-green-glow);
+        }
+
+        /* Circular radar sweep for Card 3 */
+        .radar-sweep-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(166, 255, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .radar-sweep-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(from 0deg, rgba(166, 255, 0, 0.4) 0deg, transparent 90deg);
+            border-radius: 50%;
+            animation: radar-spin 3s linear infinite;
+        }
+        @keyframes radar-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 9. TELEMETRY TERMINAL (Integrated & Real-Time) */
+        .toxin-terminal {
+            margin-top: 24px;
+            background: #020403;
+            border: 1px solid rgba(166, 255, 0, 0.15);
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--toxin-green);
+            max-height: 100px;
+            overflow-y: auto;
+            border-radius: 2px;
+        }
+        .toxin-terminal .dim { color: var(--toxin-text-dim); }
+        .toxin-terminal .warn { color: #fcee0a; }
+        .toxin-terminal .err { color: var(--toxin-red); }
+
+        /* MODAL PROGRESS OVERLAY */
+        .toxin-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(2, 5, 3, 0.92);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .toxin-modal-box {
+            background: rgba(6, 15, 9, 0.96);
+            border: 2px solid var(--toxin-green);
+            box-shadow: 0 0 50px var(--toxin-green-glow);
+            padding: 36px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        .toxin-modal-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--toxin-green);
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .modal-track {
+            background: #030704;
+            border: 1px solid var(--toxin-green-border);
+            height: 18px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .modal-bar {
+            background: var(--toxin-green);
+            height: 100%;
+            width: 0%;
+            box-shadow: 0 0 12px var(--toxin-green);
+            transition: width 0.3s;
+        }
+        .modal-log {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--toxin-text-dim);
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Artwork and Vignette -->
+    <div class="toxin-bg-art"></div>
+    <div class="toxin-vignette"></div>
+
+    <!-- 1. LEFT VERTICAL SIDEBAR RAIL -->
+    <aside class="toxin-left-rail">
+        <div class="rail-top-icon" title="TOXIN//GRID Matrix">
+            <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="rail-vertical-text">
+            FOLLOW THE SIGNAL
+        </div>
+
+        <div class="rail-social-icons">
+            <a class="rail-icon-btn" title="Neural Discord">❖</a>
+            <a class="rail-icon-btn" title="Terminal X">✕</a>
+            <a class="rail-icon-btn" title="Bayesian Delta">▲</a>
+            <a class="rail-icon-btn" title="Global Telemetry">◎</a>
+        </div>
+
+        <div class="rail-progress-track">
+            <div class="rail-progress-thumb"></div>
+        </div>
+
+        <div class="rail-vertical-text">
+            SCROLL TO ENTER
+        </div>
+
+        <div class="rail-node-badge">
+            <span class="dot"></span>
+            NODE / 004
+        </div>
+    </aside>
+
+    <!-- 2. MAIN APPLICATION CONTENT -->
+    <div class="main-wrapper">
+        <!-- TOP NAVIGATION BAR -->
+        <nav class="toxin-nav">
+            <a href="/cyberpunk" class="brand-logo-wrap">
+                <span class="brand-glyph">&gt;&lt;</span>
+                <span class="brand-name">TOXIN<span class="slash">//</span>GRID <span class="biohazard">☣</span></span>
+            </a>
+
+            <div class="nav-links-cluster">
+                <a href="/" class="nav-link-item" title="Switch to Glassmorphism UI">ORIGIN</a>
+                <a href="/retro" class="nav-link-item" title="Switch to Retro Arcade Cabinet">PROTOCOLS</a>
+                <a href="/cyberpunk" class="nav-link-item active" title="Active TOXIN//GRID Theme">ARENAS</a>
+                <a href="#identity" class="nav-link-item">IDENTITY</a>
+                <a href="#archive" class="nav-link-item">ARCHIVE</a>
+                <a href="#access" class="nav-link-item">ACCESS</a>
+            </div>
+
+            <div class="nav-tools-cluster">
+                <span class="search-trigger" title="Radar Query">🔍</span>
+                <div class="sys-online-badge">
+                    <span class="sys-radar-ring"></span>
+                    SYSTEM ONLINE
+                </div>
+                <button class="btn-bracketed-cta" onclick="document.getElementById('btnPlayStart').click()">
+                    <span class="bracket tl"></span>
+                    <span class="bracket tr"></span>
+                    <span class="bracket bl"></span>
+                    <span class="bracket br"></span>
+                    ENTER ARENA →
+                </button>
+            </div>
+        </nav>
+
+        <!-- 4. HERO SECTION WITH MASSIVE DISTRESSED STENCIL HEADLINE -->
+        <header class="toxin-hero">
+            <div class="hero-subtag">
+                ▶ ENTER THE UNSTABLE DIMENSION // 2ND-ORDER MARKOV ENGINE
+            </div>
+            <div class="headline-stencil-wrap">
+                <span class="headline-stencil">NEON</span>
+                <span class="headline-stencil accent-green">FRONTIER</span>
+            </div>
+            <p class="hero-desc-blurb">
+                Explore, compile, and overcome a boundless procedural digital universe. Conditioned on designer pacing trajectories with real-time Bayesian telemetry feedback.
+            </p>
+        </header>
+
+        <!-- 5. WORKSPACE 2-COLUMN TACTICAL GRID -->
+        <main class="workspace-grid">
+            <!-- LEFT: TACTICAL MAP MONITOR & TELEMETRY -->
+            <section class="tactical-card">
+                <div class="card-header-bar">
+                    <span class="card-header-title">
+                        // SECTOR TACTICAL RADAR
+                    </span>
+                    <span class="card-header-meta" id="monitorStatusBadge">
+                        STATUS: STANDBY // 97% STABILITY
+                    </span>
+                </div>
+
+                <!-- SECTOR TABS -->
+                <div class="sector-tabs-container" id="sectorTabs">
+                    <button class="sector-tab-chip locked" disabled>[AWAITING LEVEL DATA]</button>
+                </div>
+
+                <!-- 220-COLUMN MAP VIEW CONTAINER -->
+                <div class="tactical-map-viewport">
+                    <div class="level-canvas-wrapper">
+                        <pre id="tileGrid">===============================================================
+[ TACTICAL RADAR IN STANDBY // INITIALIZE PROTOCOL TO SYNTHESIZE ]
+===============================================================</pre>
+                        <canvas id="heatmapCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="map-actions-row">
+                    <button class="btn-hud-action" id="btnDeathToggle" onclick="toggleDeathZone()" disabled>
+                        💀 TARGET ELIMINATIONS
+                    </button>
+                    <button class="btn-hud-action" id="btnAiWatch" onclick="watchAiPlay()" disabled>
+                        👁 NEURAL AI SIM
+                    </button>
+                    <button class="btn-hud-action primary-play" id="btnPlayStart" onclick="launchHumanPlay()" disabled>
+                        ▶ EXECUTE RUN // PLAY WORLD 1-1
+                    </button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <button class="btn-hud-action" style="font-size: 0.72rem; padding: 6px 12px;" onclick="resetCampaign()">
+                        🔄 REBOOT NEURAL CORES (RESTORE 3 LIVES)
+                    </button>
+                    <span class="card-header-meta" id="sessionStatusTxt">SESSION: READY</span>
+                </div>
+            </section>
+
+            <!-- RIGHT: DIFFICULTY SYNTHESIZER ("DATA FEED") -->
+            <aside class="tactical-card data-feed-box">
+                <div class="card-header-bar">
+                    <span class="card-header-title">
+                        // DATA FEED
+                    </span>
+                    <span class="card-header-meta">
+                        X: 49.8821 &nbsp; Y: -73.5672
+                    </span>
+                </div>
+
+                <!-- Dynamic Elevation Waveform Visualizer -->
+                <div class="elevation-wave-container">
+                    <canvas id="elevationCanvas"></canvas>
+                </div>
+
+                <p class="feed-description-text">
+                    <strong>TOXIN//GRID</strong> // A DIGITAL DOMAIN BEYOND CONTROL. SYNTHESIZE PROCEDURAL ARENAS CONDITIONED ON ADAPTIVE MARKOV TARGETS.
+                </p>
+
+                <!-- Pacing Preset Chips -->
+                <div class="preset-grid">
+                    <button class="btn-preset-chip active" id="chip_linear" onclick="setPreset('linear_ramp')">[01] LINEAR</button>
+                    <button class="btn-preset-chip" id="chip_spike" onclick="setPreset('mid_spike')">[02] SPIKE</button>
+                    <button class="btn-preset-chip" id="chip_wave" onclick="setPreset('wave_pacing')">[03] WAVE</button>
+                    <button class="btn-preset-chip" id="chip_boss" onclick="setPreset('boss_rush')">[04] BOSS</button>
+                </div>
+
+                <!-- Dynamic Difficulty Sliders -->
+                <div class="sliders-stack" id="curveSlidersList">
+                    <!-- Injected via JavaScript -->
+                </div>
+
+                <!-- Settings: Length & Skill -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <span class="card-header-meta" style="display:block; margin-bottom:4px;">CAMPAIGN LENGTH:</span>
+                        <select id="cyberLengthSelect" onchange="changeCampaignLength(this.value)" class="tactical-range" style="background:#07140a; color:#fff; padding:4px; height:auto;">
+                            <option value="3">3 SECTORS</option>
+                            <option value="4">4 SECTORS</option>
+                            <option value="5" selected>5 SECTORS</option>
+                            <option value="6">6 SECTORS</option>
+                            <option value="7">7 SECTORS</option>
+                            <option value="8">8 SECTORS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="card-header-meta" style="display:block; margin-bottom:4px;">OPERATIVE RANK:</span>
+                        <select id="cyberSkillSelect" class="tactical-range" style="background:#07140a; color:#fff; padding:4px; height:auto;">
+                            <option value="novice">[A] RECRUIT</option>
+                            <option value="average" selected>[B] CYBORG</option>
+                            <option value="expert">[C] APEX</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Big Primary Button: [ SYNC IDENTITY // GENERATE CAMPAIGN ] -->
+                <button class="btn-sync-identity" id="btnGenerate" onclick="generateCampaign()">
+                    <div>
+                        <span>[ ⇱ GENERATE CAMPAIGN ]</span>
+                        <span class="sub-lbl">ESTABLISH SECURE LINK ↗</span>
+                    </div>
+                    <span style="font-size: 1.4rem;">⚡</span>
+                </button>
+            </aside>
+        </main>
+
+        <!-- 8. BOTTOM 5-CARD BENTO TACTICAL DOCK -->
+        <section class="toxin-bento-dock">
+            <!-- Card 1: GRID ACTIVITY -->
+            <div class="bento-dock-card">
+                <div class="bento-card-title">
+                    // GRID ACTIVITY <span class="active-tag">● LIVE</span>
+                </div>
+                <div class="bento-stat-hero green" id="hudActiveNodes">24,891</div>
+                <div class="bento-sub-stat">ACTIVE MARKOV NODES</div>
+            </div>
+
+            <!-- Card 2: PROTOCOLS UNLOCKED -->
+            <div class="bento-dock-card">
+                <div class="bento-card-title">
+                    // PROTOCOLS <span class="hex-wireframe">◈</span>
+                </div>
+                <div class="bento-stat-hero" id="hudLevel">01 / 05</div>
+                <div class="bento-sub-stat">SECTOR: WORLD 1-1</div>
+            </div>
+
+            <!-- Card 3: ARENA STATUS -->
+            <div class="bento-dock-card">
+                <div class="bento-card-title">
+                    // ARENA STATUS <span class="radar-sweep-box"></span>
+                </div>
+                <div class="bento-stat-hero green" id="hudLives">3 / 3</div>
+                <div class="bento-sub-stat">NEURAL CORES ONLINE</div>
+            </div>
+
+            <!-- Card 4: USER IDENTITY & DDA -->
+            <div class="bento-dock-card">
+                <div class="bento-card-title">
+                    // USER IDENTITY <span class="active-tag">VERIFIED</span>
+                </div>
+                <div class="bento-stat-hero" id="hudDDAShift">+0.0%</div>
+                <div class="bento-sub-stat">BAYESIAN DDA OFFSET</div>
+            </div>
+
+            <!-- Card 5: GRID TIME & CYCLE -->
+            <div class="bento-dock-card">
+                <div class="bento-card-title">
+                    // GRID TIME <span class="active-tag">SYS.SYNC</span>
+                </div>
+                <div class="bento-stat-hero" id="hudClock">23:47:12</div>
+                <div class="bento-sub-stat">CYCLE: 8842.17</div>
+            </div>
+        </section>
+
+        <!-- 9. TELEMETRY TERMINAL -->
+        <div class="toxin-terminal" id="terminalLog">
+            <div><span class="dim">[SYS.BOOT]</span> TOXIN//GRID KERNEL v2.4 INITIALIZED. LISTENING ON PORT 5000...</div>
+            <div><span class="dim">[TELEMETRY]</span> STANDBY MODE ACTIVE. CONFIGURE DIFFICULTY AND INITIALIZE PROTOCOL.</div>
+        </div>
+    </div>
+
+    <!-- STREAMING COMPILATION PROGRESS MODAL -->
+    <div class="toxin-modal-overlay" id="compilationModal">
+        <div class="toxin-modal-box">
+            <div class="toxin-modal-title">⚡ NEURAL SYNTHESIS IN PROGRESS ⚡</div>
+            <div class="modal-track">
+                <div class="modal-bar" id="modalBar"></div>
+            </div>
+            <div class="modal-log" id="modalLog">Connecting to Markov stream...</div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           TOXIN//GRID CLIENT CONTROLLER & DDA STATE MACHINE
+           ============================================================ */
+
+        const PRESETS = {
+            linear_ramp: [20, 35, 50, 65, 80],
+            mid_spike:   [25, 45, 85, 35, 70],
+            wave_pacing: [30, 60, 40, 75, 50, 85],
+            boss_rush:   [30, 40, 55, 70, 95]
+        };
+
+        let currentCurve = [...PRESETS.linear_ramp];
+        let currentPresetKey = 'linear_ramp';
+        let campaignLevels = [];
+        let activeLevelIndex = 0;
+        let lives = 3;
+        let coins = 0;
+        let ddaShift = 0.0;
+        let isDead = false;
+        let deathZoneVisible = false;
+        let aiPlaying = false;
+        let pollInterval = null;
+
+        // Digital Clock Simulation
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('hudClock').textContent = `${h}:${m}:${s}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Terminal Log Appender
+        function logTerminal(msg, type = 'normal') {
+            const t = document.getElementById('terminalLog');
+            const row = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            let colorCls = 'dim';
+            if (type === 'warn') colorCls = 'warn';
+            if (type === 'err') colorCls = 'err';
+            row.innerHTML = `<span class="${colorCls}">[${time}]</span> ${msg}`;
+            t.appendChild(row);
+            t.scrollTop = t.scrollHeight;
+        }
+
+        // Draw Dynamic Waveform Elevation Chart
+        function drawElevationWave() {
+            const canvas = document.getElementById('elevationCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = canvas.parentElement.clientWidth;
+            const h = canvas.height = canvas.parentElement.clientHeight;
+
+            ctx.clearRect(0, 0, w, h);
+
+            if (currentCurve.length === 0) return;
+
+            // Draw Area Chart with Matrix Green Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, 'rgba(166, 255, 0, 0.45)');
+            gradient.addColorStop(1, 'rgba(166, 255, 0, 0.02)');
+
+            ctx.beginPath();
+            const step = w / (currentCurve.length - 1);
+            ctx.moveTo(0, h);
+
+            currentCurve.forEach((val, i) => {
+                const x = i * step;
+                const y = h - (val / 100) * (h * 0.75) - 10;
+                if (i === 0) ctx.lineTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+
+            ctx.lineTo(w, h);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Draw Line
+            ctx.beginPath();
+            currentCurve.forEach((val, i) => {
+                const x = i * step;
+                const y = h - (val / 100) * (h * 0.75) - 10;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = '#a6ff00';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Draw Points and Crosshairs
+            currentCurve.forEach((val, i) => {
+                const x = i * step;
+                const y = h - (val / 100) * (h * 0.75) - 10;
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#a6ff00';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+        }
+
+        // Render Sliders in Synthesizer Box
+        function renderSliders() {
+            const list = document.getElementById('curveSlidersList');
+            list.innerHTML = '';
+            currentCurve.forEach((val, idx) => {
+                const div = document.createElement('div');
+                div.className = 'slider-row';
+                div.innerHTML = `
+                    <div class="slider-meta-row">
+                        <span>SECTOR ${idx + 1}</span>
+                        <span class="val" id="sliderVal_${idx}">${val}%</span>
+                    </div>
+                    <input type="range" class="tactical-range" min="10" max="95" value="${val}"
+                           oninput="onSliderChange(${idx}, this.value)">
+                `;
+                list.appendChild(div);
+            });
+            drawElevationWave();
+        }
+
+        function onSliderChange(idx, val) {
+            currentCurve[idx] = parseInt(val);
+            document.getElementById(`sliderVal_${idx}`).textContent = `${val}%`;
+            drawElevationWave();
+        }
+
+        function setPreset(key) {
+            if (!PRESETS[key]) return;
+            currentPresetKey = key;
+            currentCurve = [...PRESETS[key]];
+            document.querySelectorAll('.btn-preset-chip').forEach(c => c.classList.remove('active'));
+            const activeBtn = document.getElementById(`chip_${key.split('_')[0]}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            renderSliders();
+            logTerminal(`Preset pacing set to: ${key.toUpperCase()}`);
+        }
+
+        function changeCampaignLength(len) {
+            const targetLen = parseInt(len);
+            if (currentCurve.length < targetLen) {
+                while (currentCurve.length < targetLen) {
+                    const last = currentCurve[currentCurve.length - 1];
+                    currentCurve.push(Math.min(95, last + 10));
+                }
+            } else if (currentCurve.length > targetLen) {
+                currentCurve = currentCurve.slice(0, targetLen);
+            }
+            renderSliders();
+            logTerminal(`Campaign length configured to ${targetLen} sectors.`);
+        }
+
+        // Render Mario Level Tiles with Sci-Fi Tactical Styling
+        function renderTileMap(asciiText) {
+            const pre = document.getElementById('tileGrid');
+            if (!asciiText) {
+                pre.innerHTML = '===============================================================\n[ NO LEVEL DATA LOADED ]\n===============================================================';
+                return;
+            }
+
+            const charMap = {
+                'X': '<span class="rtile rtile-ground" title="Carbon Ground">X</span>',
+                '#': '<span class="rtile rtile-solid" title="Nano-Steel Block">#</span>',
+                'S': '<span class="rtile rtile-solid" title="Nano-Steel Brick">S</span>',
+                '?': '<span class="rtile rtile-question" title="Radioactive Cache">?</span>',
+                'Q': '<span class="rtile rtile-solid" title="Depleted Cache">Q</span>',
+                'o': '<span class="rtile rtile-coin" title="Plasma Coin">●</span>',
+                'g': '<span class="rtile rtile-goomba" title="Goomba Cyber-Drone">▼</span>',
+                'k': '<span class="rtile rtile-koopa" title="Armored Koopa">◆</span>',
+                'r': '<span class="rtile rtile-goomba" title="Red Mech">◆</span>',
+                'y': '<span class="rtile rtile-flying-koopa" title="Viper Wing">▲</span>',
+                '*': '<span class="rtile rtile-spiky" title="Spike Mine">✱</span>',
+                'B': '<span class="rtile rtile-bullet" title="Laser Turret">■</span>',
+                'b': '<span class="rtile rtile-bullet" title="Blaster Body">▮</span>',
+                'T': '<span class="rtile rtile-pipe" title="Conduit Conduit">┳</span>',
+                '|': '<span class="rtile rtile-flag" title="Extraction Uplink">⚑</span>',
+                '-': '<span class="rtile rtile-sky"> </span>'
+            };
+
+            let out = '';
+            for (let char of asciiText) {
+                out += charMap[char] !== undefined ? charMap[char] : (char === '\n' ? '\n' : `<span class="rtile rtile-sky">${char}</span>`);
+            }
+            pre.innerHTML = out;
+
+            syncCanvasSize();
+        }
+
+        function syncCanvasSize() {
+            const pre = document.getElementById('tileGrid');
+            const canvas = document.getElementById('heatmapCanvas');
+            if (pre && canvas) {
+                canvas.width = pre.offsetWidth;
+                canvas.height = pre.offsetHeight;
+            }
+        }
+
+        // Campaign Generation via SSE Streaming
+        async function generateCampaign() {
+            const btn = document.getElementById('btnGenerate');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+
+            const modal = document.getElementById('compilationModal');
+            const bar = document.getElementById('modalBar');
+            const log = document.getElementById('modalLog');
+            modal.style.display = 'flex';
+            bar.style.width = '5%';
+            log.textContent = 'Initializing Markov sequence pipeline...';
+
+            logTerminal('Initiating Campaign Synthesis...', 'warn');
+
+            const payload = {
+                curve: currentCurve,
+                player_skill: document.getElementById('cyberSkillSelect').value,
+                max_variance: 0.10
+            };
+
+            try {
+                const response = await fetch('/api/generate-sequence-stream', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+                            if (data.type === 'progress') {
+                                const pct = Math.round((data.level / data.total) * 90);
+                                bar.style.width = `${pct}%`;
+                                log.textContent = data.message;
+                                logTerminal(data.message);
+                            } else if (data.type === 'complete') {
+                                bar.style.width = '100%';
+                                log.textContent = 'All sectors compiled & validated!';
+                                campaignLevels = data.levels;
+                                onCampaignReady();
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                log.textContent = `Error: ${err.message}`;
+                logTerminal(`Generation error: ${err.message}`, 'err');
+            } finally {
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }, 800);
+            }
+        }
+
+        function onCampaignReady() {
+            logTerminal('Campaign compiled successfully! Enabling Arena controls.', 'warn');
+            activeLevelIndex = 0;
+            populateSectorTabs();
+            displayActiveLevel();
+
+            document.getElementById('btnPlayStart').disabled = false;
+            document.getElementById('btnDeathToggle').disabled = false;
+            document.getElementById('btnAiWatch').disabled = false;
+            document.getElementById('monitorStatusBadge').textContent = 'STATUS: ACTIVE // CAMPAIGN READY';
+            document.getElementById('monitorStatusBadge').style.color = 'var(--toxin-green)';
+        }
+
+        function populateSectorTabs() {
+            const tabs = document.getElementById('sectorTabs');
+            tabs.innerHTML = '';
+            campaignLevels.forEach((lvl, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `sector-tab-chip ${idx === activeLevelIndex ? 'active' : ''}`;
+                btn.textContent = `[WORLD 1-${lvl.level_index}]`;
+                btn.onclick = () => selectSector(idx);
+                tabs.appendChild(btn);
+            });
+        }
+
+        function selectSector(idx) {
+            activeLevelIndex = idx;
+            document.querySelectorAll('.sector-tab-chip').forEach((b, i) => {
+                b.classList.toggle('active', i === idx);
+            });
+            displayActiveLevel();
+        }
+
+        function displayActiveLevel() {
+            if (!campaignLevels || !campaignLevels[activeLevelIndex]) return;
+            const lvl = campaignLevels[activeLevelIndex];
+            renderTileMap(lvl.level_text);
+            document.getElementById('hudLevel').textContent = `0${lvl.level_index} / 0${campaignLevels.length}`;
+            document.getElementById('btnPlayStart').textContent = `▶ EXECUTE RUN // PLAY WORLD 1-${lvl.level_index}`;
+
+            clearCanvas();
+            if (deathZoneVisible) renderDeathZoneOverlay();
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('heatmapCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        // Toggle Death Zone Overlay
+        async function toggleDeathZone() {
+            const btn = document.getElementById('btnDeathToggle');
+            deathZoneVisible = !deathZoneVisible;
+            btn.classList.toggle('active', deathZoneVisible);
+
+            if (deathZoneVisible) {
+                await renderDeathZoneOverlay();
+            } else {
+                clearCanvas();
+            }
+        }
+
+        async function renderDeathZoneOverlay() {
+            if (!campaignLevels[activeLevelIndex]) return;
+            const lvl = campaignLevels[activeLevelIndex];
+            clearCanvas();
+
+            try {
+                const res = await fetch(`/api/telemetry/death-zone/${lvl.level_index}`);
+                const data = await res.json();
+                const deaths = data.deaths || [];
+
+                const canvas = document.getElementById('heatmapCanvas');
+                const ctx = canvas.getContext('2d');
+                const tileWidth = 15;
+                const tileHeight = 14.5;
+
+                deaths.forEach(d => {
+                    const px = (d.x || 90) * tileWidth;
+                    const py = (d.y || 12) * tileHeight;
+
+                    // Draw High-Tech Reticle
+                    ctx.strokeStyle = '#ff2a55';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 26, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'rgba(255, 42, 85, 0.25)';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 26, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Text Marker
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = 'bold 12px Chakra Petch';
+                    ctx.fillText(`💀 TARGET ELIMINATED [COL ${d.x || 90}]`, px + 32, py + 4);
+                });
+
+                logTerminal(`Rendered ${deaths.length} telemetry elimination points.`);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Watch AI Play
+        async function watchAiPlay() {
+            if (aiPlaying) return;
+            aiPlaying = true;
+            const btn = document.getElementById('btnAiWatch');
+            btn.classList.add('active');
+            logTerminal('Neural AI Agent engaging sector simulation...', 'warn');
+
+            const lvl = campaignLevels[activeLevelIndex];
+            try {
+                const res = await fetch('/api/watch-ai-play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level_index: lvl.level_index, level_text: lvl.level_text })
+                });
+                const data = await res.json();
+                const path = data.agent_trajectory || [];
+
+                const canvas = document.getElementById('heatmapCanvas');
+                const ctx = canvas.getContext('2d');
+                const tileWidth = 15;
+                const tileHeight = 14.5;
+
+                let step = 0;
+                const anim = setInterval(() => {
+                    if (step >= path.length) {
+                        clearInterval(anim);
+                        aiPlaying = false;
+                        btn.classList.remove('active');
+                        logTerminal('Neural AI Simulation completed safely.');
+                        return;
+                    }
+
+                    const pt = path[step];
+                    const px = pt.x * tileWidth;
+                    const py = pt.y * tileHeight;
+
+                    ctx.fillStyle = 'rgba(0, 240, 255, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    step++;
+                }, 35);
+            } catch (e) {
+                aiPlaying = false;
+                btn.classList.remove('active');
+                logTerminal(`AI Playback failed: ${e.message}`, 'err');
+            }
+        }
+
+        // Launch Human Play
+        async function launchHumanPlay() {
+            if (lives <= 0) {
+                alert("GAME OVER: You have 0 lives remaining! Please click '🔄 Reboot Neural Cores' to reset your campaign.");
+                return;
+            }
+
+            const lvl = campaignLevels[activeLevelIndex];
+            logTerminal(`Deploying Operative to Sector ${lvl.level_index}... Launching Java window.`, 'warn');
+            document.getElementById('sessionStatusTxt').textContent = 'SESSION: OPERATIVE IN ARENA';
+
+            try {
+                const res = await fetch('/api/play-human-level', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level_index: lvl.level_index })
+                });
+                const data = await res.json();
+                logTerminal(data.message || 'Simulation running.');
+
+                startSessionPolling();
+            } catch (e) {
+                logTerminal(`Launch error: ${e.message}`, 'err');
+            }
+        }
+
+        function startSessionPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/check-session-result');
+                    const data = await res.json();
+
+                    if (data.session_active) {
+                        return;
+                    }
+
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                    document.getElementById('sessionStatusTxt').textContent = 'SESSION: READY';
+
+                    if (data.game_status === 'WIN') {
+                        logTerminal(`VICTORY: Sector completed! Score: ${data.coins_collected} credits.`, 'warn');
+                        ddaShift = data.dda_adjustment_delta || +0.05;
+                        document.getElementById('hudDDAShift').textContent = `+${Math.round(ddaShift * 100)}%`;
+                        if (activeLevelIndex < campaignLevels.length - 1) {
+                            activeLevelIndex++;
+                            populateSectorTabs();
+                            displayActiveLevel();
+                        }
+                    } else if (data.game_status === 'DEATH') {
+                        lives = Math.max(0, lives - 1);
+                        document.getElementById('hudLives').textContent = `${lives} / 3`;
+                        logTerminal(`OPERATIVE DOWN. Lives remaining: ${lives}. Current sector adjusted by Bayesian DDA.`, 'err');
+
+                        if (lives <= 0) {
+                            logTerminal('GAME OVER: 0 NEURAL CORES REMAINING. System halted.', 'err');
+                            document.getElementById('btnPlayStart').disabled = true;
+                            alert("GAME OVER: All 3 Neural Cores depleted! Click '🔄 Reboot Neural Cores' to restart.");
+                        } else {
+                            if (data.adapted_level_text) {
+                                campaignLevels[activeLevelIndex].level_text = data.adapted_level_text;
+                                displayActiveLevel();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, 1500);
+        }
+
+        function resetCampaign() {
+            lives = 3;
+            document.getElementById('hudLives').textContent = '3 / 3';
+            document.getElementById('btnPlayStart').disabled = false;
+            document.getElementById('hudDDAShift').textContent = '+0.0%';
+            logTerminal('Neural Cores rebooted. Lives set to 3.');
+            alert("Neural Cores Rebooted! Lives set to 3. Unlocked sector maps preserved.");
+        }
+
+        // Initialize Page
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSliders();
+            window.addEventListener('resize', () => {
+                drawElevationWave();
+                syncCanvasSize();
+            });
+        });
+    </script>
+</body>
+</html>

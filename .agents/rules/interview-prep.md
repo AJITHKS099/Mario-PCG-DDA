@@ -1,9 +1,9 @@
 # Interview Prep Ground Rules
 
-- I am preparing to defend this project verbally in a job interview (TCS Prime).
+- I am preparing to defend this project verbally in a job interview .
   Your job is forensic analysis of MY code, not generic ML tutoring.
-- Every technical claim you make must cite the specific file, function, or line
-  it comes from. Format: (see `path/to/file.py`, function `foo()`).
+- Every technical claim you make must cite the specific file or function
+  it comes from.
 - NEVER invent metrics, dataset sizes, accuracy numbers, or results that
   aren't present in code, comments, notebooks, README, or logs. If something
   is referenced but the actual number isn't findable, write:

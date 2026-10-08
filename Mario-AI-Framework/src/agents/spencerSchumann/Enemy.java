@@ -35,6 +35,7 @@ public class Enemy {
     public static final int KIND_FIRE_FLOWER = 13;
     public static final int KIND_FIREBALL = 16;
 
+    // Explanation: Constructs and initializes a new Enemy instance with specified parameters.
     public Enemy(int type, float x, float y) {
         this.type = type;
         this.x = x;
@@ -70,6 +71,7 @@ public class Enemy {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this Enemy for forward simulation.
     @Override
     public Enemy clone() {
         Enemy e = new Enemy(type, x, y);

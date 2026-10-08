@@ -2,6 +2,7 @@ package agents.andySloane;
 
 final class MarioMath {
 
+    // Explanation: Executes the steps to jump routine on MarioMath.
     public static float stepsToJump(float h) {
         if (h < 26.6f)
             return 10 * h / 133;
@@ -18,12 +19,14 @@ final class MarioMath {
     }
 
     static private class FallDistance implements DistanceFunction {
+        // Explanation: Executes the value routine on MarioMath.
         public float value(float ya0, float steps) {
             return fallDistance(ya0, steps);
         }
     }
 
     // converges quadratically but not always numerically stable
+    // Explanation: Executes the secant solve routine on MarioMath.
     static private float secantSolve(DistanceFunction f, float distance, float dx0, float min) {
         float x0 = min, x1 = min + 30, xdiff;
         do {
@@ -42,6 +45,7 @@ final class MarioMath {
     // public mathods (ha), finally
     static private final FallDistance _fallDistance = new FallDistance();
 
+    // Explanation: Executes the run distance routine on MarioMath.
     static public float runDistance(float v0, float steps) {
         // Mario's running iteration looks like this:
         // xa'[n] = xa[n-1] + s
@@ -56,6 +60,7 @@ final class MarioMath {
         return (1320 * steps - 20 * (d_n - 1) * (55 * v0 - 534)) / 121;
     }
 
+    // Explanation: Executes the fall distance routine on MarioMath.
     static public float fallDistance(float ya0, float steps) {
         // Mario's falling iteration looks like this:
         // y[n] = y[n-1] + ya[n-1]
@@ -68,6 +73,7 @@ final class MarioMath {
         return 20 * steps - 20 * (d_n - 1) * (ya0 - 20) / 3;
     }
 
+    // Explanation: Executes the run speed routine on MarioMath.
     static public float runSpeed(float xa0, float steps) {
         float d_n = (float) Math.pow(0.89f, steps);
         return -9.70909f * (d_n - 1) + d_n * xa0;
@@ -75,6 +81,7 @@ final class MarioMath {
 
     // runDistance is terrible to invert, so use the secant method to solve it
     // inlined
+    // Explanation: Executes the steps to run routine on MarioMath.
     public static float stepsToRun(float distance, float v0) {
         float x0 = 1, x1 = 2, xdiff;
         float sgn = 1;
@@ -97,6 +104,7 @@ final class MarioMath {
     }
 
     // as, of course, is fallDistance
+    // Explanation: Executes the steps to fall routine on MarioMath.
     public static float stepsToFall(float height, float ya0) {
         // this has too many numerical problems; let's just underestimate it
         if (height < 0) {
@@ -107,6 +115,7 @@ final class MarioMath {
     }
 
     // how long will it take us to stomp enemy e?
+    // Explanation: Executes the steps to stomp routine on MarioMath.
     public static float stepsToStomp(MarioState ms, SpriteState e) {
         float dx = stepsToRun(e.x - ms.x, ms.xa);
         float dy = 0;
@@ -123,6 +132,7 @@ final class MarioMath {
     }
 
     // can mario reach a ledge from his current jump trajectory
+    // Explanation: Checks and returns whether can reach ledge condition is met.
     public static boolean canReachLedge(float x0, float xa, int apogeesteps, float apogeey, float x1, float y1) {
         // how long will it take us to get from x0 to x1 at our current speed,
         // regardless of the jump?

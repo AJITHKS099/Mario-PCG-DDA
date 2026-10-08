@@ -10,6 +10,7 @@ public class Helper {
     public static final int visitedListPenalty = 1500;
     public static final float maxMarioSpeed = 10.9090909f;
 
+    // Explanation: Returns the current mario damage value.
     public static int getMarioDamage(MarioForwardModel model, MarioForwardModel prevModel) {
         int damage = 0;
         if (prevModel.getMarioMode() > model.getMarioMode()) {
@@ -25,6 +26,7 @@ public class Helper {
         return damage;
     }
 
+    // Explanation: Returns the current action string value.
     public static String getActionString(boolean[] action) {
         String s = "";
         if (action[MarioActions.RIGHT.getValue()])
@@ -43,6 +45,7 @@ public class Helper {
         return s;
     }
 
+    // Explanation: Executes the estimate maximum forward movement routine on Helper.
     public static float[] estimateMaximumForwardMovement(float currentAccel, boolean[] action, int ticks) {
         float dist = 0;
         float runningSpeed = action[MarioActions.SPEED.getValue()] ? 1.2f : 0.6f;
@@ -62,6 +65,7 @@ public class Helper {
         return ret;
     }
 
+    // Explanation: Executes the create action routine on Helper.
     public static boolean[] createAction(boolean left, boolean right, boolean down, boolean jump, boolean speed) {
         boolean[] action = new boolean[5];
         action[MarioActions.DOWN.getValue()] = down;
@@ -72,12 +76,14 @@ public class Helper {
         return action;
     }
 
+    // Explanation: Checks and returns whether can jump higher condition is met.
     public static boolean canJumpHigher(SearchNode node, boolean checkParent) {
         if (node.parentPos != null && checkParent && canJumpHigher(node.parentPos, false))
             return true;
         return node.sceneSnapshot.mayMarioJump() || node.sceneSnapshot.getMarioCanJumpHigher();
     }
 
+    // Explanation: Executes the create possible actions routine on Helper.
     public static ArrayList<boolean[]> createPossibleActions(SearchNode node) {
         ArrayList<boolean[]> possibleActions = new ArrayList<boolean[]>();
         // jump

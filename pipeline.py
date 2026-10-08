@@ -6,6 +6,7 @@ from estimator import calculate_difficulty
 from dda import DynamicDifficultyAdjuster
 from game_session import MarioCampaignSession
 
+# Explanation: Executes full end-to-end pipeline: generates levels from difficulty curve, validates with A*, and initializes DDA session.
 def run_pipeline_sequence(curve, dda_variance=0.10, player_skill="average"):
     """
     Executes a complete PCG + DDA pipeline run for a given difficulty curve.
@@ -26,6 +27,7 @@ def run_pipeline_sequence(curve, dda_variance=0.10, player_skill="average"):
         }
     }
 
+# Explanation: Generates and returns a single validated Mario level along with its estimated difficulty score.
 def generate_single_level_pipeline(target_difficulty):
     """Generates a single level and estimates its difficulty."""
     level_text = generate_mario_level(target_difficulty)

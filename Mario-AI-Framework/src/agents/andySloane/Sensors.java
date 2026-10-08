@@ -9,6 +9,7 @@ public class Sensors {
     public int[][] enemiesScene;
     public int fireballsOnScreen;
 
+    // Explanation: Executes the update readings routine on Sensors.
     public void updateReadings(MarioForwardModel model) {
         levelScene = model.getMarioSceneObservation();
         enemiesScene = model.getMarioEnemiesObservation();
@@ -30,10 +31,12 @@ public class Sensors {
             }
     }
 
+    // Explanation: Returns the current mario position value.
     public int[] getMarioPosition() {
         return new int[]{8, 8};
     }
 
+    // Explanation: Executes the to string routine on Sensors.
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (String[] sceneRow : asciiScene) {
@@ -51,6 +54,7 @@ public class Sensors {
     public final static int QUESTIONMARK_BOX = 24;
     public final static int BRICK = 23;
 
+    // Explanation: Executes the ascii level routine on Sensors.
     private String asciiLevel(int levelSquare) {
         switch (levelSquare) {
             case EMPTY:
@@ -70,6 +74,7 @@ public class Sensors {
         }
     }
 
+    // Explanation: Executes the ascii enemy routine on Sensors.
     private String asciiEnemy(int enemySquare) {
         if (enemySquare == MarioForwardModel.OBS_GOOMBA) {
             return "G";

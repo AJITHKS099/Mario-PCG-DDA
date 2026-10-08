@@ -8,6 +8,7 @@ import agents.robinBaumgarten.Agent;
 
 public class PlayLevel {
 
+    // Explanation: Reads and returns the complete text content of a Mario level file from the given file path.
     public static String getLevel(String filepath) {
         try {
             return new String(Files.readAllBytes(Paths.get(filepath)));
@@ -18,6 +19,7 @@ public class PlayLevel {
         }
     }
 
+    // Explanation: Main execution entry point that parses CLI arguments and runs automated AI validation or interactive human play.
     public static void main(String[] args) {
         String levelPath = (args.length > 0) ? args[0] : "levels/level_0.txt";
         String mode = (args.length > 1) ? args[1] : "play";

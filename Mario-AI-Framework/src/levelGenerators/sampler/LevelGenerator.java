@@ -16,19 +16,23 @@ public class LevelGenerator implements MarioLevelGenerator {
 
     private Random rnd;
 
+    // Explanation: Constructs and initializes a default instance of LevelGenerator.
     public LevelGenerator() {
         this("levels/original/", 10);
     }
 
+    // Explanation: Constructs and initializes a new LevelGenerator instance with specified parameters.
     public LevelGenerator(String sampleFolder) {
         this(sampleFolder, 10);
     }
 
+    // Explanation: Constructs and initializes a new LevelGenerator instance with specified parameters.
     public LevelGenerator(String sampleFolder, int sampleWidth) {
         this.sampleWidth = sampleWidth;
         this.folderName = sampleFolder;
     }
 
+    // Explanation: Returns the current random level value.
     private String getRandomLevel() throws IOException {
         File[] listOfFiles = new File(folderName).listFiles();
         List<String> lines = Files.readAllLines(listOfFiles[rnd.nextInt(listOfFiles.length)].toPath());
@@ -39,6 +43,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return result;
     }
 
+    // Explanation: Returns the current generated level value.
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         rnd = new Random();
@@ -53,6 +58,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         return model.getMap();
     }
 
+    // Explanation: Returns the current generator name value.
     @Override
     public String getGeneratorName() {
         return "SamplerLevelGenerator";

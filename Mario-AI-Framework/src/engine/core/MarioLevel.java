@@ -24,6 +24,7 @@ public class MarioLevel {
     private MarioTilemap graphics;
     private MarioImage flag;
 
+    // Explanation: Constructs and initializes a new MarioLevel instance with specified parameters.
     public MarioLevel(String level, boolean visuals) {
         if (level.trim().length() == 0) {
             this.tileWidth = 0;
@@ -276,6 +277,7 @@ public class MarioLevel {
         }
     }
 
+    // Explanation: Creates and returns an independent duplicate of this MarioLevel for forward simulation.
     public MarioLevel clone() {
         MarioLevel level = new MarioLevel("", false);
         level.width = this.width;
@@ -299,6 +301,7 @@ public class MarioLevel {
         return level;
     }
 
+    // Explanation: Checks and returns whether is blocking condition is met.
     public boolean isBlocking(int xTile, int yTile, float xa, float ya) {
         int block = this.getBlock(xTile, yTile);
         ArrayList<TileFeature> features = TileFeature.getTileType(block);
@@ -309,6 +312,7 @@ public class MarioLevel {
         return blocking;
     }
 
+    // Explanation: Returns the current block value.
     public int getBlock(int xTile, int yTile) {
         if (xTile < 0) {
             xTile = 0;
@@ -322,6 +326,7 @@ public class MarioLevel {
         return this.levelTiles[xTile][yTile];
     }
 
+    // Explanation: Sets the block to the specified value.
     public void setBlock(int xTile, int yTile, int index) {
         if (xTile < 0 || yTile < 0 || xTile > this.tileWidth - 1 || yTile > this.tileHeight - 1) {
             return;
@@ -329,6 +334,7 @@ public class MarioLevel {
         this.levelTiles[xTile][yTile] = index;
     }
 
+    // Explanation: Sets the shift index to the specified value.
     public void setShiftIndex(int xTile, int yTile, int shift) {
         if (this.graphics == null || xTile < 0 || yTile < 0 || xTile > this.tileWidth - 1 || yTile > this.tileHeight - 1) {
             return;
@@ -336,6 +342,7 @@ public class MarioLevel {
         this.graphics.moveShift[xTile][yTile] = shift;
     }
 
+    // Explanation: Returns the current sprite type value.
     public SpriteType getSpriteType(int xTile, int yTile) {
         if (xTile < 0 || yTile < 0 || xTile >= this.tileWidth || yTile >= this.tileHeight) {
             return SpriteType.NONE;
@@ -343,6 +350,7 @@ public class MarioLevel {
         return this.spriteTemplates[xTile][yTile];
     }
 
+    // Explanation: Returns the current last spawn tick value.
     public int getLastSpawnTick(int xTile, int yTile) {
         if (xTile < 0 || yTile < 0 || xTile > this.tileWidth - 1 || yTile > this.tileHeight - 1) {
             return 0;
@@ -350,6 +358,7 @@ public class MarioLevel {
         return this.lastSpawnTime[xTile][yTile];
     }
 
+    // Explanation: Sets the last spawn tick to the specified value.
     public void setLastSpawnTick(int xTile, int yTile, int tick) {
         if (xTile < 0 || yTile < 0 || xTile > this.tileWidth - 1 || yTile > this.tileHeight - 1) {
             return;
@@ -357,16 +366,19 @@ public class MarioLevel {
         this.lastSpawnTime[xTile][yTile] = tick;
     }
 
+    // Explanation: Returns the current sprite code value.
     public String getSpriteCode(int xTile, int yTile) {
         return xTile + "_" + yTile + "_" + this.getSpriteType(xTile, yTile).getValue();
     }
 
+    // Explanation: Checks and returns whether is solid condition is met.
     private boolean isSolid(char c) {
         return c == 'X' || c == '#' || c == '@' || c == '!' || c == 'B' || c == 'C' ||
                 c == 'Q' || c == '<' || c == '>' || c == '[' || c == ']' || c == '?' ||
                 c == 'S' || c == 'U' || c == 'D' || c == '%' || c == 't' || c == 'T';
     }
 
+    // Explanation: Executes the find first floor routine on MarioLevel.
     private int findFirstFloor(String[] lines, int x) {
         boolean skipLines = true;
         for (int i = lines.length - 1; i >= 0; i--) {
@@ -382,10 +394,12 @@ public class MarioLevel {
         return -1;
     }
 
+    // Explanation: Updates physics, animation, and state transitions for this MarioLevel on each game tick.
     public void update(int cameraX, int cameraY) {
 
     }
 
+    // Explanation: Renders the visual graphics for this MarioLevel onto the target display canvas.
     public void render(Graphics og, int cameraX, int cameraY) {
         this.graphics.render(og, cameraX, cameraY);
         if (cameraX + MarioGame.width >= this.exitTileX * 16) {
