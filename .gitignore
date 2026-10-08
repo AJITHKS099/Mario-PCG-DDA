@@ -26,7 +26,19 @@ mario_out.txt
 mario_model.json
 Mario-AI-Framework/last_result.txt
 Mario-AI-Framework/session_test.log
-Mario-AI-Framework/levels/level_*.txt
+Mario-AI-Framework/levels/level_human_*.txt
+Mario-AI-Framework/levels/level_ai_vis_*.txt
+
+# Upstream benchmark dumps not used by this system
+Mario-AI-Framework/levels/ge/
+Mario-AI-Framework/levels/hopper/
+Mario-AI-Framework/levels/notch/
+Mario-AI-Framework/levels/notchParam/
+Mario-AI-Framework/levels/notchParamRand/
+Mario-AI-Framework/levels/ore/
+Mario-AI-Framework/levels/patternCount/
+Mario-AI-Framework/levels/patternOccur/
+Mario-AI-Framework/levels/patternWeightCount/
 
 # IDE and OS files
 .vscode/
