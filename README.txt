@@ -30,4 +30,3 @@ HOW TO RUN:
 Execute: py app.py
 Open:    http://127.0.0.1:5000/          (Modern Glassmorphism UI)
          http://127.0.0.1:5000/retro     (Retro 8-Bit Arcade UI)
-         http://127.0.0.1:5000/cyberpunk (Cyberpunk Megacity UI)
